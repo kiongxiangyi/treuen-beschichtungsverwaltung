@@ -1,38 +1,65 @@
-.App {
+* {
+  font-family: 'Helvetica Neue LT W1G 400', sans-serif; /* https://www.cdnfonts.com/helvetica-neue-lt-w1g.font */
+  background-color: #e7e7e7;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  background-color: #ffe100;
+  padding: 0 1rem;
+}
+
+.body {
+  margin: 1rem;
+}
+
+.scan-field {
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+
+.site-title {
+  font-size: 2rem;
+  background-color: #ffe100;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.header a {
+  color: inherit;
+  text-decoration: none;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.table-header {
+  background-color: #999999;
+  border-color: black;
+}
+
+.table-body {
+  border-color: black;
+}
+
+.storage-bin {
+  text-align: left;
+  margin-top: 2rem;
+}
+
+.beschichtung {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  padding: 1rem 0;
 }
 
-.App-link {
-  color: #61dafb;
+/* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Aligning_Items_in_a_Flex_Container */
+.beschichtung-select {
+  width: 20rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.page2-btn {
+  width: 20rem;
+  margin: 1rem 0;
+  background-color: #e7e7e7; 
+}
+
+.page2-btn:hover {
+  background-color: #999999; 
+  transition: 0.7s;
 }

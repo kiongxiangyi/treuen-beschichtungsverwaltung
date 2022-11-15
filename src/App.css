@@ -24,6 +24,10 @@
   background-color: #ffe100;
 }
 
+input {
+  background-color: white;
+}
+
 .header a {
   color: inherit;
   text-decoration: none;

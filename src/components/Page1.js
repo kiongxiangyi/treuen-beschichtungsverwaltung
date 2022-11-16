@@ -4,9 +4,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-export default function Page1() {
+export default function Page1({ fertigungsauftragDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
-  const [fertigungsauftragDB, setFertigungsauftragDB] = useState("");
 
   const navigate = useNavigate(); //hook for navigation
 
@@ -26,17 +25,10 @@ export default function Page1() {
     if (!findAuftrag) {
       return toast.error("Die Fertigungsauftragsnummer ist nicht vorhanden");
     } else {
-      navigate("/page2");
+      //navigate to second page and pass the data https://www.folkstalk.com/2022/09/can-i-pass-data-with-usenavigate-react-router-with-code-examples-2.html
+      navigate("/page2", { state: { fertigungsauftrag: fertigungsauftrag } });
     }
   };
-
-  //get data from DB
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_API}/AuftragArtikel`)
-      .then((res) => res.json())
-      .then((results) => setFertigungsauftragDB(results)) //fetch artikel from tblAuftragArtikel
-      .catch((err) => console.log(err));
-  }, []);
 
   return (
     <div>
@@ -47,7 +39,7 @@ export default function Page1() {
             type="text"
             id="fertigungsauftrag"
             name="fertigungsauftrag"
-            size="25"
+            size="35"
             value={fertigungsauftrag}
             onChange={(e) => setFertigungsauftrag(e.target.value)}
           />

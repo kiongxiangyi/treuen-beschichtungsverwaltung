@@ -7,7 +7,8 @@ export default function Page2({ fertigungsauftragDB }) {
   const [beschichtungsart, setBeschichtungsart] = useState("");
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const location = useLocation();
-  //console.log(fertigungsauftrag);
+  const [filter, setFilter] = useState(false);
+  const [filterDB, setFilterDB] = useState([]);
 
   //tutorial: https://www.simplilearn.com/tutorials/reactjs-tutorial/how-to-create-functional-react-dropdown-menu
   //select beschichtungsart
@@ -23,9 +24,44 @@ export default function Page2({ fertigungsauftragDB }) {
   //Aufträge anzeigen button submit
   const handleSubmit = (event) => {
     event.preventDefault();
-    
+    setFilter(true);
   };
 
+  let lower = "";
+  let upper = "";
+  if (beschichtungsdicke === "< 2") {
+    lower = 0;
+    upper = 2;
+  } else if (beschichtungsdicke === "2 - 6") {
+    lower = 1;
+    upper = 7;
+  } else if (beschichtungsdicke === "> 6") {
+    lower = 6;
+    upper = 100;
+  }
+
+  if (filter) {
+    setFilterDB(
+      fertigungsauftragDB
+        .filter(
+          (element) =>
+            element.Auftragsnummer === location.state.fertigungsauftrag &&
+            (element.Zusatztext1 === beschichtungsart ||
+              (element.Zusatztext2 > lower && element.Zusatztext2 < upper))
+        )
+        .map((item) => {
+          return (
+            <tr key={item.ID}>
+              <td>{item.Auftragsnummer}</td>
+              <td>{item.Zusatztext1}</td>
+              <td>{item.Zusatztext2}</td>
+              <td>{item.Menge}</td>
+            </tr>
+          );
+        })
+    );
+    setFilter(false);
+  }
   //filter function
   /* const uniqueArrBeschichtungsart = [
     ...new Set(fertigungsauftragDB.map((data) => data.Zusatztext1)),
@@ -88,24 +124,7 @@ export default function Page2({ fertigungsauftragDB }) {
               <th>Menge</th>
             </tr>
           </thead>
-          <tbody className="table-body">
-            {fertigungsauftragDB
-              .filter(
-                (element) =>
-                  element.Auftragsnummer === location.state.fertigungsauftrag &&
-                  element.Zusatztext1 === beschichtungsart
-              )
-              .map((item) => {
-                return (
-                  <tr key={item.ID}>
-                    <td>{item.Auftragsnummer}</td>
-                    <td>{item.Zusatztext1}</td>
-                    <td>{item.Zusatztext2}</td>
-                    <td>{item.Menge}</td>
-                  </tr>
-                );
-              })}
-          </tbody>
+          <tbody className="table-body">{filterDB}</tbody>
         </Table>
       </form>
       <ToastContainer />

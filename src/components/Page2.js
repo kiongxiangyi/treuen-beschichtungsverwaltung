@@ -29,9 +29,9 @@ export default function Page2({ fertigungsauftragDB }) {
 
   let lower = "";
   let upper = "";
-  if (beschichtungsdicke === "< 2") {
+  if (beschichtungsdicke === "<= 2") {
     lower = 0;
-    upper = 2;
+    upper = 3;
   } else if (beschichtungsdicke === "2 - 6") {
     lower = 1;
     upper = 7;
@@ -46,8 +46,9 @@ export default function Page2({ fertigungsauftragDB }) {
         .filter(
           (element) =>
             element.Auftragsnummer === location.state.fertigungsauftrag &&
-            (element.Zusatztext1 === beschichtungsart ||
-              (element.Zusatztext2 > lower && element.Zusatztext2 < upper))
+            element.Zusatztext1 === beschichtungsart &&
+            element.Zusatztext2 > lower &&
+            element.Zusatztext2 < upper
         )
         .map((item) => {
           return (
@@ -104,7 +105,7 @@ export default function Page2({ fertigungsauftragDB }) {
               onChange={handleChange2}
             >
               <option value="">--Bitte eine Option auswählen--</option>
-              <option>&lt; 2</option>
+              <option>&lt;= 2</option>
               <option>2 - 6</option>
               <option>&gt; 6</option>
             </select>

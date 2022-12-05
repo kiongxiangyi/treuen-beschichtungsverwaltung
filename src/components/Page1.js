@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 
 export default function Page1({ fertigungsauftragDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
+  const [freeStorageBin, setFreeStorageBin] = useState("");
+  const [occupiedStorageBin, setOccupiedStorageBin] = useState("");
 
   const navigate = useNavigate(); //hook for navigation
 
@@ -25,6 +27,62 @@ export default function Page1({ fertigungsauftragDB }) {
     if (!findAuftrag) {
       return toast.error("Die Fertigungsauftragsnummer ist nicht vorhanden");
     } else {
+      fetch(`${process.env.REACT_APP_API}/Artikel`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          fertigungsauftrag,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+
+      fetch(`${process.env.REACT_APP_API}/ArtikelLieferanten`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          fertigungsauftrag,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+
+      fetch(`${process.env.REACT_APP_API}/LagerArtikel`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          fertigungsauftrag,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+
+      fetch(`${process.env.REACT_APP_API}/LagerPlatz/`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          Artikel: fertigungsauftrag,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+
       //navigate to second page and pass the data https://www.folkstalk.com/2022/09/can-i-pass-data-with-usenavigate-react-router-with-code-examples-2.html
       navigate("/page2", { state: { fertigungsauftrag: fertigungsauftrag } });
     }

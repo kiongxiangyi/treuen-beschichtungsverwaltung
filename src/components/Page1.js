@@ -6,10 +6,34 @@ import { useNavigate } from "react-router-dom";
 
 export default function Page1({ fertigungsauftragDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
-  const [freeStorageBin, setFreeStorageBin] = useState("");
-  const [occupiedStorageBin, setOccupiedStorageBin] = useState("");
+  const [freeStorageBins, setFreeStorageBins] = useState("");
+  const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
 
   const navigate = useNavigate(); //hook for navigation
+
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API}/LagerPlatz/freeStorageBins`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setFreeStorageBins(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  }, []);
+
+  useEffect(() => {
+    fetch(`${process.env.REACT_APP_API}/LagerPlatz/occupiedStorageBins`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setOccupiedStorageBins(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  }, []);
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -105,8 +129,8 @@ export default function Page1({ fertigungsauftragDB }) {
         <ToastContainer />
       </div>
       <div className="storage-bin">
-        <p>Freie Lagerplätze:</p>
-        <p>Belegte Lagerplätze:</p>
+        <p>Freie Lagerplätze: {freeStorageBins}</p>
+        <p>Belegte Lagerplätze: {occupiedStorageBins}</p>
       </div>
     </div>
   );

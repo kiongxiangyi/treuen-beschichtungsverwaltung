@@ -9,8 +9,9 @@ import { ToastContainer, toast } from "react-toastify";
 
 function App() {
   const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
+  const [articleDB, setArticleDB] = useState([]);
 
-  //get data from DB
+  //get SAP data from SQL DB
   useEffect(() => {
     fetch(`${process.env.REACT_APP_API}/AuftragArtikel`)
       .then((res) => res.json())
@@ -23,6 +24,33 @@ function App() {
       });
   }, []);
 
+  //get Artikel data from DB
+  useEffect(() => {
+    let interval; // interval tutorial - https://www.codingdeft.com/posts/react-useeffect-hook/
+    const fetchArtikel = async () => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API}/Artikel`);
+        const results = await response.json();
+        setArticleDB(results); //fetch artikel from tblArtikel
+      } catch (err) {
+        console.log(err);
+        toast.error(
+          "There is no connection to database. Please check the database server."
+        );
+      }
+    };
+    fetchArtikel();
+
+    //fetch Artikel every X second
+    interval = setInterval(() => {
+      fetchArtikel();
+    }, 2 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
   return (
     <div>
       <Header />
@@ -30,7 +58,12 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<Page1 fertigungsauftragDB={fertigungsauftragDB} />}
+            element={
+              <Page1
+                fertigungsauftragDB={fertigungsauftragDB}
+                articleDB={articleDB}
+              />
+            }
           />
           <Route
             path="/page2"

@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-export default function Page1({ fertigungsauftragDB }) {
+export default function Page1({ fertigungsauftragDB, articleDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
   const [freeStorageBins, setFreeStorageBins] = useState("");
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
@@ -15,7 +15,7 @@ export default function Page1({ fertigungsauftragDB }) {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/freeStorageBins`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
+        //console.log(data);
         setFreeStorageBins(data);
       })
       .catch((err) => {
@@ -27,7 +27,7 @@ export default function Page1({ fertigungsauftragDB }) {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/occupiedStorageBins`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
+        //console.log(data);
         setOccupiedStorageBins(data);
       })
       .catch((err) => {
@@ -37,6 +37,7 @@ export default function Page1({ fertigungsauftragDB }) {
 
   const handleSubmit = (event) => {
     event.preventDefault();
+
     if (!fertigungsauftrag)
       //if the scan filed is empty
       return toast.error("Bitte Fertigungsauftrag scannen!");
@@ -47,9 +48,16 @@ export default function Page1({ fertigungsauftragDB }) {
         tblAuftragArtikel.Auftragsnummer === fertigungsauftrag
     );
 
+    //find Artikel in DB
+    const findArticle = articleDB.find(
+      (tblArtikel) => tblArtikel.Artikel === fertigungsauftrag
+    );
+
     //if not found, error. If found, navigate to second page
     if (!findAuftrag) {
       return toast.error("Die Fertigungsauftragsnummer ist nicht vorhanden");
+    } else if (findArticle) {
+      return toast.error("Die Fertigungsauftragsnummer ist in GTMS bereits vorhanden.");
     } else {
       fetch(`${process.env.REACT_APP_API}/Artikel`, {
         method: "POST",
@@ -93,7 +101,7 @@ export default function Page1({ fertigungsauftragDB }) {
         .then((res) => res.json())
         .catch((err) => console.log(err));
 
-      fetch(`${process.env.REACT_APP_API}/LagerPlatz/`, {
+      fetch(`${process.env.REACT_APP_API}/LagerPlatz`, {
         method: "PUT",
         headers: {
           Accept: "application/json",
@@ -101,7 +109,7 @@ export default function Page1({ fertigungsauftragDB }) {
         },
 
         body: JSON.stringify({
-          Artikel: fertigungsauftrag,
+          fertigungsauftrag,
         }),
       })
         .then((res) => res.json())

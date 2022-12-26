@@ -1,27 +1,149 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "./components/Header";
-import Page1 from "./components/Page1";
-import Page2 from "./components/Page2";
-import { Route, Routes, Navigate } from "react-router-dom";
+import Wareneingang from "./components/Wareneingang";
+import Entnahme from "./components/Entnahme";
+import Homepage from "./components/Homepage";
+import { Route, Routes } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 function App() {
   const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
   const [articleDB, setArticleDB] = useState([]);
 
-  //get SAP data from SQL DB
+  //get tblEShelfBeschichtung
   useEffect(() => {
-    fetch(`${process.env.REACT_APP_API}/AuftragArtikel`)
-      .then((res) => res.json())
-      .then((results) => setFertigungsauftragDB(results)) //fetch artikel from tblAuftragArtikel
-      .catch((err) => {
+    let interval;
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API}/Auftragsnummer`
+        );
+        const results = await response.json();
+        setFertigungsauftragDB(results);
+        for (let i = 0; i < results.length; i++) {
+          let fertigungsauftrag = results[i].Auftragsnummer;
+          if (results[i].Auslagerung === true && results[i].Erledigt === true) {
+            fetch(`${process.env.REACT_APP_API}/LagerPlatz/releaseStorageBin`, {
+              method: "PUT",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify({
+                fertigungsauftrag,
+              }),
+            })
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+
+            fetch(`${process.env.REACT_APP_API}/Artikel`, {
+              method: "DELETE",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify({
+                fertigungsauftrag,
+              }),
+            })
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+
+            fetch(`${process.env.REACT_APP_API}/ArtikelLieferanten`, {
+              method: "DELETE",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify({
+                fertigungsauftrag,
+              }),
+            })
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+
+            fetch(`${process.env.REACT_APP_API}/LagerArtikel`, {
+              method: "DELETE",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify({
+                fertigungsauftrag,
+              }),
+            })
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+
+            fetch(`${process.env.REACT_APP_API}/Auftragsnummer/ErledigtFalse`, {
+              method: "PUT",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify({
+                fertigungsauftrag,
+              }),
+            })
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+          } else if (
+            results[i].Einlagerung === true &&
+            results[i].Erledigt === true
+          ) {
+            fetch(`${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`, {
+              method: "PUT",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify({
+                fertigungsauftrag,
+              }),
+            })
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+
+            fetch(`${process.env.REACT_APP_API}/Auftragsnummer/ErledigtFalse`, {
+              method: "PUT",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify({
+                fertigungsauftrag,
+              }),
+            })
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+          }
+        }
+      } catch (err) {
         console.log(err);
         toast.error(
           "There is no connection to database. Please check the database server."
         );
-      });
+      }
+    };
+    fetchOrders();
+
+    //fetch Artikel every X second
+    interval = setInterval(() => {
+      fetchOrders();
+    }, 5 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
   }, []);
 
   //get Artikel data from DB
@@ -44,7 +166,7 @@ function App() {
     //fetch Artikel every X second
     interval = setInterval(() => {
       fetchArtikel();
-    }, 2 * 1000);
+    }, 5 * 1000);
 
     return () => {
       clearInterval(interval);
@@ -56,18 +178,19 @@ function App() {
       <Header />
       <div className="body">
         <Routes>
+          <Route path="/Homepage" element={<Homepage />} />
           <Route
-            path="/"
+            path="/Wareneingang"
             element={
-              <Page1
+              <Wareneingang
                 fertigungsauftragDB={fertigungsauftragDB}
                 articleDB={articleDB}
               />
             }
           />
           <Route
-            path="/page2"
-            element={<Page2 fertigungsauftragDB={fertigungsauftragDB} />}
+            path="/Entnahme"
+            element={<Entnahme fertigungsauftragDB={fertigungsauftragDB} />}
           />
         </Routes>
       </div>

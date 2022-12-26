@@ -4,7 +4,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-export default function Page1({ fertigungsauftragDB, articleDB }) {
+export default function Wareninggang({ fertigungsauftragDB, articleDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
   const [freeStorageBins, setFreeStorageBins] = useState("");
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
@@ -44,8 +44,8 @@ export default function Page1({ fertigungsauftragDB, articleDB }) {
 
     //find auftragsnummer in DB
     const findAuftrag = fertigungsauftragDB.find(
-      (tblAuftragArtikel) =>
-        tblAuftragArtikel.Auftragsnummer === fertigungsauftrag
+      (tblEShelfBeschichtung) =>
+        tblEShelfBeschichtung.Auftragsnummer === fertigungsauftrag
     );
 
     //find Artikel in DB
@@ -53,12 +53,7 @@ export default function Page1({ fertigungsauftragDB, articleDB }) {
       (tblArtikel) => tblArtikel.Artikel === fertigungsauftrag
     );
 
-    //if not found, error. If found, navigate to second page
-    if (!findAuftrag) {
-      return toast.error("Die Fertigungsauftragsnummer ist nicht vorhanden");
-    } else if (findArticle) {
-      return toast.error("Die Fertigungsauftragsnummer ist in GTMS bereits vorhanden.");
-    } else {
+    if (!findArticle) {
       fetch(`${process.env.REACT_APP_API}/Artikel`, {
         method: "POST",
         headers: {
@@ -101,7 +96,7 @@ export default function Page1({ fertigungsauftragDB, articleDB }) {
         .then((res) => res.json())
         .catch((err) => console.log(err));
 
-      fetch(`${process.env.REACT_APP_API}/LagerPlatz`, {
+      fetch(`${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`, {
         method: "PUT",
         headers: {
           Accept: "application/json",
@@ -114,10 +109,42 @@ export default function Page1({ fertigungsauftragDB, articleDB }) {
       })
         .then((res) => res.json())
         .catch((err) => console.log(err));
-
-      //navigate to second page and pass the data https://www.folkstalk.com/2022/09/can-i-pass-data-with-usenavigate-react-router-with-code-examples-2.html
-      navigate("/page2", { state: { fertigungsauftrag: fertigungsauftrag } });
     }
+
+    //if not found in tblEShelfBeschichtung, create a new data
+    if (findAuftrag) {
+      fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Wareneingang`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          fertigungsauftrag,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+    } else {
+      fetch(`${process.env.REACT_APP_API}/Auftragsnummer`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          fertigungsauftrag,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+    }
+
+    return toast.info(
+      `Fertigungsauftrag ${fertigungsauftrag} wurde in GTMS angelegt.`
+    );
   };
 
   return (

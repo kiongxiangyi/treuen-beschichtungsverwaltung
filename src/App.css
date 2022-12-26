@@ -67,3 +67,8 @@ input {
   background-color: #999999; 
   transition: 0.7s;
 }
+
+.checkbox {
+  height: 50px;
+  width: 50px;
+}

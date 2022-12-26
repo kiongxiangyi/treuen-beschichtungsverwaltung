@@ -1,28 +1,70 @@
 import React, { useState, useEffect } from "react";
 import Table from "react-bootstrap/Table";
 import { ToastContainer, toast } from "react-toastify";
-import { useLocation } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
-export default function Page2({ fertigungsauftragDB }) {
+export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsart, setBeschichtungsart] = useState("");
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
-  const location = useLocation();
   const [filter, setFilter] = useState(false);
   const [filterDB, setFilterDB] = useState([]);
+  const [checked, setChecked] = useState(false);
+  const [checkboxdata, setCheckboxdata] = useState("");
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = () => {
+    if (selectAll) {
+      console.log(selectAll);
+    } else if (selectOrder) {
+      console.log(selectOrder);
+
+      fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          selectOrder,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+    } else {
+      // toast.error("Bitte wählen Sie mindestens einen Artikel");
+    }
+    //return selectAll ?  : console.log(selectAll);
+    // return selectOrder ? console.log(selectOrder) : console.log(selectOrder);
+  };
+  const selectAll = watch("selectAll");
+  // console.log("selectAll", selectAll);
+  const selectOrder = watch("selectOrder");
+  //console.log("selectOrder", selectOrder);
+
+  const handleChangeCheckbox = () => {
+    setChecked(!checked);
+  };
 
   //tutorial: https://www.simplilearn.com/tutorials/reactjs-tutorial/how-to-create-functional-react-dropdown-menu
   //select beschichtungsart
-  const handleChange = (event) => {
+  const handleChangeBeschichtungsart = (event) => {
     setBeschichtungsart(event.target.value);
   };
 
   //select beschichtungsdicke
-  const handleChange2 = (event) => {
+  const handleChangeBeschichtungsdicke = (event) => {
     setBeschichtungsdicke(event.target.value);
   };
 
   //Aufträge anzeigen button submit
-  const handleSubmit = (event) => {
+  const handleSubmitOrder = (event) => {
     event.preventDefault();
     setFilter(true);
   };
@@ -45,17 +87,25 @@ export default function Page2({ fertigungsauftragDB }) {
       fertigungsauftragDB
         .filter(
           (element) =>
-            element.Auftragsnummer === location.state.fertigungsauftrag &&
-            element.Zusatztext1 === beschichtungsart &&
-            element.Zusatztext2 > lower &&
-            element.Zusatztext2 < upper
+            //element.Auftragsnummer === location.state.fertigungsauftrag &&
+            element.BeschichtungsArt === beschichtungsart &&
+            element.BeschichtungsDicke > lower &&
+            element.BeschichtungsDicke < upper &&
+            element.Menge > 0
         )
         .map((item) => {
           return (
             <tr key={item.ID}>
+              <td className="checkbox">
+                <input
+                  type="checkbox"
+                  value={item.Auftragsnummer}
+                  {...register("selectOrder", { required: true })}
+                ></input>
+              </td>
               <td>{item.Auftragsnummer}</td>
-              <td>{item.Zusatztext1}</td>
-              <td>{item.Zusatztext2}</td>
+              <td>{item.BeschichtungsArt}</td>
+              <td>{item.BeschichtungsDicke}</td>
               <td>{item.Menge}</td>
             </tr>
           );
@@ -71,7 +121,7 @@ export default function Page2({ fertigungsauftragDB }) {
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmitOrder}>
         <div className="beschichtung">
           <label htmlFor="beschichtungsart-select">
             Beschichtungsart wählen:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
@@ -82,7 +132,7 @@ export default function Page2({ fertigungsauftragDB }) {
               name="beschichtungsart"
               id="beschichtungsart-select"
               value={beschichtungsart}
-              onChange={handleChange}
+              onChange={handleChangeBeschichtungsart}
             >
               <option value="">--Bitte eine Option auswählen--</option>
               <option value="Fire">Fire</option>
@@ -102,7 +152,7 @@ export default function Page2({ fertigungsauftragDB }) {
               name="beschichtungsdicke"
               id="beschichtungsdicke-select"
               value={beschichtungsdicke}
-              onChange={handleChange2}
+              onChange={handleChangeBeschichtungsdicke}
             >
               <option value="">--Bitte eine Option auswählen--</option>
               <option>&lt;= 2</option>
@@ -119,6 +169,13 @@ export default function Page2({ fertigungsauftragDB }) {
         <Table bordered hover>
           <thead>
             <tr className="table-header">
+              <th className="checkbox">
+                <input
+                  type="checkbox"
+                  value="all"
+                  {...register("selectAll")}
+                ></input>
+              </th>
               <th>Fertigungsauftrag</th>
               <th>Beschichtungsart</th>
               <th>Beschichtungsdicke</th>
@@ -128,6 +185,16 @@ export default function Page2({ fertigungsauftragDB }) {
           <tbody className="table-body">{filterDB}</tbody>
         </Table>
       </form>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* errors will return when field validation fails  */}
+        {errors.selectOrder && (
+          <p>Bitte wählen Sie mindestens einen Artikel!</p>
+        )}
+        <button className="page2-btn" type="submit">
+          Weiter
+        </button>
+      </form>
+
       <ToastContainer />
     </div>
   );

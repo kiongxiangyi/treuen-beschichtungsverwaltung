@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from "react";
 import Table from "react-bootstrap/Table";
-import { ToastContainer, toast } from "react-toastify";
 import { useForm } from "react-hook-form";
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
 
 export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsart, setBeschichtungsart] = useState("");
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filter, setFilter] = useState(false);
   const [filterDB, setFilterDB] = useState([]);
-  const [checked, setChecked] = useState(false);
-  const [checkboxdata, setCheckboxdata] = useState("");
+
+  //bootstrap modal prompt message
+  const [show, setShow] = useState(false);
+  const handleClose = () => setShow(false);
 
   const {
     register,
     handleSubmit,
     watch,
+    reset,
+    formState,
     formState: { errors },
   } = useForm();
 
@@ -36,21 +41,24 @@ export default function Entnahme({ fertigungsauftragDB }) {
         }),
       })
         .then((res) => res.json())
+        .then((res) => {
+          setBeschichtungsart("");
+          setBeschichtungsdicke("");
+          setFilterDB([]);
+        })
         .catch((err) => console.log(err));
+
+      setShow(true);
     } else {
       // toast.error("Bitte wählen Sie mindestens einen Artikel");
     }
     //return selectAll ?  : console.log(selectAll);
-    // return selectOrder ? console.log(selectOrder) : console.log(selectOrder);
+    //return selectOrder ? console.log(selectOrder) : console.log(selectOrder);
   };
   const selectAll = watch("selectAll");
   // console.log("selectAll", selectAll);
   const selectOrder = watch("selectOrder");
   //console.log("selectOrder", selectOrder);
-
-  const handleChangeCheckbox = () => {
-    setChecked(!checked);
-  };
 
   //tutorial: https://www.simplilearn.com/tutorials/reactjs-tutorial/how-to-create-functional-react-dropdown-menu
   //select beschichtungsart
@@ -92,6 +100,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
             element.BeschichtungsDicke > lower &&
             element.BeschichtungsDicke < upper &&
             element.Menge > 0
+          // && element.Auslagerung === false
         )
         .map((item) => {
           return (
@@ -119,12 +128,19 @@ export default function Entnahme({ fertigungsauftragDB }) {
   ];
   console.log(uniqueArrBeschichtungsart); */
 
+  //reset form tutorial https://react-hook-form.com/api/useform/reset/
+  React.useEffect(() => {
+    if (formState.isSubmitSuccessful) {
+      reset();
+    }
+  }, [formState, reset]);
+
   return (
     <div>
       <form onSubmit={handleSubmitOrder}>
         <div className="beschichtung">
           <label htmlFor="beschichtungsart-select">
-            Beschichtungsart wählen:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <b>Beschichtungsart</b>&ensp;&ensp;&ensp;&ensp;&ensp;
           </label>
           <div>
             <select
@@ -144,7 +160,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
         </div>
         <div className="beschichtung">
           <label htmlFor="beschichtungsdicke-select">
-            Beschichtungsdicke wählen:&nbsp;
+            <b>Beschichtungsdicke</b>&ensp;&ensp;&nbsp;
           </label>
           <div>
             <select
@@ -161,11 +177,13 @@ export default function Entnahme({ fertigungsauftragDB }) {
             </select>
           </div>
         </div>
-        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;
-        <button className="page2-btn" type="submit">
+        &nbsp;&ensp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;
+        <Button className="modalButton" type="submit">
           Aufträge anzeigen
-        </button>
-        <p>Warenkorb:</p>
+        </Button>
+        <p>
+          <b>Warenkorb:</b>
+        </p>
         <Table bordered hover>
           <thead>
             <tr className="table-header">
@@ -190,12 +208,30 @@ export default function Entnahme({ fertigungsauftragDB }) {
         {errors.selectOrder && (
           <p>Bitte wählen Sie mindestens einen Artikel!</p>
         )}
-        <button className="page2-btn" type="submit">
+
+        <Button className="modalButton" type="submit">
           Weiter
-        </button>
+        </Button>
       </form>
 
-      <ToastContainer />
+      <Modal
+        show={show}
+        onHide={handleClose}
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header className="modalHeader" closeButton>
+          <Modal.Title className="modalHeader">
+            Aktuelle Buchung: 1001 - Entnahme
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body></Modal.Body>
+        <Modal.Footer>
+          <Button className="modalButton" onClick={handleClose}>
+            Quittieren
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }

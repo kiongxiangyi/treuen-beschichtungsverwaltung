@@ -1,5 +1,6 @@
 import "../App.css";
 import { useNavigate } from "react-router-dom";
+import Button from "react-bootstrap/Button";
 
 export default function Homepage() {
   const navigate = useNavigate(); //hook for navigation
@@ -17,10 +18,18 @@ export default function Homepage() {
   return (
     <div className="homepage">
       <form onSubmit={handleSubmitWareneingang}>
-        <button type="submit">Wareneingang</button>
+        <Button className="btn btn-primary-outline" size="lg" type="submit">
+          Wareneingang
+        </Button>
       </form>
       <form onSubmit={handleSubmitEntnahme}>
-        <button type="submit">Entnahme</button>
+        <Button
+          className="btn btn-primary-outline mt-1"
+          size="lg"
+          type="submit"
+        >
+          Entnahme
+        </Button>
       </form>
     </div>
   );

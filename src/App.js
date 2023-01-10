@@ -24,6 +24,7 @@ function App() {
         setFertigungsauftragDB(results);
         for (let i = 0; i < results.length; i++) {
           let fertigungsauftrag = results[i].Auftragsnummer;
+          //Entnahme fertig
           if (results[i].Auslagerung === true && results[i].Erledigt === true) {
             fetch(`${process.env.REACT_APP_API}/LagerPlatz/releaseStorageBin`, {
               method: "PUT",
@@ -81,8 +82,9 @@ function App() {
               .then((res) => res.json())
               .catch((err) => console.log(err));
 
-            fetch(`${process.env.REACT_APP_API}/Auftragsnummer/ErledigtFalse`, {
-              method: "PUT",
+            //reset tblEShelf
+            fetch(`${process.env.REACT_APP_API}/Auftragsnummer`, {
+              method: "DELETE",
               headers: {
                 Accept: "application/json",
                 "Content-Type": "application/json",
@@ -95,34 +97,25 @@ function App() {
               .then((res) => res.json())
               .catch((err) => console.log(err));
           } else if (
+            //Wareneingang fertig
             results[i].Einlagerung === true &&
             results[i].Erledigt === true
           ) {
-            fetch(`${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`, {
-              method: "PUT",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
+            //reset tblEShelf
+            fetch(
+              `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,
+              {
+                method: "PUT",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
 
-              body: JSON.stringify({
-                fertigungsauftrag,
-              }),
-            })
-              .then((res) => res.json())
-              .catch((err) => console.log(err));
-
-            fetch(`${process.env.REACT_APP_API}/Auftragsnummer/ErledigtFalse`, {
-              method: "PUT",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-
-              body: JSON.stringify({
-                fertigungsauftrag,
-              }),
-            })
+                body: JSON.stringify({
+                  fertigungsauftrag,
+                }),
+              }
+            )
               .then((res) => res.json())
               .catch((err) => console.log(err));
           }
@@ -178,7 +171,7 @@ function App() {
       <Header />
       <div className="body">
         <Routes>
-          <Route path="/Homepage" element={<Homepage />} />
+          <Route path="/" element={<Homepage />} />
           <Route
             path="/Wareneingang"
             element={

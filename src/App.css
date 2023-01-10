@@ -1,13 +1,13 @@
 * {
   font-family: 'Helvetica Neue LT W1G 400', sans-serif; /* https://www.cdnfonts.com/helvetica-neue-lt-w1g.font */
-  background-color: #e7e7e7;
+  background-color: white;
   margin: 0;
   padding: 0;
 }
 
 .header {
   background-color: #ffe100;
-  padding: 0 1rem;
+  padding: 0 0.5rem;
 }
 
 .body {
@@ -20,7 +20,7 @@
 
 
 .site-title {
-  font-size: 2rem;
+  font-size: 1.5rem;
   background-color: #ffe100;
 }
 
@@ -54,21 +54,39 @@ input {
 
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Aligning_Items_in_a_Flex_Container */
 .beschichtung-select {
-  width: 20rem;
-}
-
-.page2-btn {
-  width: 20rem;
-  margin: 1rem 0;
-  background-color: #e7e7e7; 
-}
-
-.page2-btn:hover {
-  background-color: #999999; 
-  transition: 0.7s;
+  width: 16rem;
 }
 
 .checkbox {
   height: 50px;
   width: 50px;
+}
+.btn-primary-outline{
+  background-color: #ffe100 !important;
+  border-color: #ffe100 !important;
+  color: black !important;
+}
+.textareaCustom{
+  background-color: white !important;
+  color: white;
+}
+
+.InputFertigungsauftrag{
+  border-radius: 5px;
+}
+
+.modalHeader {
+  background-color: #ffe100
+}
+
+.modalButton {
+  width: 16rem !important;
+  background-color: #e7e7e7 !important;
+  color: black !important;
+  border-color: black !important;
+}
+
+.modalButton:hover {
+  background-color: #999999 !important; 
+  transition: 0.7s !important;
 }

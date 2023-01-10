@@ -24,7 +24,7 @@ export default function Homepage() {
       </form>
       <form onSubmit={handleSubmitEntnahme}>
         <Button
-          className="btn btn-primary-outline mt-1"
+          className="btn btn-primary-outline mt-2"
           size="lg"
           type="submit"
         >

@@ -8,6 +8,7 @@
 .header {
   background-color: #ffe100;
   padding: 0 0.5rem;
+  display: flex;
 }
 
 .body {
@@ -18,10 +19,10 @@
   text-align: center;
 }
 
-
 .site-title {
   font-size: 1.5rem;
   background-color: #ffe100;
+  font-weight: bold;
 }
 
 input {
@@ -34,7 +35,7 @@ input {
 }
 
 .table-header {
-  background-color: #999999;
+  background-color: #e7e7e7;
   border-color: black;
 }
 
@@ -65,7 +66,16 @@ input {
   background-color: #ffe100 !important;
   border-color: #ffe100 !important;
   color: black !important;
+  width: 15rem;
+  height: 5rem;
+  border-color: black !important;
 }
+
+.btn-primary-outline:hover{
+  background-color: white !important;
+  
+}
+
 .textareaCustom{
   background-color: white !important;
   color: white;
@@ -73,6 +83,8 @@ input {
 
 .InputFertigungsauftrag{
   border-radius: 5px;
+  margin: 0.5rem 0;
+  width: 30rem;
 }
 
 .modalHeader {
@@ -89,4 +101,16 @@ input {
 .modalButton:hover {
   background-color: #999999 !important; 
   transition: 0.7s !important;
+}
+
+.btn-header {
+  background-color: #ffe100 !important;
+  color: black !important;
+  border-color: black !important;
+  margin-left: auto
+}
+
+.btn-header:hover {
+  background-color: white !important;
+  
 }

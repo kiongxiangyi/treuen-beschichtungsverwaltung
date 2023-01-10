@@ -167,6 +167,7 @@ export default function Wareninggang({ fertigungsauftragDB, articleDB }) {
         <form onSubmit={handleSubmit}>
           <input
             className="InputFertigungsauftrag"
+            autoFocus
             type="text"
             id="fertigungsauftrag"
             name="fertigungsauftrag"

@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import Table from "react-bootstrap/Table";
 import { useForm } from "react-hook-form";
 import Button from "react-bootstrap/Button";
@@ -13,10 +13,31 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filter, setFilter] = useState(false);
   const [filterDB, setFilterDB] = useState([]);
+  const [arrAuftragsQuittieren, setArrAuftragsQuittieren] = useState([]);
 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
+  const handleClose = () => {
+    console.log(arrAuftragsQuittieren);
+
+    //update new quantity to DB tblEShelfBeschichtung
+    /*  fetch(`${process.env.REACT_APP_API}/Auftragsnummer/ChangeQuantity`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        editItemId,
+        filterDB,
+      }),
+    })
+      .then((res) => res.json())
+      .catch((err) => console.log(err)); */
+
+    setShow(false);
+  };
 
   //Edit, Save, Cancel quantity buttons function https://youtu.be/dYjdzpZv5yc
   const [editItemId, setEditItemId] = useState(null);
@@ -56,7 +77,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
   };
 
   //submit the changed quantity
-  const handleEditQuantitySubmit = (event) => {
+  const handleEditQuantitySubmit = async (event) => {
     event.preventDefault();
 
     const editedQuantity = {
@@ -71,23 +92,10 @@ export default function Entnahme({ fertigungsauftragDB }) {
     const index = filterDB.findIndex((item) => item.ID === editItemId);
     newQuantity[index] = editedQuantity;
 
-    //update new quantity to DB tblEShelfBeschichtung
-    fetch(`${process.env.REACT_APP_API}/Auftragsnummer/ChangeQuantity`, {
-      method: "PUT",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        editItemId,
-        editedQuantity,
-      }),
-    })
-      .then((res) => res.json())
-      .catch((err) => console.log(err));
-
     setFilterDB(newQuantity); //update value to current table in website
+    console.log(filterDB[0].Menge);
+    setArrAuftragsQuittieren(filterDB);
+    console.log(filterDB[0].Menge);
     setEditItemId(null); //go to ReadOnlyRow
   };
 
@@ -109,8 +117,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
     if (selectAll) {
       console.log(selectAll);
     } else if (selectOrder) {
-      console.log(selectOrder);
-
       fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
         method: "PUT",
         headers: {

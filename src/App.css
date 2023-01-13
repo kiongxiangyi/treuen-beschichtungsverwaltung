@@ -50,12 +50,14 @@ input {
 
 .beschichtung {
   display: flex;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
+  font-size: 25px;
 }
 
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Aligning_Items_in_a_Flex_Container */
 .beschichtung-select {
-  width: 16rem;
+  width: 25rem;
+  height: 3rem;
 }
 
 .checkbox {
@@ -96,6 +98,8 @@ input {
   background-color: #e7e7e7 !important;
   color: black !important;
   border-color: black !important;
+  padding: 0.1rem 0 !important;
+  margin-top: 0.4rem;
 }
 
 .modalButton:hover {
@@ -113,4 +117,20 @@ input {
 .btn-header:hover {
   background-color: white !important;
   
+}
+
+.showOrderButton {
+  width: 25rem !important;
+  background-color: #e7e7e7 !important;
+  color: black !important;
+  border-color: black !important;
+  padding: 0.1rem 0 !important;
+  margin-top: 0.4rem;
+  height: 3rem;
+  font-size: 25px !important;
+}
+
+.showOrderButton:hover {
+  background-color: #999999 !important; 
+  transition: 0.7s !important;
 }

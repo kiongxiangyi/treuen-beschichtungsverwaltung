@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import "../App.css";
-import { useNavigate } from "react-router-dom";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 
@@ -10,7 +9,6 @@ export default function Wareninggang({ fertigungsauftragDB, articleDB }) {
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
   const [fertigungsauftragDummy, setFertigungsauftragDummy] = useState("");
 
-  const navigate = useNavigate(); //hook for navigation
 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);

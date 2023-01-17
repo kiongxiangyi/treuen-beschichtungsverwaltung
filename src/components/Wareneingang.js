@@ -2,17 +2,28 @@ import React, { useState, useEffect } from "react";
 import "../App.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { toast } from "react-toastify";
 
-export default function Wareninggang({ fertigungsauftragDB, articleDB }) {
+export default function Wareninggang({ articleDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
   const [freeStorageBins, setFreeStorageBins] = useState("");
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
   const [fertigungsauftragDummy, setFertigungsauftragDummy] = useState("");
-
+  const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
-  const handleClose = () => setShow(false);
+  const [showSAPchecked, setShowSAPchecked] = useState(false);
+  const [showNotFoundOrderMessage, setShowNotFoundOrderMessage] =
+    useState(false);
+
+  const handleClose = () => {
+    setShowSAPchecked(false);
+  };
+
+  const handleCloseNotFoundOrderMessage = () => {
+    setShowNotFoundOrderMessage(false);
+  };
 
   const [showNoInput, setShowNoInput] = useState(false);
   const handleCloseNoInput = () => setShowNoInput(false);
@@ -155,8 +166,88 @@ export default function Wareninggang({ fertigungsauftragDB, articleDB }) {
       }
 
       setShow(true);
-    } // const handleShow = () => setShow(true);
+    }
   };
+
+  //get tblEShelfBeschichtung
+  useEffect(() => {
+    let interval;
+    const fetchOrders = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API}/Auftragsnummer`
+        );
+        const results = await response.json();
+        setFertigungsauftragDB(results);
+        for (let i = 0; i < results.length; i++) {
+          let fertigungsauftrag = results[i].Auftragsnummer;
+
+          if (
+            //Wareneingang fertig
+            results[i].Einlagerung === true &&
+            results[i].Erledigt === true
+          ) {
+            //reset tblEShelf
+            fetch(
+              `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,
+              {
+                method: "PUT",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+                  fertigungsauftrag,
+                }),
+              }
+            )
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+
+            setShow(false);
+            setShowSAPchecked(true);
+          } else if (results[i].Bemerkung === "not found") {
+            //reset tblEShelf
+            fetch(
+              `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,
+              {
+                method: "PUT",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+                  fertigungsauftrag,
+                }),
+              }
+            )
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+
+            setShow(false);
+            setShowNotFoundOrderMessage(true);
+          }
+        }
+      } catch (err) {
+        console.log(err);
+        toast.error(
+          "There is no connection to database. Please check the database server."
+        );
+      }
+    };
+    fetchOrders();
+
+    //fetch Artikel every X second
+    interval = setInterval(() => {
+      fetchOrders();
+    }, 2 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <div>
@@ -196,6 +287,24 @@ export default function Wareninggang({ fertigungsauftragDB, articleDB }) {
 
           <Modal
             show={show}
+            // onHide={handleClose}
+            backdrop="static"
+            keyboard={false}
+            // centered
+          >
+            <Modal.Header className="modalHeader" closeButton>
+              <Modal.Title className="modalHeader">
+                Aktuelle Buchung: 3001 - Wareneingang
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              In SAP wird es geprüft, ob die Fertigungsauftrag vorhanden ist...
+            </Modal.Body>
+            <Modal.Footer></Modal.Footer>
+          </Modal>
+
+          <Modal
+            show={showSAPchecked}
             onHide={handleClose}
             backdrop="static"
             keyboard={false}
@@ -212,6 +321,32 @@ export default function Wareninggang({ fertigungsauftragDB, articleDB }) {
             </Modal.Body>
             <Modal.Footer>
               <Button className="modalButton" onClick={handleClose}>
+                Quittieren
+              </Button>
+            </Modal.Footer>
+          </Modal>
+
+          <Modal
+            show={showNotFoundOrderMessage}
+            onHide={handleCloseNotFoundOrderMessage}
+            backdrop="static"
+            keyboard={false}
+            // centered
+          >
+            <Modal.Header className="modalHeader" closeButton>
+              <Modal.Title className="modalHeader">
+                Aktuelle Buchung: 3001 - Wareneingang
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              Der Fertigungsauftrag {fertigungsauftragDummy} wurde nicht in SAP
+              gefunden. Bitte scannen Sie eine richtige Auftragsnummer.
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                className="modalButton"
+                onClick={handleCloseNotFoundOrderMessage}
+              >
                 Quittieren
               </Button>
             </Modal.Footer>

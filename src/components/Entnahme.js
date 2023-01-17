@@ -21,7 +21,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
     console.log(arrAuftragsQuittieren);
 
     //update new quantity to DB tblEShelfBeschichtung
-    /*  fetch(`${process.env.REACT_APP_API}/Auftragsnummer/ChangeQuantity`, {
+    /* fetch(`${process.env.REACT_APP_API}/Auftragsnummer/ChangeQuantity`, {
       method: "PUT",
       headers: {
         Accept: "application/json",
@@ -34,8 +34,8 @@ export default function Entnahme({ fertigungsauftragDB }) {
       }),
     })
       .then((res) => res.json())
-      .catch((err) => console.log(err)); */
-
+      .catch((err) => console.log(err)); 
+*/
     setShow(false);
   };
 
@@ -92,9 +92,9 @@ export default function Entnahme({ fertigungsauftragDB }) {
     const index = filterDB.findIndex((item) => item.ID === editItemId);
     newQuantity[index] = editedQuantity;
 
-    setFilterDB(newQuantity); //update value to current table in website
+    await setFilterDB(newQuantity); //update value to current table in website
     console.log(filterDB[0].Menge);
-    setArrAuftragsQuittieren(filterDB);
+    await setArrAuftragsQuittieren(filterDB);
     console.log(filterDB[0].Menge);
     setEditItemId(null); //go to ReadOnlyRow
   };
@@ -117,6 +117,19 @@ export default function Entnahme({ fertigungsauftragDB }) {
     if (selectAll) {
       console.log(selectAll);
     } else if (selectOrder) {
+      /* console.log(filterDB);
+
+      let selectedOrderID = filterDB.map((x) => {
+        return x.Auftragsnummer;
+      });
+
+      console.log(selectedOrderID);
+      let selectedOrder = selectOrder.filter(
+        (x) => !selectedOrderID.includes(x)
+      ); 
+
+      console.log(selectedOrder); */
+
       fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
         method: "PUT",
         headers: {
@@ -126,6 +139,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
 
         body: JSON.stringify({
           selectOrder,
+          filterDB,
         }),
       })
         .then((res) => res.json())
@@ -191,8 +205,8 @@ export default function Entnahme({ fertigungsauftragDB }) {
           element.BeschichtungsArt === beschichtungsart &&
           element.BeschichtungsDicke > lower &&
           element.BeschichtungsDicke < upper &&
-          element.Menge > 0
-        // && element.Auslagerung === false
+          element.Menge > 0 &&
+          element.Auslagerung === false
       )
     );
     setFilter(false);
@@ -276,7 +290,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
                 <td className="checkbox">
                   <input
                     type="checkbox"
-                    value={[item.Auftragsnummer]}
+                    value={item.Auftragsnummer}
                     {...register("selectOrder", { required: true })}
                   ></input>
                 </td>

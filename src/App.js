@@ -25,7 +25,7 @@ function App() {
         for (let i = 0; i < results.length; i++) {
           let fertigungsauftrag = results[i].Auftragsnummer;
           //Entnahme fertig
-          if (results[i].Auslagerung === true && results[i].Erledigt === true) {
+          if (results[i].Auslagerung === true) {
             fetch(`${process.env.REACT_APP_API}/LagerPlatz/releaseStorageBin`, {
               method: "PUT",
               headers: {
@@ -94,28 +94,6 @@ function App() {
                 fertigungsauftrag,
               }),
             })
-              .then((res) => res.json())
-              .catch((err) => console.log(err));
-          } else if (
-            //Wareneingang fertig
-            results[i].Einlagerung === true &&
-            results[i].Erledigt === true
-          ) {
-            //reset tblEShelf
-            fetch(
-              `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,
-              {
-                method: "PUT",
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                },
-
-                body: JSON.stringify({
-                  fertigungsauftrag,
-                }),
-              }
-            )
               .then((res) => res.json())
               .catch((err) => console.log(err));
           }

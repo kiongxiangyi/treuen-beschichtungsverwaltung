@@ -205,6 +205,23 @@ export default function Wareninggang({ articleDB }) {
               .then((res) => res.json())
               .catch((err) => console.log(err));
 
+            //update qty from SAP when Erledigt is TRUE
+            let qty = results[i].Menge;
+            fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
+              method: "PUT",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify({
+                fertigungsauftrag,
+                qty,
+              }),
+            })
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+
             setShow(false);
             setShowSAPchecked(true);
           } else if (results[i].Bemerkung === "not found") {

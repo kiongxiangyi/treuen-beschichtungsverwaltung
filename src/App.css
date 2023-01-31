@@ -134,3 +134,12 @@ input {
   background-color: #999999 !important; 
   transition: 0.7s !important;
 }
+
+.actionBtn {
+  width: 8rem !important;
+  background-color: #e7e7e7 !important;
+  color: black !important;
+  border-color: black !important;
+  padding: 0.1rem 0 !important;
+  margin: 0.2rem 0.2rem;
+}

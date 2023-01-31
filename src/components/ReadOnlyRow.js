@@ -1,4 +1,5 @@
 import React from "react";
+import Button from "react-bootstrap/Button";
 
 const ReadOnlyRow = ({ item, handleEditQuantityClick }) => {
   return (
@@ -8,12 +9,13 @@ const ReadOnlyRow = ({ item, handleEditQuantityClick }) => {
       <td>{item.BeschichtungsDicke}</td>
       <td>{item.Menge}</td>
       <td>
-        <button
+        <Button
+        className="actionBtn"
           type="button"
           onClick={(event) => handleEditQuantityClick(event, item)}
         >
           Menge ändern
-        </button>
+        </Button>
       </td>
     </>
   );

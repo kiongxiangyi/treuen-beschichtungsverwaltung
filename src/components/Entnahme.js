@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, Fragment } from "react";
 import Table from "react-bootstrap/Table";
 import { useForm } from "react-hook-form";
 import Button from "react-bootstrap/Button";
@@ -13,29 +13,10 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filter, setFilter] = useState(false);
   const [filterDB, setFilterDB] = useState([]);
-  const [arrAuftragsQuittieren, setArrAuftragsQuittieren] = useState([]);
-
+ 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
   const handleClose = () => {
-    console.log(arrAuftragsQuittieren);
-
-    //update new quantity to DB tblEShelfBeschichtung
-    /* fetch(`${process.env.REACT_APP_API}/Auftragsnummer/ChangeQuantity`, {
-      method: "PUT",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-
-      body: JSON.stringify({
-        editItemId,
-        filterDB,
-      }),
-    })
-      .then((res) => res.json())
-      .catch((err) => console.log(err)); 
-*/
     setShow(false);
   };
 
@@ -77,7 +58,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
   };
 
   //submit the changed quantity
-  const handleEditQuantitySubmit = async (event) => {
+  const handleEditQuantitySubmit = (event) => {
     event.preventDefault();
 
     const editedQuantity = {
@@ -92,11 +73,14 @@ export default function Entnahme({ fertigungsauftragDB }) {
     const index = filterDB.findIndex((item) => item.ID === editItemId);
     newQuantity[index] = editedQuantity;
 
-    await setFilterDB(newQuantity); //update value to current table in website
-    console.log(filterDB[0].Menge);
-    await setArrAuftragsQuittieren(filterDB);
-    console.log(filterDB[0].Menge);
+    setFilterDB(newQuantity); //update value to current table in website
     setEditItemId(null); //go to ReadOnlyRow
+
+    let findQuantity = filterDB.find(
+      (item) => item.Auftragsnummer === editItemId
+    );
+    console.log(findQuantity);
+    console.log(filterDB[0].Menge);
   };
 
   //not to change the quantity click
@@ -117,50 +101,61 @@ export default function Entnahme({ fertigungsauftragDB }) {
     if (selectAll) {
       console.log(selectAll);
     } else if (selectOrder) {
-      /* console.log(filterDB);
+      //loop and update quantity of selected orders
+      for (let i = 0; i < selectOrder.length; i++) {
+        const currentQuantityOfSelectedOrder = fertigungsauftragDB.find(
+          ({ Auftragsnummer }) => Auftragsnummer === selectOrder[i]
+        );
 
-      let selectedOrderID = filterDB.map((x) => {
-        return x.Auftragsnummer;
-      });
+        const withdrawnQuantityOfSelectedOrder = filterDB.find(
+          ({ Auftragsnummer }) => Auftragsnummer === selectOrder[i]
+        );
 
-      console.log(selectedOrderID);
-      let selectedOrder = selectOrder.filter(
-        (x) => !selectedOrderID.includes(x)
-      ); 
+        let fertigungsauftrag = selectOrder[i];
+        let qty =
+          currentQuantityOfSelectedOrder.Menge -
+          withdrawnQuantityOfSelectedOrder.Menge;
+        fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
 
-      console.log(selectedOrder); */
-
-      fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          selectOrder,
-          filterDB,
-        }),
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          setBeschichtungsart("");
-          setBeschichtungsdicke("");
-          setFilterDB([]);
+          body: JSON.stringify({
+            fertigungsauftrag,
+            qty,
+          }),
         })
-        .catch((err) => console.log(err));
+          .then((res) => res.json())
+          .then((res) => {
+            setBeschichtungsart("Fire");
+            setBeschichtungsdicke("<= 2");
+            setFilterDB([]);
+          })
+          .catch((err) => console.log(err));
+
+        fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            fertigungsauftrag,
+            qty,
+          }),
+        })
+          .then((res) => res.json())
+          .catch((err) => console.log(err));
+      }
 
       setShow(true);
-    } else {
-      // toast.error("Bitte wählen Sie mindestens einen Artikel");
     }
-    //return selectAll ?  : console.log(selectAll);
-    //return selectOrder ? console.log(selectOrder) : console.log(selectOrder);
   };
   const selectAll = watch("selectAll");
-  // console.log("selectAll", selectAll);
   const selectOrder = watch("selectOrder");
-  //console.log("selectOrder", selectOrder);
 
   //tutorial: https://www.simplilearn.com/tutorials/reactjs-tutorial/how-to-create-functional-react-dropdown-menu
   //select beschichtungsart
@@ -205,8 +200,8 @@ export default function Entnahme({ fertigungsauftragDB }) {
           element.BeschichtungsArt === beschichtungsart &&
           element.BeschichtungsDicke > lower &&
           element.BeschichtungsDicke < upper &&
-          element.Menge > 0 &&
-          element.Auslagerung === false
+          element.Menge > 0
+        // && element.Auslagerung === false
       )
     );
     setFilter(false);

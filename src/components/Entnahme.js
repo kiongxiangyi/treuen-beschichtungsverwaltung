@@ -193,21 +193,35 @@ export default function Entnahme({ fertigungsauftragDB }) {
   }
 
   if (filter) {
-    setFilterDB(
-      fertigungsauftragDB.filter(
-        (element) =>
-          //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
-          (element.BeschichtungsArt === beschichtungsart &&
-            element.Menge > 0) ||
-          (element.BeschichtungsArt === beschichtungsart &&
+    if (beschichtungsart === "") {
+      setFilterDB(
+        fertigungsauftragDB.filter(
+          (element) =>
+            //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
+
             element.BeschichtungsDicke > lower &&
             element.BeschichtungsDicke < upper &&
-            element.Menge > 0) ||
-          (element.BeschichtungsDicke > lower &&
+            element.Menge > 0
+        )
+      );
+    } else if (beschichtungsdicke === "") {
+      setFilterDB(
+        fertigungsauftragDB.filter(
+          (element) =>
+            element.BeschichtungsArt === beschichtungsart && element.Menge > 0
+        )
+      );
+    } else {
+      setFilterDB(
+        fertigungsauftragDB.filter(
+          (element) =>
+            element.BeschichtungsArt === beschichtungsart &&
+            element.BeschichtungsDicke > lower &&
             element.BeschichtungsDicke < upper &&
-            element.Menge > 0)
-      )
-    );
+            element.Menge > 0
+        )
+      );
+    }
     setFilter(false);
   }
   //reset form tutorial https://react-hook-form.com/api/useform/reset/

@@ -278,6 +278,7 @@ export default function Wareninggang({ articleDB }) {
             id="fertigungsauftrag"
             name="fertigungsauftrag"
             size="35"
+            pattern="[0-9]+"
             value={fertigungsauftrag}
             onChange={(e) => setFertigungsauftrag(e.target.value)}
           />

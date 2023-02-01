@@ -13,7 +13,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filter, setFilter] = useState(false);
   const [filterDB, setFilterDB] = useState([]);
- 
+
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
   const handleClose = () => {
@@ -196,12 +196,16 @@ export default function Entnahme({ fertigungsauftragDB }) {
     setFilterDB(
       fertigungsauftragDB.filter(
         (element) =>
-          //element.Auftragsnummer === location.state.fertigungsauftrag &&
-          element.BeschichtungsArt === beschichtungsart &&
-          element.BeschichtungsDicke > lower &&
-          element.BeschichtungsDicke < upper &&
-          element.Menge > 0
-        // && element.Auslagerung === false
+          //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
+          (element.BeschichtungsArt === beschichtungsart &&
+            element.Menge > 0) ||
+          (element.BeschichtungsArt === beschichtungsart &&
+            element.BeschichtungsDicke > lower &&
+            element.BeschichtungsDicke < upper &&
+            element.Menge > 0) ||
+          (element.BeschichtungsDicke > lower &&
+            element.BeschichtungsDicke < upper &&
+            element.Menge > 0)
       )
     );
     setFilter(false);

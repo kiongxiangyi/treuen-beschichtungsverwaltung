@@ -4,12 +4,14 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { toast } from "react-toastify";
 
-export default function Wareninggang({ articleDB }) {
+export default function Wareneingang({ articleDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
   const [freeStorageBins, setFreeStorageBins] = useState("");
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
   const [fertigungsauftragDummy, setFertigungsauftragDummy] = useState("");
   const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
+  const [quantity, setQuantity] = useState(""); //quantity for display after booking
+  const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
@@ -220,6 +222,10 @@ export default function Wareninggang({ articleDB }) {
               }),
             })
               .then((res) => res.json())
+              .then((res) => {
+                setQuantity(qty); 
+                setStorageBin(results[i].Lagerplatz);
+              })
               .catch((err) => console.log(err));
 
             setShow(false);
@@ -334,8 +340,13 @@ export default function Wareninggang({ articleDB }) {
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Fertigungsauftrag {fertigungsauftragDummy} wurde in GTMS angelegt.
-              Lagerplatz wurde automatisch zugeordnet.
+              Fertigungsauftrag&emsp;<b>{fertigungsauftragDummy}</b>
+              <br></br>
+              Menge&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;
+              <b>{quantity}</b>
+              <br></br>
+              Lagerplatz&emsp;&emsp;&emsp;&emsp;&nbsp;
+              <b>{storageBin}</b>
             </Modal.Body>
             <Modal.Footer>
               <Button className="modalButton" onClick={handleClose}>
@@ -357,8 +368,8 @@ export default function Wareninggang({ articleDB }) {
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Der Fertigungsauftrag {fertigungsauftragDummy} wurde nicht in SAP
-              gefunden. Bitte scannen Sie eine richtige Auftragsnummer.
+              Die Fertigungsauftragsnummer {fertigungsauftragDummy} wurde nicht
+              in SAP gefunden. Bitte scannen Sie eine gültige Auftragsnummer.
             </Modal.Body>
             <Modal.Footer>
               <Button

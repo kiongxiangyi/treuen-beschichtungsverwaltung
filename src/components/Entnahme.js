@@ -75,12 +75,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
 
     setFilterDB(newQuantity); //update value to current table in website
     setEditItemId(null); //go to ReadOnlyRow
-
-    let findQuantity = filterDB.find(
-      (item) => item.Auftragsnummer === editItemId
-    );
-    console.log(findQuantity);
-    console.log(filterDB[0].Menge);
   };
 
   //not to change the quantity click
@@ -198,7 +192,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
         fertigungsauftragDB.filter(
           (element) =>
             //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
-
             element.BeschichtungsDicke > lower &&
             element.BeschichtungsDicke < upper &&
             element.Menge > 0

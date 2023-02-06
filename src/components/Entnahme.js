@@ -95,17 +95,33 @@ export default function Entnahme({ fertigungsauftragDB }) {
     if (selectAll) {
       console.log(selectAll);
     } else if (selectOrder) {
+      let checkIsArray = Array.isArray(selectOrder); //check if selectOrder is array because when only one is selected, is it not an array. more than one is selected, it will be an array.
+      let currentQuantityOfSelectedOrder;
+      let withdrawnQuantityOfSelectedOrder;
+      let fertigungsauftrag;
+
       //loop and update quantity of selected orders
       for (let i = 0; i < selectOrder.length; i++) {
-        const currentQuantityOfSelectedOrder = fertigungsauftragDB.find(
-          ({ Auftragsnummer }) => Auftragsnummer === selectOrder[i]
-        );
+        if (checkIsArray === false) {
+          currentQuantityOfSelectedOrder = fertigungsauftragDB.find(
+            ({ Auftragsnummer }) => Auftragsnummer === selectOrder
+          );
+          withdrawnQuantityOfSelectedOrder = filterDB.find(
+            ({ Auftragsnummer }) => Auftragsnummer === selectOrder
+          );
 
-        const withdrawnQuantityOfSelectedOrder = filterDB.find(
-          ({ Auftragsnummer }) => Auftragsnummer === selectOrder[i]
-        );
+          fertigungsauftrag = selectOrder;
+        } else {
+          currentQuantityOfSelectedOrder = fertigungsauftragDB.find(
+            ({ Auftragsnummer }) => Auftragsnummer === selectOrder[i]
+          );
+          withdrawnQuantityOfSelectedOrder = filterDB.find(
+            ({ Auftragsnummer }) => Auftragsnummer === selectOrder[i]
+          );
 
-        let fertigungsauftrag = selectOrder[i];
+          fertigungsauftrag = selectOrder[i];
+        }
+
         let qty =
           currentQuantityOfSelectedOrder.Menge -
           withdrawnQuantityOfSelectedOrder.Menge;

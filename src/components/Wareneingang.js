@@ -12,6 +12,8 @@ export default function Wareneingang({ articleDB }) {
   const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
   const [quantity, setQuantity] = useState(""); //quantity for display after booking
   const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
+  const [beschichtungsArt, setBeschichtungsArt] = useState("");
+  const [beschichtungsDicke, setBeschichtungsDicke] = useState("");
 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
@@ -205,10 +207,15 @@ export default function Wareneingang({ articleDB }) {
               }
             )
               .then((res) => res.json())
+              .then((res) => {
+                setBeschichtungsArt(results[i].BeschichtungsArt);
+                setBeschichtungsDicke(results[i].BeschichtungsDicke);
+              })
               .catch((err) => console.log(err));
 
             //update qty from SAP when Erledigt is TRUE
             let qty = results[i].Menge;
+
             fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
               method: "PUT",
               headers: {
@@ -223,7 +230,7 @@ export default function Wareneingang({ articleDB }) {
             })
               .then((res) => res.json())
               .then((res) => {
-                setQuantity(qty); 
+                setQuantity(qty);
                 setStorageBin(results[i].Lagerplatz);
               })
               .catch((err) => console.log(err));
@@ -340,13 +347,31 @@ export default function Wareneingang({ articleDB }) {
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Fertigungsauftrag&emsp;<b>{fertigungsauftragDummy}</b>
-              <br></br>
-              Menge&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;
-              <b>{quantity}</b>
-              <br></br>
-              Lagerplatz&emsp;&emsp;&emsp;&emsp;&nbsp;
-              <b>{storageBin}</b>
+              <table className="table">
+                <thead></thead>
+                <tbody>
+                  <tr>
+                    <td className="tabledata">Fertigungsauftrag</td>
+                    <th className="tabledata">{fertigungsauftragDummy}</th>
+                  </tr>
+                  <tr>
+                    <td className="tabledata">BeschichtungsArt</td>
+                    <th className="tabledata">{beschichtungsArt}</th>
+                  </tr>
+                  <tr>
+                    <td className="tabledata">BeschichtungsDicke</td>
+                    <th className="tabledata">{beschichtungsDicke}</th>
+                  </tr>
+                  <tr>
+                    <td className="tabledata">Menge</td>
+                    <th className="tabledata">{quantity}</th>
+                  </tr>
+                  <tr>
+                    <td className="tabledata">Lagerplatz</td>
+                    <th className="tabledata">{storageBin}</th>
+                  </tr>
+                </tbody>
+              </table>
             </Modal.Body>
             <Modal.Footer>
               <Button className="modalButton" onClick={handleClose}>

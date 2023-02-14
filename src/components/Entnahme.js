@@ -6,6 +6,7 @@ import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
 import ReadOnlyRow from "./ReadOnlyRow";
 import EditableRow from "./EditableRow";
+import Dropdown from "react-bootstrap/Dropdown";
 
 export default function Entnahme({ fertigungsauftragDB }) {
   const navigate = useNavigate(); //hook for navigation
@@ -13,6 +14,18 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filter, setFilter] = useState(false);
   const [filterDB, setFilterDB] = useState([]);
+  const [withdrawnQuantity, setWithdrawnQuantity] = useState(""); //quantity for display after booking
+  const [newQuantity, setNewQuantity] = useState("");
+  const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
+  const [fertigungsauftragDummy, setFertigungsauftragDummy] = useState("");
+  const [beschichtungsArtOfSelectedOrder, setBeschichtungsArtOfSelectedOrder] =
+    useState("");
+  const [
+    beschichtungsDickeOfSelectedOrder,
+    setBeschichtungsDickeOfSelectedOrder,
+  ] = useState("");
+
+  const [check, setCheck] = useState(false);
 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
@@ -92,14 +105,11 @@ export default function Entnahme({ fertigungsauftragDB }) {
   } = useForm();
 
   const onSubmit = () => {
-    if (selectAll) {
-      console.log(selectAll);
-    } else if (selectOrder) {
+    if (selectOrder) {
       let checkIsArray = Array.isArray(selectOrder); //check if selectOrder is array because when only one is selected, is it not an array. more than one is selected, it will be an array.
       let currentQuantityOfSelectedOrder;
       let withdrawnQuantityOfSelectedOrder;
       let fertigungsauftrag;
-
       //loop and update quantity of selected orders
       for (let i = 0; i < selectOrder.length; i++) {
         if (checkIsArray === false) {
@@ -125,6 +135,15 @@ export default function Entnahme({ fertigungsauftragDB }) {
         let qty =
           currentQuantityOfSelectedOrder.Menge -
           withdrawnQuantityOfSelectedOrder.Menge;
+
+        let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
+        let storageBinOfSelectedOrder =
+          currentQuantityOfSelectedOrder.Lagerplatz;
+        let ba = currentQuantityOfSelectedOrder.BeschichtungsArt;
+        let bd = currentQuantityOfSelectedOrder.BeschichtungsDicke;
+
+        setFertigungsauftragDummy(fertigungsauftrag);
+
         fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
           method: "PUT",
           headers: {
@@ -158,6 +177,13 @@ export default function Entnahme({ fertigungsauftragDB }) {
           }),
         })
           .then((res) => res.json())
+          .then((res) => {
+            setWithdrawnQuantity(withdrawnQuantity);
+            setNewQuantity(qty);
+            setStorageBin(storageBinOfSelectedOrder);
+            setBeschichtungsArtOfSelectedOrder(ba);
+            setBeschichtungsDickeOfSelectedOrder(bd);
+          })
           .catch((err) => console.log(err));
       }
 
@@ -240,6 +266,9 @@ export default function Entnahme({ fertigungsauftragDB }) {
     }
   }, [formState, reset]);
 
+  const testFunction = () => {
+    setCheck((prevCheck) => !prevCheck);
+  };
   return (
     <div>
       <form onSubmit={handleEditQuantitySubmit}>
@@ -247,6 +276,24 @@ export default function Entnahme({ fertigungsauftragDB }) {
           <label htmlFor="beschichtungsart-select">
             <b>Beschichtungsart</b>&ensp;&ensp;&ensp;&ensp;&ensp;
           </label>
+          {/* <Dropdown>
+            <Dropdown.Toggle
+              variant="success"
+              id="beschichtungsart-select"
+              name="beschichtungsart"
+              value={beschichtungsart}
+              onChange={handleChangeBeschichtungsart}
+            >
+              --Bitte eine Option auswählen--
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu>
+              <Dropdown.Item value="Fire">Fire</Dropdown.Item>
+              <Dropdown.Item value="Gold">Gold</Dropdown.Item>
+              <Dropdown.Item value="Silber">Silber</Dropdown.Item>
+              <Dropdown.Item value="TiN">TiN</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown> */}
           <div>
             <select
               className="beschichtung-select"
@@ -293,11 +340,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
           <thead>
             <tr className="table-header">
               <th className="checkbox">
-                <input
-                  type="checkbox"
-                  value="all"
-                  {...register("selectAll")}
-                ></input>
+                <input type="checkbox" {...register("selectAll")}></input>
               </th>
               <th>Fertigungsauftrag</th>
               <th>Beschichtungsart</th>
@@ -308,10 +351,11 @@ export default function Entnahme({ fertigungsauftragDB }) {
           </thead>
           <tbody className="table-body">
             {filterDB.map((item) => (
-              <tr key={item.ID}>
+              <tr key={item.ID} onClick={testFunction}>
                 <td className="checkbox">
                   <input
                     type="checkbox"
+                    checked={check}
                     value={item.Auftragsnummer}
                     {...register("selectOrder", { required: true })}
                   ></input>
@@ -361,7 +405,39 @@ export default function Entnahme({ fertigungsauftragDB }) {
             Aktuelle Buchung: 1001 - Entnahme
           </Modal.Title>
         </Modal.Header>
-        <Modal.Body></Modal.Body>
+        <Modal.Body>
+          <table className="table">
+            <thead></thead>
+            <tbody>
+              <tr>
+                <td className="tabledata">Fertigungsauftrag</td>
+                <th className="tabledata">{fertigungsauftragDummy}</th>
+              </tr>
+              <tr>
+                <td className="tabledata">BeschichtungsArt</td>
+                <th className="tabledata">{beschichtungsArtOfSelectedOrder}</th>
+              </tr>
+              <tr>
+                <td className="tabledata">BeschichtungsDicke</td>
+                <th className="tabledata">
+                  {beschichtungsDickeOfSelectedOrder}
+                </th>
+              </tr>
+              <tr>
+                <td className="tabledata">Menge</td>
+                <th className="tabledata">{withdrawnQuantity}</th>
+              </tr>
+              <tr>
+                <td className="tabledata">Restmenge</td>
+                <th className="tabledata">{newQuantity}</th>
+              </tr>
+              <tr>
+                <td className="tabledata">Lagerplatz</td>
+                <th className="tabledata">{storageBin}</th>
+              </tr>
+            </tbody>
+          </table>
+        </Modal.Body>
         <Modal.Footer>
           <Button className="modalButton" onClick={handleClose}>
             Quittieren

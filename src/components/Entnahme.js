@@ -25,11 +25,14 @@ export default function Entnahme({ fertigungsauftragDB }) {
     setBeschichtungsDickeOfSelectedOrder,
   ] = useState("");
   const [submittedOrders, setSubmittedOrders] = useState([]);
+  const [withdrawnOrders, setWithdrawnOrders] = useState([]);
 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
   const handleClose = () => {
+    console.log("after show", withdrawnOrders);
     setShow(false);
+    setWithdrawnOrders([]);
   };
 
   //Edit, Save, Cancel quantity buttons function https://youtu.be/dYjdzpZv5yc
@@ -103,14 +106,13 @@ export default function Entnahme({ fertigungsauftragDB }) {
     formState: { errors },
   } = useForm();
 
-  const [withdrawnOrders, setWithdrawnOrders] = useState([]);
-
   const onSubmit = () => {
     if (submittedOrders.length > 0) {
       // let checkIsArray = Array.isArray(selectOrder); //check if selectOrder is array because when only one is selected, is it not an array. more than one is selected, it will be an array.
       let selectedOrders;
       let withdrawnQuantityOfSelectedOrder;
       let fertigungsauftrag;
+      let arrWithdrawnOrders = [];
       //loop and update quantity of selected orders
       for (let i = 0; i < submittedOrders.length; i++) {
         selectedOrders = fertigungsauftragDB.find(
@@ -126,9 +128,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
 
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
-        setWithdrawnOrders([...withdrawnOrders, selectedOrders]);
-
-        console.log(withdrawnOrders);
         /* for (let i = 0; i < selectOrder.length; i++) {
         if (checkIsArray === false) {
           selectedOrders = fertigungsauftragDB.find(
@@ -150,12 +149,19 @@ export default function Entnahme({ fertigungsauftragDB }) {
           fertigungsauftrag = selectOrder[i];
         } */
 
-        let qty = selectedOrders.Menge - withdrawnQuantityOfSelectedOrder.Menge;
+        let newQuantity =
+          selectedOrders.Menge - withdrawnQuantityOfSelectedOrder.Menge;
 
         let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
         let storageBinOfSelectedOrder = selectedOrders.Lagerplatz;
         let ba = selectedOrders.BeschichtungsArt;
         let bd = selectedOrders.BeschichtungsDicke;
+
+        arrWithdrawnOrders.push({
+          ...selectedOrders,
+          newQty: newQuantity,
+          withdrawnQty: withdrawnQuantity,
+        }); //save orders of loops in a local variable because useState does not render in loop
 
         setFertigungsauftragDummy(fertigungsauftrag);
 
@@ -168,7 +174,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
 
           body: JSON.stringify({
             fertigungsauftrag,
-            qty,
+            newQuantity,
           }),
         })
           .then((res) => res.json())
@@ -189,13 +195,13 @@ export default function Entnahme({ fertigungsauftragDB }) {
 
           body: JSON.stringify({
             fertigungsauftrag,
-            qty,
+            newQuantity,
           }),
         })
           .then((res) => res.json())
           .then((res) => {
             setWithdrawnQuantity(withdrawnQuantity);
-            setNewQuantity(qty);
+            setNewQuantity(newQuantity);
             setStorageBin(storageBinOfSelectedOrder);
             setBeschichtungsArtOfSelectedOrder(ba);
             setBeschichtungsDickeOfSelectedOrder(bd);
@@ -203,6 +209,8 @@ export default function Entnahme({ fertigungsauftragDB }) {
           .catch((err) => console.log(err));
       }
 
+      console.log("before show", withdrawnOrders);
+      setWithdrawnOrders(arrWithdrawnOrders); //save the orders in useState
       setShow(true);
     } else {
     }
@@ -436,7 +444,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
           </tbody>
         </Table>
       </form>
-      
+
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* {errors.selectOrder && (
           <p>Bitte wählen Sie mindestens einen Artikel!</p>
@@ -451,6 +459,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
       </Button>
 
       <Modal
+        size="lg"
         show={show}
         onHide={handleClose}
         backdrop="static"
@@ -465,23 +474,25 @@ export default function Entnahme({ fertigungsauftragDB }) {
           <table className="table">
             <thead>
               <tr>
-                <th>Fertigungsauftrag</th>
-                <th>Beschichtungsart</th>
-                <th>Beschichtungsdicke</th>
-                <th>Restmenge</th>
-                <th>Lagerplatz</th>
+                <td>Fertigungsauftrag</td>
+                <td>Beschichtungsart</td>
+                <td>Beschichtungsdicke</td>
+                <td>Menge</td>
+                <td>Restmenge</td>
+                <td>Lagerplatz</td>
               </tr>
             </thead>
             <tbody>
-              {withdrawnOrders.map((item) => {
-                return (
-                  <tr>
-                    <td>{item.Auftragsnummer}</td>
-                    <td>{item.BeschichtungsArt}</td>
-                    <td>{item.BeschichtungsDicke}</td>
-                  </tr>
-                );
-              })}
+              {withdrawnOrders.map((item) => (
+                <tr>
+                  <td>{item.Auftragsnummer}</td>
+                  <td>{item.BeschichtungsArt}</td>
+                  <td>{item.BeschichtungsDicke}</td>
+                  <td>{item.withdrawnQty}</td>
+                  <td>{item.newQty}</td>
+                  <td>{item.Lagerplatz}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </Modal.Body>
@@ -495,7 +506,8 @@ export default function Entnahme({ fertigungsauftragDB }) {
   );
 }
 
-/* <tr>
+/*
+<tr>
                 <td className="tabledata">Fertigungsauftrag</td>
                 <th className="tabledata">{fertigungsauftragDummy}</th>
               </tr>
@@ -520,5 +532,5 @@ export default function Entnahme({ fertigungsauftragDB }) {
               <tr>
                 <td className="tabledata">Lagerplatz</td>
                 <th className="tabledata">{storageBin}</th>
-              </tr> 
-              */
+              </tr>
+ */

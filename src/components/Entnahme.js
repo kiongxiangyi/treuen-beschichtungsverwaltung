@@ -30,7 +30,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
   const handleClose = () => {
-    console.log("after show", withdrawnOrders);
     setShow(false);
     setWithdrawnOrders([]);
   };
@@ -209,7 +208,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
           .catch((err) => console.log(err));
       }
 
-      console.log("before show", withdrawnOrders);
       setWithdrawnOrders(arrWithdrawnOrders); //save the orders in useState
       setShow(true);
     } else {
@@ -488,7 +486,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
                   <td>{item.Auftragsnummer}</td>
                   <td>{item.BeschichtungsArt}</td>
                   <td>{item.BeschichtungsDicke}</td>
-                  <td>{item.withdrawnQty}</td>
+                  <th>{item.withdrawnQty}</th>
                   <td>{item.newQty}</td>
                   <td>{item.Lagerplatz}</td>
                 </tr>

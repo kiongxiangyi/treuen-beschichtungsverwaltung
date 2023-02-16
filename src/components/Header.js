@@ -13,9 +13,7 @@ export default function Header() {
     <div className="header">
       <h1 className="site-title mt-2">Gühring Beschichtungsverwaltung</h1>
 
-      <Button className="btn-header" onClick={handleClick}>
-        Home
-      </Button>
+      <img src="./pictures/home-btn.png" alt="home" onClick={handleClick}></img>
     </div>
   );
 }

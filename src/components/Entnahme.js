@@ -377,9 +377,13 @@ export default function Entnahme({ fertigungsauftragDB }) {
           </div>
         </div>
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;
-        <Button className="showOrderButton" onClick={handleSubmitOrder}>
-          Aufträge anzeigen
-        </Button>
+        <button
+          variant="outline-secondary"
+          className="pushable"
+          onClick={handleSubmitOrder}
+        >
+          <span class="front">Aufträge anzeigen</span>
+        </button>
         <p>
           <b>Warenkorb:</b>
         </p>
@@ -448,11 +452,19 @@ export default function Entnahme({ fertigungsauftragDB }) {
           <p>Bitte wählen Sie mindestens einen Artikel!</p>
         )} */}
 
-        <Button className="modalButton" type="submit">
+        <Button
+          variant="outline-secondary"
+          className="modalButton"
+          type="submit"
+        >
           Weiter
         </Button>
       </form>
-      <Button className="modalButton" onClick={handleWareneingang}>
+      <Button
+        variant="outline-secondary"
+        className="modalButton"
+        onClick={handleWareneingang}
+      >
         Teilmenge Rückgabe
       </Button>
 

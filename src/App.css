@@ -1,6 +1,6 @@
 * {
   font-family: 'Helvetica Neue LT W1G 400', sans-serif; /* https://www.cdnfonts.com/helvetica-neue-lt-w1g.font */
-  background-color: white;
+  /* background-color: white; */
   margin: 0;
   padding: 0;
 }
@@ -13,6 +13,19 @@
 
 .body {
   margin: 1rem;
+}
+
+img {
+  background-color: #ffe100 ;
+  margin-left: auto;
+  margin-top: 0.2rem; 
+  margin-bottom: 0.2rem;
+  height: 2.5rem;
+  
+}
+
+img:hover {
+  opacity: .5;
 }
 
 .scan-field {
@@ -64,9 +77,18 @@ input {
   height: 50px;
   width: 50px;
 }
+
+.homepage{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2.5rem;
+  /* background: var(--bg-color); */
+}
+
+
 .btn-primary-outline{
-  background-color: #ffe100 !important;
-  border-color: #ffe100 !important;
+  background-color: #e7e7e7 !important;
   color: black !important;
   width: 15rem;
   height: 5rem;
@@ -93,55 +115,34 @@ input {
   background-color: #ffe100
 }
 
+p {
+  font-size: 20px;
+}
+
 .modalButton {
-  width: 16rem !important;
+  width: 16rem ;
   background-color: #e7e7e7 !important;
   color: black !important;
-  border-color: black !important;
-  padding: 0.1rem 0 !important;
-  margin-top: 0.4rem;
+  margin: 0.4rem 0;
+  font-size: 24px !important;
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.2);
+  border: 2px solid !important;
 }
 
 .modalButton:hover {
   background-color: #999999 !important; 
   transition: 0.7s !important;
-}
-
-.btn-header {
-  background-color: #ffe100 !important;
-  color: black !important;
-  border-color: black !important;
-  margin-left: auto
-}
-
-.btn-header:hover {
-  background-color: white !important;
-  
-}
-
-.showOrderButton {
-  width: 25rem !important;
-  background-color: #e7e7e7 !important;
-  color: black !important;
-  border-color: black !important;
-  padding: 0.1rem 0 !important;
-  margin-top: 0.4rem;
-  height: 3rem;
-  font-size: 25px !important;
-}
-
-.showOrderButton:hover {
-  background-color: #999999 !important; 
-  transition: 0.7s !important;
+  box-shadow: none;
 }
 
 .actionBtn {
-  width: 8rem !important;
+  width: 8rem ;
   background-color: #e7e7e7 !important;
   color: black !important;
   border-color: black !important;
   padding: 0.1rem 0 !important;
   margin: 0.2rem 0.2rem;
+  border: 2px solid !important;
 }
 
 input[type="number"] {
@@ -157,3 +158,49 @@ input[type="number"]::-webkit-outer-spin-button {
 .tabledata {
   border-style: hidden !important;
 }
+
+
+.showOrderButton {
+  border: 2px solid !important;
+  width: 25rem ;
+  background-color: #e7e7e7 !important ;
+  color: black !important;
+  margin-top: 0.4rem;
+  height: 3rem;
+  font-size: 24px !important;
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.2);
+}
+
+.showOrderButton:hover {
+  background-color: #999999 !important; 
+  transition: 0.7s !important;
+  box-shadow: none;
+}
+
+.pushable {
+  width: 25rem;
+  margin-top: 0.4rem;
+  background: #999999;
+  border-radius: 12px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;  
+}
+
+.front {
+    display: block;
+    padding: 12px 42px;
+    border-radius: 12px;
+    font-size: 24px !important;
+    background: #e7e7e7;
+    color: black;
+    transform: translateY(-6px);
+}
+
+.pushable:active .front {
+    transform: translateY(-2px);
+}
+
+ 
+  

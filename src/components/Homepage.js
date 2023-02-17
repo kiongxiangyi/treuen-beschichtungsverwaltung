@@ -17,7 +17,7 @@ export default function Homepage() {
   };
 
   return (
-    <>
+    <div>
       <div className="homepage">
         <form onSubmit={handleSubmitWareneingang}>
           <Button>Wareneingang</Button>
@@ -28,6 +28,6 @@ export default function Homepage() {
           <Button>Entnahme</Button>
         </form>
       </div>
-    </>
+    </div>
   );
 }

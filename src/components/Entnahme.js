@@ -6,7 +6,6 @@ import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
 import ReadOnlyRow from "./ReadOnlyRow";
 import EditableRow from "./EditableRow";
-import Dropdown from "react-bootstrap/Dropdown";
 
 export default function Entnahme({ fertigungsauftragDB }) {
   const navigate = useNavigate(); //hook for navigation
@@ -14,7 +13,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filter, setFilter] = useState(false);
   const [filterDB, setFilterDB] = useState([]);
-  const [withdrawnQuantity, setWithdrawnQuantity] = useState(""); //quantity for display after booking
+  /* const [withdrawnQuantity, setWithdrawnQuantity] = useState(""); //quantity for display after booking
   const [newQuantity, setNewQuantity] = useState("");
   const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
   const [fertigungsauftragDummy, setFertigungsauftragDummy] = useState("");
@@ -23,10 +22,10 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [
     beschichtungsDickeOfSelectedOrder,
     setBeschichtungsDickeOfSelectedOrder,
-  ] = useState("");
+  ] = useState(""); */
   const [submittedOrders, setSubmittedOrders] = useState([]);
   const [withdrawnOrders, setWithdrawnOrders] = useState([]);
-
+  const fullscreen = true;
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
   const handleClose = () => {
@@ -102,7 +101,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
     //watch,
     reset,
     formState,
-    formState: { errors },
+    //formState: { errors },
   } = useForm();
 
   const onSubmit = () => {
@@ -152,9 +151,9 @@ export default function Entnahme({ fertigungsauftragDB }) {
           selectedOrders.Menge - withdrawnQuantityOfSelectedOrder.Menge;
 
         let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
-        let storageBinOfSelectedOrder = selectedOrders.Lagerplatz;
+        /*  let storageBinOfSelectedOrder = selectedOrders.Lagerplatz;
         let ba = selectedOrders.BeschichtungsArt;
-        let bd = selectedOrders.BeschichtungsDicke;
+        let bd = selectedOrders.BeschichtungsDicke; */
 
         arrWithdrawnOrders.push({
           ...selectedOrders,
@@ -162,7 +161,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
           withdrawnQty: withdrawnQuantity,
         }); //save orders of loops in a local variable because useState does not render in loop
 
-        setFertigungsauftragDummy(fertigungsauftrag);
+        //setFertigungsauftragDummy(fertigungsauftrag);
 
         fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
           method: "PUT",
@@ -198,13 +197,13 @@ export default function Entnahme({ fertigungsauftragDB }) {
           }),
         })
           .then((res) => res.json())
-          .then((res) => {
+          /* .then((res) => {
             setWithdrawnQuantity(withdrawnQuantity);
             setNewQuantity(newQuantity);
             setStorageBin(storageBinOfSelectedOrder);
             setBeschichtungsArtOfSelectedOrder(ba);
-            setBeschichtungsDickeOfSelectedOrder(bd);
-          })
+            setBeschichtungsDickeOfSelectedOrder(bd); 
+          }) */
           .catch((err) => console.log(err));
       }
 
@@ -230,6 +229,10 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const handleSubmitOrder = (event) => {
     event.preventDefault();
     setFilter(true);
+
+    return (
+      <></>
+    )
   };
 
   //jump to Wareneingang
@@ -323,24 +326,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
           <label htmlFor="beschichtungsart-select">
             <b>Beschichtungsart</b>&ensp;&ensp;&ensp;&ensp;&ensp;
           </label>
-          {/* <Dropdown>
-            <Dropdown.Toggle
-              variant="success"
-              id="beschichtungsart-select"
-              name="beschichtungsart"
-              value={beschichtungsart}
-              onChange={handleChangeBeschichtungsart}
-            >
-              --Bitte eine Option auswählen--
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu>
-              <Dropdown.Item value="Fire">Fire</Dropdown.Item>
-              <Dropdown.Item value="Gold">Gold</Dropdown.Item>
-              <Dropdown.Item value="Silber">Silber</Dropdown.Item>
-              <Dropdown.Item value="TiN">TiN</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown> */}
           <div>
             <select
               className="beschichtung-select"
@@ -349,7 +334,9 @@ export default function Entnahme({ fertigungsauftragDB }) {
               value={beschichtungsart}
               onChange={handleChangeBeschichtungsart}
             >
-              <option value="">--Bitte eine Option auswählen--</option>
+              <option value="" selected disabled hidden>
+                --Bitte eine Option auswählen--
+              </option>
               <option value="Fire">Fire</option>
               <option value="Gold">Gold</option>
               <option value="Silber">Silber</option>
@@ -363,13 +350,15 @@ export default function Entnahme({ fertigungsauftragDB }) {
           </label>
           <div>
             <select
-              className="beschichtung-select"
+              className="beschichtung-select2"
               name="beschichtungsdicke"
               id="beschichtungsdicke-select"
               value={beschichtungsdicke}
               onChange={handleChangeBeschichtungsdicke}
             >
-              <option value="">--Bitte eine Option auswählen--</option>
+              <option value="" selected disabled hidden>
+                --Bitte eine Option auswählen--
+              </option>
               <option>&lt;= 2</option>
               <option>2 - 6</option>
               <option>&gt; 6</option>
@@ -384,68 +373,69 @@ export default function Entnahme({ fertigungsauftragDB }) {
         >
           <span class="front">Aufträge anzeigen</span>
         </button>
-        <p>
-          <b>Warenkorb:</b>
-        </p>
-        <Table bordered hover>
-          <thead>
-            <tr className="table-header">
-              <th className="checkbox">
+      </form>
+
+      <p>
+        <b>Warenkorb:</b>
+      </p>
+      <Table bordered hover className="table">
+        <thead>
+          <tr className="table-header">
+            <th className="checkbox">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                name="allSelect"
+                checked={
+                  filterDB.length > 0
+                    ? filterDB.filter((order) => order.isChecked !== true)
+                        .length < 1
+                    : false
+                }
+                //checked={!filterDB.some((user) => user.isChecked !== true)}
+                onChange={handleChangeCheckbox}
+              ></input>
+            </th>
+
+            <th>Fertigungsauftrag</th>
+            <th>Beschichtungsart</th>
+            <th>Beschichtungsdicke</th>
+            <th>Menge</th>
+            <th>Aktion</th>
+          </tr>
+        </thead>
+        <tbody className="table-body">
+          {filterDB.map((item) => (
+            <tr key={item.ID}>
+              <td className="checkbox">
                 <input
                   type="checkbox"
                   className="form-check-input"
-                  name="allSelect"
-                  checked={
-                    filterDB.length > 0
-                      ? filterDB.filter((order) => order.isChecked !== true)
-                          .length < 1
-                      : false
-                  }
-                  //checked={!filterDB.some((user) => user.isChecked !== true)}
+                  checked={item.isChecked || false}
                   onChange={handleChangeCheckbox}
-                ></input>
-              </th>
+                  name={item.Auftragsnummer}
+                />
+              </td>
 
-              <th>Fertigungsauftrag</th>
-              <th>Beschichtungsart</th>
-              <th>Beschichtungsdicke</th>
-              <th>Menge</th>
-              <th>Aktion</th>
-            </tr>
-          </thead>
-          <tbody className="table-body">
-            {filterDB.map((item) => (
-              <tr key={item.ID}>
-                <td className="checkbox">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    checked={item.isChecked || false}
-                    onChange={handleChangeCheckbox}
-                    name={item.Auftragsnummer}
+              <Fragment>
+                {editItemId === item.ID ? (
+                  <EditableRow
+                    item={item}
+                    editQuantity={editQuantity}
+                    handleEditQuantityChange={handleEditQuantityChange}
+                    handleCancelClick={handleCancelClick}
                   />
-                </td>
-
-                <Fragment>
-                  {editItemId === item.ID ? (
-                    <EditableRow
-                      item={item}
-                      editQuantity={editQuantity}
-                      handleEditQuantityChange={handleEditQuantityChange}
-                      handleCancelClick={handleCancelClick}
-                    />
-                  ) : (
-                    <ReadOnlyRow
-                      item={item}
-                      handleEditQuantityClick={handleEditQuantityClick}
-                    />
-                  )}
-                </Fragment>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </form>
+                ) : (
+                  <ReadOnlyRow
+                    item={item}
+                    handleEditQuantityClick={handleEditQuantityClick}
+                  />
+                )}
+              </Fragment>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* {errors.selectOrder && (
@@ -469,7 +459,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
       </Button>
 
       <Modal
-        size="lg"
+        fullscreen={fullscreen}
         show={show}
         onHide={handleClose}
         backdrop="static"

@@ -284,10 +284,12 @@ export default function Wareneingang({ articleDB }) {
   return (
     <div>
       <div className="scan-field">
-        <h1>Fertigungsauftrag scannen:</h1>
+        <h1>
+          <b>Fertigungsauftrag scannen:</b>
+        </h1>
         <form onSubmit={handleSubmit}>
           <input
-            className="InputFertigungsauftrag"
+            className="inputFertigungsauftrag"
             autoFocus
             type="text"
             id="fertigungsauftrag"

@@ -145,7 +145,7 @@ function App() {
   }, []);
 
   return (
-    <div>
+    <div className="background">
       <Header />
       <div className="body">
         <Routes>

@@ -1,4 +1,4 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import Table from "react-bootstrap/Table";
 import { useForm } from "react-hook-form";
 import Button from "react-bootstrap/Button";
@@ -6,6 +6,7 @@ import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
 import ReadOnlyRow from "./ReadOnlyRow";
 import EditableRow from "./EditableRow";
+import { toast } from "react-toastify";
 
 export default function Entnahme({ fertigungsauftragDB }) {
   const navigate = useNavigate(); //hook for navigation
@@ -16,11 +17,66 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [submittedOrders, setSubmittedOrders] = useState([]);
   const [withdrawnOrders, setWithdrawnOrders] = useState([]);
   const fullscreen = true;
+  const [buttonDisabled, setButtonDisabled] = useState(true);
+  const [orderNumWithdrawal, setOrderNumWithdrawal] = useState("");
+  const [newQtyAfterWithdrawal, setNewQtyAfterWithdrawal] = useState("");
+
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
-  const handleClose = () => {
+  const handleQuittieren = () => {
+    setButtonDisabled(true);
+
+    let fertigungsauftrag = orderNumWithdrawal; // get order number
+    let newQuantity = newQtyAfterWithdrawal; // get new qty
+
+    fetch(`${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        fertigungsauftrag,
+        newQuantity,
+      }),
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        setBeschichtungsart("Fire");
+        setBeschichtungsdicke("<= 2");
+        setFilterDB([]);
+        setSubmittedOrders([]); //reset, if not when click "weiter", previous order will be booked.
+      })
+      .catch((err) => console.log(err));
+
+    fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
+      method: "PUT",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+
+      body: JSON.stringify({
+        fertigungsauftrag,
+        newQuantity,
+      }),
+    })
+      .then((res) => res.json())
+      .catch((err) => console.log(err));
+
+    setShow(false); //close message box
+    setWithdrawnOrders([]); //reset previous withdrawals record
+  };
+
+  //if close button, nothing happen, reset everything, close message box
+  const handleCloseButton = () => {
     setShow(false);
     setWithdrawnOrders([]);
+    setFilterDB([]);
+    setSubmittedOrders([]);
+    setBeschichtungsart("");
+    setBeschichtungsdicke("");
   };
 
   //Edit, Save, Cancel quantity buttons function https://youtu.be/dYjdzpZv5yc
@@ -114,9 +170,11 @@ export default function Entnahme({ fertigungsauftragDB }) {
         );
 
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
+        setOrderNumWithdrawal(fertigungsauftrag);
 
         let newQuantity =
           selectedOrders.Menge - withdrawnQuantityOfSelectedOrder.Menge;
+        setNewQtyAfterWithdrawal(newQuantity);
 
         let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
 
@@ -125,49 +183,76 @@ export default function Entnahme({ fertigungsauftragDB }) {
           newQty: newQuantity,
           withdrawnQty: withdrawnQuantity,
         }); //save orders of loops in a local variable because useState does not render in loop
-
-        fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            fertigungsauftrag,
-            newQuantity,
-          }),
-        })
-          .then((res) => res.json())
-          .then((res) => {
-            setBeschichtungsart("Fire");
-            setBeschichtungsdicke("<= 2");
-            setFilterDB([]);
-            setSubmittedOrders([]); //reset, if not when click "weiter", previous order will be booked.
-          })
-          .catch((err) => console.log(err));
-
-        fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            fertigungsauftrag,
-            newQuantity,
-          }),
-        })
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
       }
+
+      //Auslagerung in DB set TRUE
+      fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          fertigungsauftrag,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
 
       setWithdrawnOrders(arrWithdrawnOrders); //save the orders in useState
       setShow(true);
     } else {
     }
   };
+
+  //get tblEShelfBeschichtung
+  useEffect(() => {
+    let interval;
+    if (show) {
+      const fetchOrders = async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_API}/Auftragsnummer`
+          );
+          const results = await response.json();
+
+          if (withdrawnOrders.length > 0) {
+            //if withdrawals exist
+            for (let i = 0; i < withdrawnOrders.length; i++) {
+              //loop withdrawal orders
+              for (let j = 0; j < results.length; j++) {
+                //loop data in DB
+                if (
+                  results[j].Auftragsnummer ===
+                    withdrawnOrders[i].Auftragsnummer && //find withdrawal order in DB
+                  results[j].Auslagerung === true &&
+                  results[j].Erledigt === true //check if it is set to TRUE
+                ) {
+                  setButtonDisabled(false);
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.log(err);
+          toast.error(
+            "There is no connection to database. Please check the database server."
+          );
+        }
+      };
+      fetchOrders();
+
+      //fetch Artikel every X second
+      interval = setInterval(() => {
+        fetchOrders();
+      }, 2 * 1000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [show, withdrawnOrders]);
 
   //tutorial: https://www.simplilearn.com/tutorials/reactjs-tutorial/how-to-create-functional-react-dropdown-menu
   //select beschichtungsart
@@ -184,8 +269,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const handleSubmitOrder = (event) => {
     event.preventDefault();
     setFilter(true);
-
-    return <></>;
   };
 
   //jump to Wareneingang
@@ -408,7 +491,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
       <Modal
         fullscreen={fullscreen}
         show={show}
-        onHide={handleClose}
+        onHide={handleCloseButton}
         backdrop="static"
         keyboard={false}
       >
@@ -444,7 +527,11 @@ export default function Entnahme({ fertigungsauftragDB }) {
           </table>
         </Modal.Body>
         <Modal.Footer>
-          <Button className="modalButton" onClick={handleClose}>
+          <Button
+            className="modalButton"
+            disabled={buttonDisabled}
+            onClick={handleQuittieren}
+          >
             Quittieren
           </Button>
         </Modal.Footer>

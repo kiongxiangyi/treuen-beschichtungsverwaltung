@@ -11,3 +11,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+:root {
+  --black-color: #000;
+  --white-color: #fff;
+  --bg-color: var(--white-color);
+  --button-bg-color: #e7e7e7;
+  --button-bg-progress-color: #ffe100;
+  --button-text-color: var(--black-color);
+  --button-text-color-hovered: var(--black-color);
+  --button-bg-blurred: rgba(255, 255 ,255 ,0.2)
+}

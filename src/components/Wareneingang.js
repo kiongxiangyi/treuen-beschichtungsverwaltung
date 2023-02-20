@@ -23,6 +23,7 @@ export default function Wareneingang({ articleDB }) {
 
   const handleClose = () => {
     setShowSAPchecked(false);
+    setShow(false);
   };
 
   const handleCloseNotFoundOrderMessage = () => {
@@ -75,6 +76,20 @@ export default function Wareneingang({ articleDB }) {
       );
 
       if (!findArticle) {
+        fetch(`${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`, {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            fertigungsauftrag,
+          }),
+        })
+          .then((res) => res.json())
+          .catch((err) => console.log(err));
+
         fetch(`${process.env.REACT_APP_API}/Artikel`, {
           method: "POST",
           headers: {
@@ -105,20 +120,6 @@ export default function Wareneingang({ articleDB }) {
 
         fetch(`${process.env.REACT_APP_API}/LagerArtikel`, {
           method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            fertigungsauftrag,
-          }),
-        })
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
-
-        fetch(`${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`, {
-          method: "PUT",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -183,6 +184,7 @@ export default function Wareneingang({ articleDB }) {
         );
         const results = await response.json();
         setFertigungsauftragDB(results);
+
         for (let i = 0; i < results.length; i++) {
           let fertigungsauftrag = results[i].Auftragsnummer;
 
@@ -214,7 +216,7 @@ export default function Wareneingang({ articleDB }) {
               .catch((err) => console.log(err));
 
             //update qty from SAP when Erledigt is TRUE
-            let qty = results[i].Menge;
+            let newQuantity = results[i].Menge;
 
             fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
               method: "PUT",
@@ -225,12 +227,12 @@ export default function Wareneingang({ articleDB }) {
 
               body: JSON.stringify({
                 fertigungsauftrag,
-                qty,
+                newQuantity,
               }),
             })
               .then((res) => res.json())
               .then((res) => {
-                setQuantity(qty);
+                setQuantity(newQuantity);
                 setStorageBin(results[i].Lagerplatz);
               })
               .catch((err) => console.log(err));
@@ -258,7 +260,7 @@ export default function Wareneingang({ articleDB }) {
 
             setShow(false);
             setShowNotFoundOrderMessage(true);
-          }
+          } 
         }
       } catch (err) {
         console.log(err);
@@ -282,10 +284,12 @@ export default function Wareneingang({ articleDB }) {
   return (
     <div>
       <div className="scan-field">
-        <h1>Bitte Fertigungsauftrag scannen:</h1>
+        <h1>
+          <b>Fertigungsauftrag scannen:</b>
+        </h1>
         <form onSubmit={handleSubmit}>
           <input
-            className="InputFertigungsauftrag"
+            className="inputFertigungsauftrag"
             autoFocus
             type="text"
             id="fertigungsauftrag"
@@ -318,7 +322,7 @@ export default function Wareneingang({ articleDB }) {
 
           <Modal
             show={show}
-            // onHide={handleClose}
+            onHide={handleClose}
             backdrop="static"
             keyboard={false}
             // centered
@@ -329,7 +333,7 @@ export default function Wareneingang({ articleDB }) {
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              In SAP wird es geprüft, ob die Fertigungsauftrag vorhanden ist...
+              In SAP wird es geprüft, ob die Fertigungsauftrag vorhanden ist. Klicken Sie die E-Label an, wenn sie blinkt.
             </Modal.Body>
             <Modal.Footer></Modal.Footer>
           </Modal>
@@ -355,11 +359,11 @@ export default function Wareneingang({ articleDB }) {
                     <th className="tabledata">{fertigungsauftragDummy}</th>
                   </tr>
                   <tr>
-                    <td className="tabledata">BeschichtungsArt</td>
+                    <td className="tabledata">Beschichtungsart</td>
                     <th className="tabledata">{beschichtungsArt}</th>
                   </tr>
                   <tr>
-                    <td className="tabledata">BeschichtungsDicke</td>
+                    <td className="tabledata">Beschichtungsdicke</td>
                     <th className="tabledata">{beschichtungsDicke}</th>
                   </tr>
                   <tr>

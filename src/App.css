@@ -1,47 +1,107 @@
 * {
   font-family: 'Helvetica Neue LT W1G 400', sans-serif; /* https://www.cdnfonts.com/helvetica-neue-lt-w1g.font */
-  background-color: white;
+  /* background-color: white; */
   margin: 0;
   padding: 0;
 }
 
+body, html {
+  height: 100%;
+}
+
+body {
+  margin: 0.1rem
+}
 .header {
   background-color: #ffe100;
   padding: 0 0.5rem;
   display: flex;
+  position: relative;
 }
 
-.body {
-  margin: 1rem;
+img {
+  background-color: #ffe100 ;
+  margin-left: auto;
+  margin-top: auto; 
+  margin-bottom: auto;
+  height: 2.5rem;
+  
 }
+
+img:hover {
+  opacity: .5;
+}
+
+/* .bg {
+    background-image: url("/public/img/Tool_Management.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100%;
+} */
+
+.body {
+  position: relative;
+  margin: 0.5rem
+}
+ 
+
+
+.bg::before {
+  content: "";
+  background-image: url("/public/pictures/Tool_Management.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
+  opacity: 0.3;
+} 
 
 .scan-field {
   text-align: center;
 }
 
 .site-title {
-  font-size: 1.5rem;
+  font-size: 36px;
   background-color: #ffe100;
   font-weight: bold;
 }
 
-input {
-  background-color: white;
+h1 {
+  font-size: 36px;
 }
 
+
 .header a {
+  
   color: inherit;
   text-decoration: none;
 }
 
+.table {
+  border: 2px solid #999999 !important; 
+  text-align: center;
+}
+
 .table-header {
-  background-color: #e7e7e7;
-  border-color: black;
+  color:black;
+  background: #ffe100;
+  vertical-align: middle;
 }
 
 .table-body {
-  border-color: black;
+  color:black;
+  background: #e7e7e7;
+  font-size: 20px;
 }
+
+/* tr:nth-child(even) {
+  background: white;
+} */
 
 .storage-bin {
   text-align: left;
@@ -55,18 +115,53 @@ input {
 }
 
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Aligning_Items_in_a_Flex_Container */
-.beschichtung-select {
+.beschichtung-select  {
   width: 25rem;
   height: 3rem;
+  background-color: #e7e7e7;
+  border: 2px solid;
+  border-radius: 10px;
 }
 
-.checkbox {
-  height: 50px;
-  width: 50px;
+.beschichtung-select2 {
+  width: 25rem;
+  height: 3rem;
+  background-color: #e7e7e7;
+  border: 2px solid;
+  border-radius: 10px;
 }
+
+.beschichtung-select option:nth-child(2) {
+  background: red;
+}
+
+.beschichtung-select option:nth-child(3) {
+  background: gold;
+}
+
+.beschichtung-select option:nth-child(4) {
+  background: silver;
+}
+
+.beschichtung-select option:nth-child(5) {
+  background: #d3d4d5;
+}
+
+.form-check-input {
+  font-size: 30px;
+}
+
+.homepage{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2.5rem;
+  /* background: var(--bg-color); */
+}
+
+
 .btn-primary-outline{
-  background-color: #ffe100 !important;
-  border-color: #ffe100 !important;
+  background-color: #e7e7e7 !important;
   color: black !important;
   width: 15rem;
   height: 5rem;
@@ -83,65 +178,52 @@ input {
   color: white;
 }
 
-.InputFertigungsauftrag{
+.inputFertigungsauftrag{
   border-radius: 5px;
   margin: 0.5rem 0;
   width: 30rem;
+  background-color: white;
+  height: 50px;
+  font-size: 50px;
 }
 
 .modalHeader {
   background-color: #ffe100
 }
 
+p {
+  font-size: 25px;
+}
+
 .modalButton {
-  width: 16rem !important;
+  width: 15rem ;
   background-color: #e7e7e7 !important;
   color: black !important;
-  border-color: black !important;
-  padding: 0.1rem 0 !important;
-  margin-top: 0.4rem;
+  margin: 0.4rem 0;
+  font-size: 25px !important;
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.2);
+  border: 2px solid !important;
 }
 
 .modalButton:hover {
   background-color: #999999 !important; 
   transition: 0.7s !important;
-}
-
-.btn-header {
-  background-color: #ffe100 !important;
-  color: black !important;
-  border-color: black !important;
-  margin-left: auto
-}
-
-.btn-header:hover {
-  background-color: white !important;
-  
-}
-
-.showOrderButton {
-  width: 25rem !important;
-  background-color: #e7e7e7 !important;
-  color: black !important;
-  border-color: black !important;
-  padding: 0.1rem 0 !important;
-  margin-top: 0.4rem;
-  height: 3rem;
-  font-size: 25px !important;
-}
-
-.showOrderButton:hover {
-  background-color: #999999 !important; 
-  transition: 0.7s !important;
+  box-shadow: none;
 }
 
 .actionBtn {
-  width: 8rem !important;
+  width: 8rem ;
   background-color: #e7e7e7 !important;
   color: black !important;
   border-color: black !important;
   padding: 0.1rem 0 !important;
   margin: 0.2rem 0.2rem;
+  border: 2px solid !important;
+}
+
+.actionBtn:hover {
+  background-color: #999999 !important; 
+  transition: 0.7s !important;
 }
 
 input[type="number"] {
@@ -157,3 +239,62 @@ input[type="number"]::-webkit-outer-spin-button {
 .tabledata {
   border-style: hidden !important;
 }
+
+
+.showOrderButton {
+  border: 2px solid !important;
+  width: 25rem ;
+  background-color: #e7e7e7 !important ;
+  color: black !important;
+  margin-top: 0.4rem;
+  height: 3rem;
+  font-size: 25px !important;
+  box-shadow: 5px 5px 10px rgba(0,0,0,0.2);
+}
+
+.showOrderButton:hover {
+  background-color: #999999 !important; 
+  transition: 0.7s !important;
+  box-shadow: none;
+}
+
+/* 3D button css https://www.joshwcomeau.com/animation/3d-button/ */
+.pushable {
+  width: 25rem;
+  margin-top: 1rem;
+  background: #999999;
+  border-radius: 12px;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  outline-offset: 4px;  
+}
+
+.front {
+    display: block;
+    padding: 12px 42px;
+    border-radius: 12px;
+    font-size: 25px !important;
+    background: #e7e7e7;
+    color: black;
+    transform: translateY(-3px);
+    border: 1px solid;
+}
+
+.front:hover {
+  background-color: darkgrey;
+  color: white;
+  border: none;
+}
+
+.pushable:active .front {
+    transform: translateY(-2px);
+}
+
+
+@media only screen and (min-width: 992px) {
+  .bg::before {
+    background-image: url("/public/pictures/ImageflyerDE.png");
+    
+  }
+} 

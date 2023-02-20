@@ -6,7 +6,6 @@ import Modal from "react-bootstrap/Modal";
 import { useNavigate } from "react-router-dom";
 import ReadOnlyRow from "./ReadOnlyRow";
 import EditableRow from "./EditableRow";
-import Dropdown from "react-bootstrap/Dropdown";
 
 export default function Entnahme({ fertigungsauftragDB }) {
   const navigate = useNavigate(); //hook for navigation
@@ -14,7 +13,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filter, setFilter] = useState(false);
   const [filterDB, setFilterDB] = useState([]);
-  const [withdrawnQuantity, setWithdrawnQuantity] = useState(""); //quantity for display after booking
+  /* const [withdrawnQuantity, setWithdrawnQuantity] = useState(""); //quantity for display after booking
   const [newQuantity, setNewQuantity] = useState("");
   const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
   const [fertigungsauftragDummy, setFertigungsauftragDummy] = useState("");
@@ -23,13 +22,15 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [
     beschichtungsDickeOfSelectedOrder,
     setBeschichtungsDickeOfSelectedOrder,
-  ] = useState("");
+  ] = useState(""); */
   const [submittedOrders, setSubmittedOrders] = useState([]);
-
+  const [withdrawnOrders, setWithdrawnOrders] = useState([]);
+  const fullscreen = true;
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
   const handleClose = () => {
     setShow(false);
+    setWithdrawnOrders([]);
   };
 
   //Edit, Save, Cancel quantity buttons function https://youtu.be/dYjdzpZv5yc
@@ -100,10 +101,8 @@ export default function Entnahme({ fertigungsauftragDB }) {
     //watch,
     reset,
     formState,
-    formState: { errors },
+    //formState: { errors },
   } = useForm();
-
-  const [withdrawnOrders, setWithdrawnOrders] = useState([]);
 
   const onSubmit = () => {
     if (submittedOrders.length > 0) {
@@ -111,6 +110,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
       let selectedOrders;
       let withdrawnQuantityOfSelectedOrder;
       let fertigungsauftrag;
+      let arrWithdrawnOrders = [];
       //loop and update quantity of selected orders
       for (let i = 0; i < submittedOrders.length; i++) {
         selectedOrders = fertigungsauftragDB.find(
@@ -126,9 +126,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
 
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
-        setWithdrawnOrders([...withdrawnOrders, selectedOrders]);
-
-        console.log(withdrawnOrders);
         /* for (let i = 0; i < selectOrder.length; i++) {
         if (checkIsArray === false) {
           selectedOrders = fertigungsauftragDB.find(
@@ -150,14 +147,21 @@ export default function Entnahme({ fertigungsauftragDB }) {
           fertigungsauftrag = selectOrder[i];
         } */
 
-        let qty = selectedOrders.Menge - withdrawnQuantityOfSelectedOrder.Menge;
+        let newQuantity =
+          selectedOrders.Menge - withdrawnQuantityOfSelectedOrder.Menge;
 
         let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
-        let storageBinOfSelectedOrder = selectedOrders.Lagerplatz;
+        /*  let storageBinOfSelectedOrder = selectedOrders.Lagerplatz;
         let ba = selectedOrders.BeschichtungsArt;
-        let bd = selectedOrders.BeschichtungsDicke;
+        let bd = selectedOrders.BeschichtungsDicke; */
 
-        setFertigungsauftragDummy(fertigungsauftrag);
+        arrWithdrawnOrders.push({
+          ...selectedOrders,
+          newQty: newQuantity,
+          withdrawnQty: withdrawnQuantity,
+        }); //save orders of loops in a local variable because useState does not render in loop
+
+        //setFertigungsauftragDummy(fertigungsauftrag);
 
         fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
           method: "PUT",
@@ -168,7 +172,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
 
           body: JSON.stringify({
             fertigungsauftrag,
-            qty,
+            newQuantity,
           }),
         })
           .then((res) => res.json())
@@ -189,20 +193,21 @@ export default function Entnahme({ fertigungsauftragDB }) {
 
           body: JSON.stringify({
             fertigungsauftrag,
-            qty,
+            newQuantity,
           }),
         })
           .then((res) => res.json())
-          .then((res) => {
+          /* .then((res) => {
             setWithdrawnQuantity(withdrawnQuantity);
-            setNewQuantity(qty);
+            setNewQuantity(newQuantity);
             setStorageBin(storageBinOfSelectedOrder);
             setBeschichtungsArtOfSelectedOrder(ba);
-            setBeschichtungsDickeOfSelectedOrder(bd);
-          })
+            setBeschichtungsDickeOfSelectedOrder(bd); 
+          }) */
           .catch((err) => console.log(err));
       }
 
+      setWithdrawnOrders(arrWithdrawnOrders); //save the orders in useState
       setShow(true);
     } else {
     }
@@ -224,6 +229,8 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const handleSubmitOrder = (event) => {
     event.preventDefault();
     setFilter(true);
+
+    return <></>;
   };
 
   //jump to Wareneingang
@@ -317,24 +324,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
           <label htmlFor="beschichtungsart-select">
             <b>Beschichtungsart</b>&ensp;&ensp;&ensp;&ensp;&ensp;
           </label>
-          {/* <Dropdown>
-            <Dropdown.Toggle
-              variant="success"
-              id="beschichtungsart-select"
-              name="beschichtungsart"
-              value={beschichtungsart}
-              onChange={handleChangeBeschichtungsart}
-            >
-              --Bitte eine Option auswählen--
-            </Dropdown.Toggle>
-
-            <Dropdown.Menu>
-              <Dropdown.Item value="Fire">Fire</Dropdown.Item>
-              <Dropdown.Item value="Gold">Gold</Dropdown.Item>
-              <Dropdown.Item value="Silber">Silber</Dropdown.Item>
-              <Dropdown.Item value="TiN">TiN</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown> */}
           <div>
             <select
               className="beschichtung-select"
@@ -343,7 +332,9 @@ export default function Entnahme({ fertigungsauftragDB }) {
               value={beschichtungsart}
               onChange={handleChangeBeschichtungsart}
             >
-              <option value="">--Bitte eine Option auswählen--</option>
+              <option value="" disabled hidden>
+                --Bitte eine Option auswählen--
+              </option>
               <option value="Fire">Fire</option>
               <option value="Gold">Gold</option>
               <option value="Silber">Silber</option>
@@ -357,13 +348,15 @@ export default function Entnahme({ fertigungsauftragDB }) {
           </label>
           <div>
             <select
-              className="beschichtung-select"
+              className="beschichtung-select2"
               name="beschichtungsdicke"
               id="beschichtungsdicke-select"
               value={beschichtungsdicke}
               onChange={handleChangeBeschichtungsdicke}
             >
-              <option value="">--Bitte eine Option auswählen--</option>
+              <option value="" disabled hidden>
+                --Bitte eine Option auswählen--
+              </option>
               <option>&lt;= 2</option>
               <option>2 - 6</option>
               <option>&gt; 6</option>
@@ -371,13 +364,17 @@ export default function Entnahme({ fertigungsauftragDB }) {
           </div>
         </div>
         &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;
-        <Button className="showOrderButton" onClick={handleSubmitOrder}>
-          Aufträge anzeigen
-        </Button>
+        <button
+          variant="outline-secondary"
+          className="pushable"
+          onClick={handleSubmitOrder}
+        >
+          <span className="front">Aufträge anzeigen</span>
+        </button>
         <p>
           <b>Warenkorb:</b>
         </p>
-        <Table bordered hover>
+        <Table bordered hover className="table">
           <thead>
             <tr className="table-header">
               <th className="checkbox">
@@ -436,21 +433,30 @@ export default function Entnahme({ fertigungsauftragDB }) {
           </tbody>
         </Table>
       </form>
-      
+
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* {errors.selectOrder && (
           <p>Bitte wählen Sie mindestens einen Artikel!</p>
         )} */}
 
-        <Button className="modalButton" type="submit">
+        <Button
+          variant="outline-secondary"
+          className="modalButton"
+          type="submit"
+        >
           Weiter
         </Button>
       </form>
-      <Button className="modalButton" onClick={handleWareneingang}>
+      <Button
+        variant="outline-secondary"
+        className="modalButton"
+        onClick={handleWareneingang}
+      >
         Teilmenge Rückgabe
       </Button>
 
       <Modal
+        fullscreen={fullscreen}
         show={show}
         onHide={handleClose}
         backdrop="static"
@@ -465,23 +471,25 @@ export default function Entnahme({ fertigungsauftragDB }) {
           <table className="table">
             <thead>
               <tr>
-                <th>Fertigungsauftrag</th>
-                <th>Beschichtungsart</th>
-                <th>Beschichtungsdicke</th>
-                <th>Restmenge</th>
-                <th>Lagerplatz</th>
+                <td>Fertigungsauftrag</td>
+                <td>Beschichtungsart</td>
+                <td>Beschichtungsdicke</td>
+                <td>Menge</td>
+                <td>Restmenge</td>
+                <td>Lagerplatz</td>
               </tr>
             </thead>
             <tbody>
-              {withdrawnOrders.map((item) => {
-                return (
-                  <tr>
-                    <td>{item.Auftragsnummer}</td>
-                    <td>{item.BeschichtungsArt}</td>
-                    <td>{item.BeschichtungsDicke}</td>
-                  </tr>
-                );
-              })}
+              {withdrawnOrders.map((item) => (
+                <tr>
+                  <td>{item.Auftragsnummer}</td>
+                  <td>{item.BeschichtungsArt}</td>
+                  <td>{item.BeschichtungsDicke}</td>
+                  <th>{item.withdrawnQty}</th>
+                  <td>{item.newQty}</td>
+                  <td>{item.Lagerplatz}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </Modal.Body>
@@ -495,7 +503,8 @@ export default function Entnahme({ fertigungsauftragDB }) {
   );
 }
 
-/* <tr>
+/*
+<tr>
                 <td className="tabledata">Fertigungsauftrag</td>
                 <th className="tabledata">{fertigungsauftragDummy}</th>
               </tr>
@@ -520,5 +529,5 @@ export default function Entnahme({ fertigungsauftragDB }) {
               <tr>
                 <td className="tabledata">Lagerplatz</td>
                 <th className="tabledata">{storageBin}</th>
-              </tr> 
-              */
+              </tr>
+ */

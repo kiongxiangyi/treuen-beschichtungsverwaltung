@@ -37,7 +37,6 @@ export default function Wareneingang({ articleDB }) {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/freeStorageBins`)
       .then((res) => res.json())
       .then((data) => {
-        //console.log(data);
         setFreeStorageBins(data);
       })
       .catch((err) => {
@@ -49,7 +48,6 @@ export default function Wareneingang({ articleDB }) {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/occupiedStorageBins`)
       .then((res) => res.json())
       .then((data) => {
-        //console.log(data);
         setOccupiedStorageBins(data);
       })
       .catch((err) => {
@@ -305,7 +303,6 @@ export default function Wareneingang({ articleDB }) {
             onHide={handleCloseNoInput}
             backdrop="static"
             keyboard={false}
-            // centered
           >
             <Modal.Header className="modalHeader" closeButton>
               <Modal.Title className="modalHeader">Fehler</Modal.Title>
@@ -343,7 +340,6 @@ export default function Wareneingang({ articleDB }) {
             onHide={handleClose}
             backdrop="static"
             keyboard={false}
-            // centered
           >
             <Modal.Header className="modalHeader" closeButton>
               <Modal.Title className="modalHeader">
@@ -389,7 +385,6 @@ export default function Wareneingang({ articleDB }) {
             onHide={handleCloseNotFoundOrderMessage}
             backdrop="static"
             keyboard={false}
-            // centered
           >
             <Modal.Header className="modalHeader" closeButton>
               <Modal.Title className="modalHeader">

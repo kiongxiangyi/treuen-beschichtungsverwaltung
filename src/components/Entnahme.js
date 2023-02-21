@@ -1,460 +1,51 @@
-import React, { useState, Fragment, useEffect, useRef } from "react";
-import Table from "react-bootstrap/Table";
-import { useForm } from "react-hook-form";
-import Button from "react-bootstrap/Button";
-import Modal from "react-bootstrap/Modal";
-import { useNavigate } from "react-router-dom";
-import ReadOnlyRow from "./ReadOnlyRow";
-import EditableRow from "./EditableRow";
-import { toast } from "react-toastify";
+import React, { useState } from "react";
 import EntnahmeFilter from "./EntnahmeFilter";
+import EntnahmeTable from "./EntnahmeTable";
+import EntnahmeButton from "./EntnahmeButton";
+import EntnahmeModal from "./EntnahmeModal";
 
 export default function Entnahme({ fertigungsauftragDB }) {
-  const navigate = useNavigate(); //hook for navigation
   const [beschichtungsart, setBeschichtungsart] = useState("");
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filterDB, setFilterDB] = useState([]);
   const [submittedOrders, setSubmittedOrders] = useState([]);
   const [withdrawnOrders, setWithdrawnOrders] = useState([]);
-  const fullscreen = true;
-  const [buttonDisabled, setButtonDisabled] = useState(true);
-
-  //bootstrap modal prompt message
-  const [show, setShow] = useState(false);
-  const handleQuittieren = () => {
-    for (let i = 0; i < withdrawnOrders.length; i++) {
-      //loop withdrawn orders
-      let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer; // get order number
-      let newQuantity = withdrawnOrders[i].newQty; // get new qty
-
-      fetch(`${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`, {
-        //update new Qty to DB
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          fertigungsauftrag,
-          newQuantity,
-        }),
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          setBeschichtungsart("Fire"); //reset filter Beschichtungsart
-          setBeschichtungsdicke("<= 2"); //reset filter Beschichtungsdicke
-          setFilterDB([]); //reset filter of orders
-          setSubmittedOrders([]); //reset, if not when click "weiter", previous order will be booked.
-        })
-        .catch((err) => console.log(err));
-
-      fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          fertigungsauftrag,
-          newQuantity,
-        }),
-      })
-        .then((res) => res.json())
-        .catch((err) => console.log(err));
-    }
-
-    setButtonDisabled(true); //reset button to disabled
-    setShow(false); //close message box
-    setWithdrawnOrders([]); //reset previous withdrawals record
-  };
-
-  //if close button, nothing happen, reset everything, close message box
-  const handleCloseButton = () => {
-    setShow(false);
-    setWithdrawnOrders([]);
-    setFilterDB([]);
-    setSubmittedOrders([]);
-    setBeschichtungsart("");
-    setBeschichtungsdicke("");
-  };
-
-  //Edit, Save, Cancel quantity buttons function https://youtu.be/dYjdzpZv5yc
-  const [editItemId, setEditItemId] = useState(null);
-
-  const [editQuantity, setEditQuantity] = useState({
-    Auftragsnummer: "",
-    BeschichtungsArt: "",
-    BeschichtungsDicke: "",
-    Menge: "",
-  });
-
-  //when click to edit
-  const handleEditQuantityClick = (event, item) => {
-    event.preventDefault();
-    setEditItemId(item.ID); //get the id of the edited row
-
-    const formValues = {
-      Auftragsnummer: item.Auftragsnummer,
-      BeschichtungsArt: item.BeschichtungsArt,
-      BeschichtungsDicke: item.BeschichtungsDicke,
-      Menge: item.Menge,
-    };
-
-    setEditQuantity(formValues); //show the original quantity
-  };
-
-  //when change the quantity
-  const handleEditQuantityChange = (event) => {
-    event.preventDefault();
-
-    const fieldName = event.target.getAttribute("name"); //get the name attribute of the input tag -> Menge
-    const fieldValue = event.target.value; //get the current value
-
-    const newQuantity = { ...editQuantity }; //new object of quantity
-    newQuantity[fieldName] = fieldValue; //change the quantity to the current value
-    setEditQuantity(newQuantity); //update the current value
-  };
-
-  //submit the changed quantity
-  const handleEditQuantitySubmit = (event) => {
-    event.preventDefault();
-
-    const editedQuantity = {
-      ID: editItemId,
-      Auftragsnummer: editQuantity.Auftragsnummer,
-      BeschichtungsArt: editQuantity.BeschichtungsArt,
-      BeschichtungsDicke: editQuantity.BeschichtungsDicke,
-      Menge: editQuantity.Menge,
-    };
-
-    const newQuantity = [...filterDB];
-    const index = filterDB.findIndex((item) => item.ID === editItemId);
-    newQuantity[index] = editedQuantity;
-
-    setFilterDB(newQuantity); //update value to current table in website
-    setEditItemId(null); //go to ReadOnlyRow
-  };
-
-  //not to change the quantity click
-  const handleCancelClick = () => {
-    setEditItemId(null);
-  };
-
-  const {
-    //register,
-    handleSubmit,
-    //watch,
-    reset,
-    formState,
-    //formState: { errors },
-  } = useForm();
-
-  const onSubmit = () => {
-    if (submittedOrders.length > 0) {
-      let selectedOrders;
-      let withdrawnQuantityOfSelectedOrder;
-      let fertigungsauftrag;
-      let arrWithdrawnOrders = [];
-      //loop and update quantity of selected orders
-      for (let i = 0; i < submittedOrders.length; i++) {
-        selectedOrders = fertigungsauftragDB.find(
-          //current quantity in DB
-          ({ Auftragsnummer }) =>
-            Auftragsnummer === submittedOrders[i].Auftragsnummer
-        );
-        withdrawnQuantityOfSelectedOrder = filterDB.find(
-          //withdrawal quantity input in frontend
-          ({ Auftragsnummer }) =>
-            Auftragsnummer === submittedOrders[i].Auftragsnummer
-        );
-
-        fertigungsauftrag = submittedOrders[i].Auftragsnummer;
-
-        let newQuantity =
-          selectedOrders.Menge - withdrawnQuantityOfSelectedOrder.Menge;
-
-        let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
-
-        arrWithdrawnOrders.push({
-          ...selectedOrders,
-          newQty: newQuantity,
-          withdrawnQty: withdrawnQuantity,
-        }); //save orders of loops in a local variable because useState does not render in loop
-
-        //Auslagerung in DB set TRUE
-        fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            fertigungsauftrag,
-          }),
-        })
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
-      }
-
-      setWithdrawnOrders(arrWithdrawnOrders); //save the orders in useState
-      setShow(true);
-    } else {
-    }
-  };
-
-  const countRef = useRef(0); //count initial value 0
-  //get tblEShelfBeschichtung
-  useEffect(() => {
-    let interval;
-    if (show) {
-      const fetchOrders = async () => {
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_API}/Auftragsnummer`
-          );
-          const results = await response.json();
-
-          if (withdrawnOrders.length > 0) {
-            //if withdrawals exist
-            for (let i = 0; i < withdrawnOrders.length; i++) {
-              //loop withdrawal orders
-              for (let j = 0; j < results.length; j++) {
-                //loop data in DB
-                if (
-                  results[j].Auftragsnummer ===
-                    withdrawnOrders[i].Auftragsnummer && //find withdrawal order in DB
-                  results[j].Auslagerung === true &&
-                  results[j].Erledigt === true //check if it is set to TRUE
-                ) {
-                  let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;
-                  countRef.current++; // update count when one order in array withdrawnOrders done
-
-                  fetch(
-                    `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmePending`,
-                    {
-                      method: "PUT",
-                      headers: {
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                      },
-
-                      body: JSON.stringify({
-                        fertigungsauftrag,
-                      }),
-                    }
-                  )
-                    .then((res) => res.json())
-                    .catch((err) => console.log(err));
-                }
-              }
-            }
-
-            if (countRef.current === withdrawnOrders.length) {
-              countRef.current = 0; //reset count when all withdrawnOrders processed
-              setButtonDisabled(false);
-            }
-          }
-        } catch (err) {
-          console.log(err);
-          toast.error(
-            "There is no connection to database. Please check the database server."
-          );
-        }
-      };
-      fetchOrders();
-
-      //fetch Artikel every X second
-      interval = setInterval(() => {
-        fetchOrders();
-      }, 2 * 1000);
-
-      return () => {
-        clearInterval(interval);
-      };
-    }
-  }, [show, withdrawnOrders]);
-
-  //jump to Wareneingang
-  const handleWareneingang = (event) => {
-    navigate("/Wareneingang");
-  };
-
-  //reset form tutorial https://react-hook-form.com/api/useform/reset/
-  React.useEffect(() => {
-    if (formState.isSubmitSuccessful) {
-      reset();
-    }
-  }, [formState, reset]);
-
-  //checkbox
-  const handleChangeCheckbox = (e) => {
-    const { name, checked } = e.target;
-    if (name === "allSelect") {
-      //when allSelect, all assigned isChecked
-      let tempOrder = filterDB.map((order) => {
-        return { ...order, isChecked: checked };
-      });
-      setFilterDB(tempOrder);
-
-      const selectedOrders = tempOrder.filter(
-        //filter checked orders for submit later
-        (order) => order.isChecked === true
-      );
-      setSubmittedOrders(selectedOrders);
-    } else {
-      let tempOrder = filterDB.map((order) =>
-        order.Auftragsnummer === name ? { ...order, isChecked: checked } : order
-      );
-      setFilterDB(tempOrder);
-
-      const selectedOrders = tempOrder.filter(
-        (order) => order.isChecked === true
-      );
-      setSubmittedOrders(selectedOrders);
-    }
-  };
+  const [show, setShow] = useState(false); //bootstrap modal prompt message
 
   return (
     <div>
-      <form onSubmit={handleEditQuantitySubmit}>
-        <EntnahmeFilter
-          fertigungsauftragDB={fertigungsauftragDB}
-          setFilterDB={setFilterDB}
-          beschichtungsart={beschichtungsart}
-          beschichtungsdicke={beschichtungsdicke}
-          setBeschichtungsart={setBeschichtungsart}
-          setBeschichtungsdicke={setBeschichtungsdicke}
-        />
-        <p>
-          <b>Warenkorb:</b>
-        </p>
-        <Table bordered hover className="table">
-          <thead>
-            <tr className="table-header">
-              <th className="checkbox">
-                <input
-                  type="checkbox"
-                  className="form-check-input"
-                  name="allSelect"
-                  checked={
-                    filterDB.length > 0
-                      ? filterDB.filter((order) => order.isChecked !== true)
-                          .length < 1
-                      : false
-                  }
-                  onChange={handleChangeCheckbox}
-                ></input>
-              </th>
+      <EntnahmeFilter
+        fertigungsauftragDB={fertigungsauftragDB}
+        setFilterDB={setFilterDB}
+        beschichtungsart={beschichtungsart}
+        beschichtungsdicke={beschichtungsdicke}
+        setBeschichtungsart={setBeschichtungsart}
+        setBeschichtungsdicke={setBeschichtungsdicke}
+      />
+      <EntnahmeTable
+        filterDB={filterDB}
+        setFilterDB={setFilterDB}
+        setSubmittedOrders={setSubmittedOrders}
+      />
 
-              <th>Fertigungsauftrag</th>
-              <th>Beschichtungsart</th>
-              <th>Beschichtungsdicke</th>
-              <th>Menge</th>
-              <th>Aktion</th>
-            </tr>
-          </thead>
-          <tbody className="table-body">
-            {filterDB.map((item) => (
-              <tr key={item.ID}>
-                <td className="checkbox">
-                  <input
-                    type="checkbox"
-                    className="form-check-input"
-                    checked={item.isChecked || false}
-                    onChange={handleChangeCheckbox}
-                    name={item.Auftragsnummer}
-                  />
-                </td>
+      <EntnahmeButton
+        fertigungsauftragDB={fertigungsauftragDB}
+        submittedOrders={submittedOrders}
+        filterDB={filterDB}
+        setWithdrawnOrders={setWithdrawnOrders}
+        setShow={setShow}
+      />
 
-                <Fragment>
-                  {editItemId === item.ID ? (
-                    <EditableRow
-                      item={item}
-                      editQuantity={editQuantity}
-                      handleEditQuantityChange={handleEditQuantityChange}
-                      handleCancelClick={handleCancelClick}
-                    />
-                  ) : (
-                    <ReadOnlyRow
-                      item={item}
-                      handleEditQuantityClick={handleEditQuantityClick}
-                    />
-                  )}
-                </Fragment>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </form>
-
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Button
-          variant="outline-secondary"
-          className="modalButton"
-          type="submit"
-        >
-          Weiter
-        </Button>
-      </form>
-      <Button
-        variant="outline-secondary"
-        className="modalButton"
-        onClick={handleWareneingang}
-      >
-        Teilmenge Rückgabe
-      </Button>
-
-      <Modal
-        fullscreen={fullscreen}
+      <EntnahmeModal
+        setBeschichtungsart={setBeschichtungsart}
+        setBeschichtungsdicke={setBeschichtungsdicke}
+        setFilterDB={setFilterDB}
+        setSubmittedOrders={setSubmittedOrders}
+        setShow={setShow}
         show={show}
-        onHide={handleCloseButton}
-        backdrop="static"
-        keyboard={false}
-      >
-        <Modal.Header className="modalHeader" closeButton>
-          <Modal.Title className="modalHeader">
-            Aktuelle Buchung: 1001 - Entnahme
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <table className="table">
-            <thead>
-              <tr>
-                <td>Fertigungsauftrag</td>
-                <td>Beschichtungsart</td>
-                <td>Beschichtungsdicke</td>
-                <td>Menge</td>
-                <td>Restmenge</td>
-                <td>Lagerplatz</td>
-              </tr>
-            </thead>
-            <tbody>
-              {withdrawnOrders.map((item) => (
-                <tr>
-                  <td>{item.Auftragsnummer}</td>
-                  <td>{item.BeschichtungsArt}</td>
-                  <td>{item.BeschichtungsDicke}</td>
-                  <th>{item.withdrawnQty}</th>
-                  <td>{item.newQty}</td>
-                  <td>{item.Lagerplatz}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            className="modalButton"
-            disabled={buttonDisabled}
-            onClick={handleQuittieren}
-          >
-            Quittieren
-          </Button>
-        </Modal.Footer>
-      </Modal>
+        withdrawnOrders={withdrawnOrders}
+        setWithdrawnOrders={setWithdrawnOrders}
+      />
     </div>
   );
 }

@@ -258,7 +258,7 @@ export default function Wareneingang({ articleDB }) {
 
             setShow(false);
             setShowNotFoundOrderMessage(true);
-          } 
+          }
         }
       } catch (err) {
         console.log(err);
@@ -330,7 +330,8 @@ export default function Wareneingang({ articleDB }) {
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              In SAP wird es geprüft, ob die Fertigungsauftrag vorhanden ist. Klicken Sie die E-Label an, wenn sie blinkt.
+              In SAP wird es geprüft, ob die Fertigungsauftrag vorhanden ist.
+              Klicken Sie die E-Label an, wenn sie blinkt.
             </Modal.Body>
             <Modal.Footer></Modal.Footer>
           </Modal>

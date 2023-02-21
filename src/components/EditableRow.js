@@ -6,6 +6,7 @@ const EditableRow = ({
   editQuantity,
   handleEditQuantityChange,
   handleCancelClick,
+  handleEditQuantitySubmit,
 }) => {
   return (
     <>
@@ -28,7 +29,8 @@ const EditableRow = ({
       <td>
         <Button
           className="actionBtn"
-          type="submit"
+          type="button"
+          onClick={handleEditQuantitySubmit}
         >
           Speichern
         </Button>

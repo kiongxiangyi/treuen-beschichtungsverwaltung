@@ -25,7 +25,11 @@ function App() {
         for (let i = 0; i < results.length; i++) {
           let fertigungsauftrag = results[i].Auftragsnummer;
           //Entnahme fertig
-          if (results[i].Auslagerung === true && results[i].Menge === 0) {
+          if (
+            results[i].Auslagerung === false &&
+            results[i].Einlagerung === false &&
+            results[i].Menge === 0
+          ) {
             fetch(`${process.env.REACT_APP_API}/LagerPlatz/releaseStorageBin`, {
               method: "PUT",
               headers: {

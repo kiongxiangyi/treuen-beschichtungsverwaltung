@@ -8,6 +8,8 @@ export default function EntnahmeTable({
   filterDB,
   setFilterDB,
 }) {
+  const [clicked, setClicked] = useState(false);
+
   //Edit, Save, Cancel quantity buttons function https://youtu.be/dYjdzpZv5yc
   const [editItemId, setEditItemId] = useState(null);
 
@@ -21,6 +23,8 @@ export default function EntnahmeTable({
   //when click to edit
   const handleEditQuantityClick = (event, item) => {
     event.preventDefault();
+    event.stopPropagation(); //prevent click to activate checkbox
+
     setEditItemId(item.ID); //get the id of the edited row
 
     const formValues = {
@@ -48,7 +52,7 @@ export default function EntnahmeTable({
   //submit the changed quantity
   const handleEditQuantitySubmit = (event) => {
     event.preventDefault();
-
+    event.stopPropagation();
     const editedQuantity = {
       ID: editItemId,
       Auftragsnummer: editQuantity.Auftragsnummer,
@@ -66,11 +70,61 @@ export default function EntnahmeTable({
   };
 
   //not to change the quantity click
-  const handleCancelClick = () => {
+  const handleCancelClick = (event) => {
     setEditItemId(null);
+    event.stopPropagation();
   };
 
   //checkbox
+  const handleChangeCheckbox = (e) => {
+    let checkboxList = document.getElementsByClassName("checkedID");
+
+    for (let i = 0; i < checkboxList.length; i++) {
+      checkboxList[i].checked = e.target.checked;
+    }
+
+    let tempOrder = filterDB.map((order) => {
+      return { ...order, isChecked: e.target.checked };
+    });
+    setFilterDB(tempOrder);
+
+    const selectedOrders = tempOrder.filter(
+      //filter checked orders for submit later
+      (order) => order.isChecked === true
+    );
+    setSubmittedOrders(selectedOrders);
+  };
+
+  const rowClicked = (event) => {
+    event.target.parentElement.childNodes[0].childNodes[0].checked =
+      !event.target.parentElement.childNodes[0].childNodes[0].checked;
+
+    let tempOrder = filterDB.map((order) =>
+      order.Auftragsnummer ===
+      event.target.parentElement.childNodes[0].childNodes[0].name
+        ? {
+            ...order,
+            isChecked:
+              event.target.parentElement.childNodes[0].childNodes[0].checked,
+          }
+        : order
+    );
+    setFilterDB(tempOrder);
+    console.log(event.target.parentElement.childNodes[0].childNodes[0].name);
+    const selectedOrders = tempOrder.filter(
+      (order) => order.isChecked === true
+    );
+    setSubmittedOrders(selectedOrders);
+
+    /* if (event.target.nodeName === "TH") {
+      let checkboxList = document.getElementsByClassName("checkedID");
+      for (let i = 0; i < checkboxList.length; i++) {
+        checkboxList[i].checked = !checkboxList[i].checked;
+      }
+    } */
+  };
+
+  /* //checkbox
   const handleChangeCheckbox = (e) => {
     const { name, checked } = e.target;
     if (name === "allSelect") {
@@ -96,7 +150,7 @@ export default function EntnahmeTable({
       );
       setSubmittedOrders(selectedOrders);
     }
-  };
+  }; */
 
   return (
     <div>
@@ -105,18 +159,17 @@ export default function EntnahmeTable({
       </p>
       <Table bordered hover className="table">
         <thead>
-          <tr className="table-header">
+          <tr
+            name="row"
+            className="table-header"
+            onClick={(event) => rowClicked(event)}
+          >
             <th className="checkbox">
               <input
+                id="tableHeaderCheckbox"
                 type="checkbox"
                 className="form-check-input"
                 name="allSelect"
-                checked={
-                  filterDB.length > 0
-                    ? filterDB.filter((order) => order.isChecked !== true)
-                        .length < 1
-                    : false
-                }
                 onChange={handleChangeCheckbox}
               ></input>
             </th>
@@ -130,13 +183,11 @@ export default function EntnahmeTable({
         </thead>
         <tbody className="table-body">
           {filterDB.map((item) => (
-            <tr key={item.ID}>
+            <tr key={item.ID} onClick={(event) => rowClicked(event)}>
               <td className="checkbox">
                 <input
                   type="checkbox"
-                  className="form-check-input"
-                  checked={item.isChecked || false}
-                  onChange={handleChangeCheckbox}
+                  className="form-check-input checkedID"
                   name={item.Auftragsnummer}
                 />
               </td>

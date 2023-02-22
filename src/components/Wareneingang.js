@@ -175,7 +175,7 @@ export default function Wareneingang({ articleDB }) {
   //get tblEShelfBeschichtung
   useEffect(() => {
     let interval;
-    const fetchOrders = async () => {
+    const fetchWareneingangOrders = async () => {
       try {
         const response = await fetch(
           `${process.env.REACT_APP_API}/Auftragsnummer`
@@ -267,11 +267,11 @@ export default function Wareneingang({ articleDB }) {
         );
       }
     };
-    fetchOrders();
+    fetchWareneingangOrders();
 
     //fetch Artikel every X second
     interval = setInterval(() => {
-      fetchOrders();
+      fetchWareneingangOrders();
     }, 2 * 1000);
 
     return () => {

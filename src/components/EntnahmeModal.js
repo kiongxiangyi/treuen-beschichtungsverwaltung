@@ -80,7 +80,7 @@ export default function EntnahmeModal({
   useEffect(() => {
     let interval;
     if (show) {
-      const fetchOrders = async () => {
+      const fetchWithdrawalOrders = async () => {
         try {
           const response = await fetch(
             `${process.env.REACT_APP_API}/Auftragsnummer`
@@ -134,11 +134,11 @@ export default function EntnahmeModal({
           );
         }
       };
-      fetchOrders();
+      fetchWithdrawalOrders();
 
       //fetch Artikel every X second
       interval = setInterval(() => {
-        fetchOrders();
+        fetchWithdrawalOrders();
       }, 2 * 1000);
 
       return () => {

@@ -53,18 +53,20 @@ export default function EntnahmeButton({
           withdrawnQty: withdrawnQuantity,
         }); //save orders of loops in a local variable because useState does not render in loop
 
-        //Auslagerung in DB set TRUE
-        fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Entnahme`, {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
+        fetch(
+          `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeAuslagerungTrue`,
+          {
+            method: "PUT",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
 
-          body: JSON.stringify({
-            fertigungsauftrag,
-          }),
-        })
+            body: JSON.stringify({
+              fertigungsauftrag,
+            }),
+          }
+        )
           .then((res) => res.json())
           .catch((err) => console.log(err));
       }

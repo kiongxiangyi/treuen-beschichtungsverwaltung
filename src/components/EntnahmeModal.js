@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 export default function EntnahmeModal({
   setBeschichtungsart,
@@ -65,6 +66,13 @@ export default function EntnahmeModal({
     setWithdrawnOrders([]); //reset previous withdrawals record
   };
 
+  const navigate = useNavigate(); //hook for navigation
+
+  //jump to Wareneingang
+  const handleEntnahme = (event) => {
+    navigate("/Entnahme");
+  };
+
   //if close button, nothing happen, reset everything, close message box
   const handleCloseButton = () => {
     setShow(false);
@@ -73,6 +81,29 @@ export default function EntnahmeModal({
     setSubmittedOrders([]);
     setBeschichtungsart("");
     setBeschichtungsdicke("");
+
+    for (let i = 0; i < withdrawnOrders.length; i++) {
+      //loop withdrawn orders
+      let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;
+      fetch(
+        `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeAuslagerungFalse`,
+        {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            fertigungsauftrag,
+          }),
+        }
+      )
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+    }
+
+    handleEntnahme();
   };
 
   const countRef = useRef(0); //count initial value 0
@@ -175,7 +206,7 @@ export default function EntnahmeModal({
             </thead>
             <tbody>
               {withdrawnOrders.map((item) => (
-                <tr>
+                <tr key={item.ID}>
                   <td>{item.Auftragsnummer}</td>
                   <td>{item.BeschichtungsArt}</td>
                   <td>{item.BeschichtungsDicke}</td>

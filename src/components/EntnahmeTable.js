@@ -8,8 +8,6 @@ export default function EntnahmeTable({
   filterDB,
   setFilterDB,
 }) {
-  const [clicked, setClicked] = useState(false);
-
   //Edit, Save, Cancel quantity buttons function https://youtu.be/dYjdzpZv5yc
   const [editItemId, setEditItemId] = useState(null);
 
@@ -82,55 +80,10 @@ export default function EntnahmeTable({
     for (let i = 0; i < checkboxList.length; i++) {
       checkboxList[i].checked = e.target.checked;
     }
-
-    let tempOrder = filterDB.map((order) => {
-      return { ...order, isChecked: e.target.checked };
-    });
-    setFilterDB(tempOrder);
-
-    const selectedOrders = tempOrder.filter(
-      //filter checked orders for submit later
-      (order) => order.isChecked === true
-    );
-    setSubmittedOrders(selectedOrders);
-  };
-
-  const rowClicked = (event) => {
-    event.target.parentElement.childNodes[0].childNodes[0].checked =
-      !event.target.parentElement.childNodes[0].childNodes[0].checked;
-
-    let tempOrder = filterDB.map((order) =>
-      order.Auftragsnummer ===
-      event.target.parentElement.childNodes[0].childNodes[0].name
-        ? {
-            ...order,
-            isChecked:
-              event.target.parentElement.childNodes[0].childNodes[0].checked,
-          }
-        : order
-    );
-    setFilterDB(tempOrder);
-    console.log(event.target.parentElement.childNodes[0].childNodes[0].name);
-    const selectedOrders = tempOrder.filter(
-      (order) => order.isChecked === true
-    );
-    setSubmittedOrders(selectedOrders);
-
-    /* if (event.target.nodeName === "TH") {
-      let checkboxList = document.getElementsByClassName("checkedID");
-      for (let i = 0; i < checkboxList.length; i++) {
-        checkboxList[i].checked = !checkboxList[i].checked;
-      }
-    } */
-  };
-
-  /* //checkbox
-  const handleChangeCheckbox = (e) => {
-    const { name, checked } = e.target;
+    const { name } = e.target;
     if (name === "allSelect") {
-      //when allSelect, all assigned isChecked
       let tempOrder = filterDB.map((order) => {
-        return { ...order, isChecked: checked };
+        return { ...order, isChecked: e.target.checked };
       });
       setFilterDB(tempOrder);
 
@@ -139,9 +92,24 @@ export default function EntnahmeTable({
         (order) => order.isChecked === true
       );
       setSubmittedOrders(selectedOrders);
-    } else {
+    }
+  };
+
+  const rowClicked = (event) => {
+    //when select row
+    if (event.target.parentElement.childNodes[0].type !== "checkbox") {
+      event.target.parentElement.childNodes[0].childNodes[0].checked =
+        !event.target.parentElement.childNodes[0].childNodes[0].checked;
+
       let tempOrder = filterDB.map((order) =>
-        order.Auftragsnummer === name ? { ...order, isChecked: checked } : order
+        order.Auftragsnummer ===
+        event.target.parentElement.childNodes[0].childNodes[0].name
+          ? {
+              ...order,
+              isChecked:
+                event.target.parentElement.childNodes[0].childNodes[0].checked,
+            }
+          : order
       );
       setFilterDB(tempOrder);
 
@@ -149,8 +117,57 @@ export default function EntnahmeTable({
         (order) => order.isChecked === true
       );
       setSubmittedOrders(selectedOrders);
+
+      let selectAllCheckbox =
+        document.getElementsByClassName("selectAllCheckbox");
+
+      if (
+        tempOrder.filter((order) => order.isChecked === true).length !==
+        tempOrder.length
+      ) {
+        selectAllCheckbox[0].checked = false;
+      } else {
+        selectAllCheckbox[0].checked = true;
+      }
+    } else {
+      //when select checkbox
+      let tempOrder = filterDB.map((order) =>
+        order.Auftragsnummer ===
+        event.target.parentElement.parentElement.childNodes[1].childNodes[0]
+          .data
+          ? {
+              ...order,
+              isChecked: event.target.checked,
+            }
+          : order
+      );
+      setFilterDB(tempOrder);
+
+      const selectedOrders = tempOrder.filter(
+        (order) => order.isChecked === true
+      );
+      setSubmittedOrders(selectedOrders);
+
+      let selectAllCheckbox =
+        document.getElementsByClassName("selectAllCheckbox");
+      if (
+        tempOrder.filter((order) => order.isChecked === true).length !==
+        tempOrder.length
+      ) {
+        selectAllCheckbox[0].checked = false;
+      } else {
+        selectAllCheckbox[0].checked = true;
+      }
     }
-  }; */
+
+    //if to click table header to select all
+    /* if (event.target.nodeName === "TH") {
+      let checkboxList = document.getElementsByClassName("checkedID");
+      for (let i = 0; i < checkboxList.length; i++) {
+        checkboxList[i].checked = !checkboxList[i].checked;
+      }
+    } */
+  };
 
   return (
     <div>
@@ -162,13 +179,13 @@ export default function EntnahmeTable({
           <tr
             name="row"
             className="table-header"
-            onClick={(event) => rowClicked(event)}
+            //onClick={(event) => rowClicked(event)}
           >
             <th className="checkbox">
               <input
                 id="tableHeaderCheckbox"
                 type="checkbox"
-                className="form-check-input"
+                className="form-check-input selectAllCheckbox"
                 name="allSelect"
                 onChange={handleChangeCheckbox}
               ></input>

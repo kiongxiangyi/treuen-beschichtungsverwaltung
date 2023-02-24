@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
 export default function EntnahmeModal({
   setBeschichtungsart,
@@ -16,6 +15,8 @@ export default function EntnahmeModal({
 }) {
   const fullscreen = true;
   const [buttonDisabled, setButtonDisabled] = useState(true);
+  const selectAllCheckbox =
+    document.getElementsByClassName("selectAllCheckbox");
 
   const handleQuittieren = () => {
     for (let i = 0; i < withdrawnOrders.length; i++) {
@@ -64,13 +65,8 @@ export default function EntnahmeModal({
     setButtonDisabled(true); //reset button to disabled
     setShow(false); //close message box
     setWithdrawnOrders([]); //reset previous withdrawals record
-  };
 
-  const navigate = useNavigate(); //hook for navigation
-
-  //jump to Wareneingang
-  const handleEntnahme = (event) => {
-    navigate("/Entnahme");
+    selectAllCheckbox[0].checked = false; //uncheck AllSelect
   };
 
   //if close button, nothing happen, reset everything, close message box
@@ -103,7 +99,7 @@ export default function EntnahmeModal({
         .catch((err) => console.log(err));
     }
 
-    handleEntnahme();
+    selectAllCheckbox[0].checked = false; //uncheck AllSelect
   };
 
   const countRef = useRef(0); //count initial value 0

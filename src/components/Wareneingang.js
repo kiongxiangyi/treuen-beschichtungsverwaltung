@@ -24,6 +24,24 @@ export default function Wareneingang({ articleDB }) {
   const handleClose = () => {
     setShowSAPchecked(false);
     setShow(false);
+
+    fetch(`${process.env.REACT_APP_API}/LagerPlatz/freeStorageBins`)
+      .then((res) => res.json())
+      .then((data) => {
+        setFreeStorageBins(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+
+    fetch(`${process.env.REACT_APP_API}/LagerPlatz/occupiedStorageBins`)
+      .then((res) => res.json())
+      .then((data) => {
+        setOccupiedStorageBins(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
   };
 
   const handleCloseNotFoundOrderMessage = () => {

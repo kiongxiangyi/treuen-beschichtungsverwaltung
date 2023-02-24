@@ -76,7 +76,7 @@ export default function EntnahmeFilter({
     <div>
       <div className="beschichtung">
         <label htmlFor="beschichtungsart-select">
-          <b>Beschichtungsart</b>&ensp;&ensp;&ensp;&ensp;&ensp;
+          <b>Beschichtungsart</b>
         </label>
         <div>
           <select
@@ -98,7 +98,7 @@ export default function EntnahmeFilter({
       </div>
       <div className="beschichtung">
         <label htmlFor="beschichtungsdicke-select">
-          <b>Beschichtungsdicke</b>&ensp;&ensp;&nbsp;
+          <b>Beschichtungsdicke</b>
         </label>
         <div>
           <select
@@ -117,7 +117,6 @@ export default function EntnahmeFilter({
           </select>
         </div>
       </div>
-      &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;
       <button
         variant="outline-secondary"
         className="pushable"

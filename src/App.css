@@ -116,6 +116,8 @@ h1 {
 
 /* https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Aligning_Items_in_a_Flex_Container */
 .beschichtung-select  {
+  position:absolute;
+  left: 260px;
   width: 25rem;
   height: 3rem;
   background-color: #e7e7e7;
@@ -124,6 +126,8 @@ h1 {
 }
 
 .beschichtung-select2 {
+  position:absolute;
+  left: 260px;
   width: 25rem;
   height: 3rem;
   background-color: #e7e7e7;
@@ -260,6 +264,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* 3D button css https://www.joshwcomeau.com/animation/3d-button/ */
 .pushable {
+  position: relative;
+  left: 260px;
   width: 25rem;
   margin-top: 1rem;
   background: #999999;

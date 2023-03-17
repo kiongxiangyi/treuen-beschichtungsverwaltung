@@ -38,6 +38,7 @@ export default function EntnahmeTable({
   //when change the quantity
   const handleEditQuantityChange = (event) => {
     event.preventDefault();
+    event.stopPropagation();
 
     const fieldName = event.target.getAttribute("name"); //get the name attribute of the input tag -> Menge
     const fieldValue = event.target.value; //get the current value
@@ -97,7 +98,10 @@ export default function EntnahmeTable({
 
   const rowClicked = (event) => {
     //when select row
-    if (event.target.parentElement.childNodes[0].type !== "checkbox") {
+    if (
+      event.target.parentElement.childNodes[0].type !== "checkbox"
+      // || event.target.parentElement.childNodes[0].type !== "action"
+    ) {
       event.target.parentElement.childNodes[0].childNodes[0].checked =
         !event.target.parentElement.childNodes[0].childNodes[0].checked;
 
@@ -195,7 +199,7 @@ export default function EntnahmeTable({
             <th>Beschichtungsart</th>
             <th>Beschichtungsdicke</th>
             <th>Menge</th>
-            <th>Aktion</th>
+            <th className="aktion">Aktion</th>
           </tr>
         </thead>
         <tbody className="table-body">

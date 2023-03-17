@@ -24,6 +24,7 @@ function App() {
         setFertigungsauftragDB(results);
         for (let i = 0; i < results.length; i++) {
           let fertigungsauftrag = results[i].Auftragsnummer;
+
           //Entnahme fertig
           if (
             results[i].Auslagerung === false &&

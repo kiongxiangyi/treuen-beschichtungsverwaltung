@@ -18,12 +18,13 @@ const EditableRow = ({
           type="number"
           name="Menge"
           inputMode="numeric"
-          pattern="[0-9]*"
+          pattern="[0-9]+"
           min="0"
           max={item.Menge}
           placeholder={item.Menge}
           value={editQuantity.Menge}
           onChange={handleEditQuantityChange}
+          onClick={(event) => event.stopPropagation()} //prevent error because of the activation of rowclick when clicking in the box to change quantity
         ></input>
       </td>
       <td>

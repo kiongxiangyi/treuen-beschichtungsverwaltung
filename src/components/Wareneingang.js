@@ -14,6 +14,8 @@ export default function Wareneingang({ articleDB }) {
   const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
   const [beschichtungsArt, setBeschichtungsArt] = useState("");
   const [beschichtungsDicke, setBeschichtungsDicke] = useState("");
+  const [arrWareneingangQty, setArrWareneingangQty] = useState([]);
+  let previousQuantity;
 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
@@ -80,6 +82,7 @@ export default function Wareneingang({ articleDB }) {
       setShowNoInput(true);
     } else {
       setFertigungsauftragDummy(fertigungsauftrag);
+
       //find auftragsnummer in DB
       const findAuftrag = fertigungsauftragDB.find(
         (tblEShelfBeschichtung) =>
@@ -149,7 +152,7 @@ export default function Wareneingang({ articleDB }) {
           .catch((err) => console.log(err));
       }
 
-      //if not found in tblEShelfBeschichtung, create a new data
+      //if found in tblEShelfBeschichtung, update data
       if (findAuftrag) {
         fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Wareneingang`, {
           method: "PUT",
@@ -168,6 +171,7 @@ export default function Wareneingang({ articleDB }) {
           })
           .catch((err) => console.log(err));
       } else {
+        //if not found in tblEShelfBeschichtung, create a new data
         fetch(`${process.env.REACT_APP_API}/Auftragsnummer`, {
           method: "POST",
           headers: {
@@ -233,6 +237,7 @@ export default function Wareneingang({ articleDB }) {
 
             //update qty from SAP when Erledigt is TRUE
             let newQuantity = results[i].Menge;
+            let storagebin = results[i].Lagerplatz;
 
             fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
               method: "PUT",
@@ -251,6 +256,22 @@ export default function Wareneingang({ articleDB }) {
                 setQuantity(newQuantity);
                 setStorageBin(results[i].Lagerplatz);
               })
+              .catch((err) => console.log(err));
+
+            fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Wareneingang`, {
+              method: "POST",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
+
+              body: JSON.stringify({
+                fertigungsauftrag,
+                storagebin,
+                newQuantity,
+              }),
+            })
+              .then((res) => res.json())
               .catch((err) => console.log(err));
 
             setShow(false);
@@ -307,7 +328,7 @@ export default function Wareneingang({ articleDB }) {
           <input
             className="inputFertigungsauftrag"
             autoFocus
-            type="text"
+            type="number"
             id="fertigungsauftrag"
             name="fertigungsauftrag"
             size="35"

@@ -12,11 +12,14 @@ body, html {
 body {
   margin: 0.1rem
 }
+
 .header {
   background-color: #ffe100;
   padding: 0 0.5rem;
   display: flex;
   position: relative;
+  opacity: 0.9;
+  border-radius: 10px;
 }
 
 img {
@@ -160,7 +163,6 @@ h1 {
   justify-content: center;
   align-items: center;
   margin: 2.5rem;
-  /* background: var(--bg-color); */
 }
 
 
@@ -297,6 +299,50 @@ input[type="number"]::-webkit-outer-spin-button {
     transform: translateY(-2px);
 }
 
+.bookingButton {
+  display: inline-block;
+  padding: 0.75rem 1.25rem;
+  border-radius: 5rem;
+  color: black;
+  text-transform: uppercase;
+  font-size: 3rem;
+  letter-spacing: 0.15rem;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  height: 15rem;
+  width: 35rem
+}
+.bookingButton:after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #e7e7e7;
+  border-radius: 5rem;
+  z-index: -2;
+}
+.bookingButton:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0%;
+  height: 100%;
+  background-color: #ffe100;
+  transition: all 0.3s;
+  border-radius: 5rem;
+  z-index: -1;
+}
+.bookingButton:hover {
+  color: black;
+}
+.bookingButton:hover:before {
+  width: 100%;
+}
 
 @media only screen and (min-width: 992px) {
   .bg::before {

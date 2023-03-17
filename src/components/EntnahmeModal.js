@@ -23,6 +23,9 @@ export default function EntnahmeModal({
       //loop withdrawn orders
       let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer; // get order number
       let newQuantity = withdrawnOrders[i].newQty; // get new qty
+      let oldQuantity = withdrawnOrders[i].Menge;
+      let storagebin = withdrawnOrders[i].Lagerplatz;
+      let withdrawnQuantity = withdrawnOrders[i].withdrawnQty;
 
       fetch(`${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`, {
         //update new Qty to DB
@@ -56,6 +59,24 @@ export default function EntnahmeModal({
         body: JSON.stringify({
           fertigungsauftrag,
           newQuantity,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+
+      fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          fertigungsauftrag,
+          newQuantity,
+          oldQuantity,
+          storagebin,
+          withdrawnQuantity,
         }),
       })
         .then((res) => res.json())

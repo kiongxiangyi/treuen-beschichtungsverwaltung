@@ -8,9 +8,9 @@ export default function Header() {
     navigate("/");
   };
   return (
-    <div className="header">
+    <header className="header">
       <h1 className="site-title mt-2">Gühring Beschichtungsverwaltung</h1>
       <img src="./pictures/home-btn.png" alt="home" onClick={handleClick}></img>
-    </div>
+    </header>
   );
 }

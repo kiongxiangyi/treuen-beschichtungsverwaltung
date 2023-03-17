@@ -41,34 +41,30 @@ export default function EntnahmeFilter({
   }
 
   if (filter) {
+    let filteredValue = [];
     if (beschichtungsart === "") {
-      setFilterDB(
-        fertigungsauftragDB.filter(
-          (element) =>
-            //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
-            element.BeschichtungsDicke > lower &&
-            element.BeschichtungsDicke < upper &&
-            element.Menge > 0
-        )
+      filteredValue = fertigungsauftragDB.filter(
+        (element) =>
+          //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
+          element.BeschichtungsDicke > lower &&
+          element.BeschichtungsDicke < upper &&
+          element.Menge > 0
       );
     } else if (beschichtungsdicke === "") {
-      setFilterDB(
-        fertigungsauftragDB.filter(
-          (element) =>
-            element.BeschichtungsArt === beschichtungsart && element.Menge > 0
-        )
+      filteredValue = fertigungsauftragDB.filter(
+        (element) =>
+          element.BeschichtungsArt === beschichtungsart && element.Menge > 0
       );
     } else {
-      setFilterDB(
-        fertigungsauftragDB.filter(
-          (element) =>
-            element.BeschichtungsArt === beschichtungsart &&
-            element.BeschichtungsDicke > lower &&
-            element.BeschichtungsDicke < upper &&
-            element.Menge > 0
-        )
+      filteredValue = fertigungsauftragDB.filter(
+        (element) =>
+          element.BeschichtungsArt === beschichtungsart &&
+          element.BeschichtungsDicke > lower &&
+          element.BeschichtungsDicke < upper &&
+          element.Menge > 0
       );
     }
+    setFilterDB(filteredValue);
     setFilter(false);
   }
 

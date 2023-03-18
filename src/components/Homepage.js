@@ -18,14 +18,14 @@ export default function Homepage() {
   return (
     <div>
       <div className="homepage">
-        <form onSubmit={handleSubmitWareneingang}>
-          <button className="bookingButton">Wareneingang</button>
-        </form>
+        <button className="bookingButton" onClick={handleSubmitWareneingang}>
+          Wareneingang
+        </button>
       </div>
       <div className="homepage">
-        <form onSubmit={handleSubmitEntnahme}>
-          <button className="bookingButton">Entnahme</button>
-        </form>
+        <button className="bookingButton" onClick={handleSubmitEntnahme}>
+          Entnahme
+        </button>
       </div>
     </div>
   );

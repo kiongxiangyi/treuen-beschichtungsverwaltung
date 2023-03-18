@@ -23,19 +23,19 @@ export default function Wareneingang({ articleDB }) {
   const [showNotFoundOrderMessage, setShowNotFoundOrderMessage] =
     useState(false);
 
-  const handleClose = () => {
-    setShowSAPchecked(false);
-    setShow(false);
-
+  const fetchFreeStorageBins = () => {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/freeStorageBins`)
       .then((res) => res.json())
       .then((data) => {
         setFreeStorageBins(data);
+        console.log("render1", data);
       })
       .catch((err) => {
         console.log(err.message);
       });
+  };
 
+  const fetchOccupiedStorageBins = () => {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/occupiedStorageBins`)
       .then((res) => res.json())
       .then((data) => {
@@ -44,7 +44,18 @@ export default function Wareneingang({ articleDB }) {
       .catch((err) => {
         console.log(err.message);
       });
+  }
+  const handleClose = () => {
+    setShowSAPchecked(false);
+    setShow(false);
+    fetchFreeStorageBins();
+    fetchOccupiedStorageBins();
   };
+
+  useEffect(() => {
+    fetchFreeStorageBins();
+    fetchOccupiedStorageBins();
+  }, []);
 
   const handleCloseNotFoundOrderMessage = () => {
     setShowNotFoundOrderMessage(false);
@@ -52,28 +63,6 @@ export default function Wareneingang({ articleDB }) {
 
   const [showNoInput, setShowNoInput] = useState(false);
   const handleCloseNoInput = () => setShowNoInput(false);
-
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_API}/LagerPlatz/freeStorageBins`)
-      .then((res) => res.json())
-      .then((data) => {
-        setFreeStorageBins(data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-  }, []);
-
-  useEffect(() => {
-    fetch(`${process.env.REACT_APP_API}/LagerPlatz/occupiedStorageBins`)
-      .then((res) => res.json())
-      .then((data) => {
-        setOccupiedStorageBins(data);
-      })
-      .catch((err) => {
-        console.log(err.message);
-      });
-  }, []);
 
   const handleSubmit = (event) => {
     event.preventDefault();

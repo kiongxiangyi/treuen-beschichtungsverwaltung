@@ -22,19 +22,6 @@ body {
   border-radius: 10px;
 }
 
-img {
-  background-color: #ffe100 ;
-  margin-left: auto;
-  margin-top: auto; 
-  margin-bottom: auto;
-  height: 2.5rem;
-  
-}
-
-img:hover {
-  opacity: .5;
-}
-
 /* .bg {
     background-image: url("/public/img/Tool_Management.png");
     background-size: cover;
@@ -48,6 +35,17 @@ img:hover {
   margin: 0.5rem
 }
  
+.homeButton {
+  all: unset;
+  cursor: pointer;
+  margin-left: auto;
+  height: 2.5rem;
+  margin-top: 5px;
+}
+
+.homeButton:hover {
+  opacity: 0.5;
+}
 
 
 .bg::before {

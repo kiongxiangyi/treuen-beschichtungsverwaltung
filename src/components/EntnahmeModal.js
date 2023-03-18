@@ -13,6 +13,7 @@ export default function EntnahmeModal({
   withdrawnOrders,
   setWithdrawnOrders,
 }) {
+  const countRef = useRef(0); //count initial value 0
   const fullscreen = true;
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const selectAllCheckbox =
@@ -123,7 +124,6 @@ export default function EntnahmeModal({
     selectAllCheckbox[0].checked = false; //uncheck AllSelect
   };
 
-  const countRef = useRef(0); //count initial value 0
   //get tblEShelfBeschichtung
   useEffect(() => {
     let interval;

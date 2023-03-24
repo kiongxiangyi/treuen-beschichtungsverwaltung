@@ -8,8 +8,6 @@ export default function EntnahmeFilter({
   beschichtungsdicke,
   setBeschichtungsdicke,
 }) {
-  const [filter, setFilter] = useState(false);
-
   //tutorial: https://www.simplilearn.com/tutorials/reactjs-tutorial/how-to-create-functional-react-dropdown-menu
   //select beschichtungsart
   const handleChangeBeschichtungsart = (event) => {
@@ -24,23 +22,7 @@ export default function EntnahmeFilter({
   //Aufträge anzeigen button submit
   const handleSubmitOrder = (event) => {
     event.preventDefault();
-    setFilter(true);
-  };
 
-  let lower = "";
-  let upper = "";
-  if (beschichtungsdicke === "<= 2") {
-    lower = 0;
-    upper = 3;
-  } else if (beschichtungsdicke === "2 - 6") {
-    lower = 1;
-    upper = 7;
-  } else if (beschichtungsdicke === "> 6") {
-    lower = 6;
-    upper = 100;
-  }
-
-  if (filter) {
     let filteredValue = [];
     if (beschichtungsart === "") {
       filteredValue = fertigungsauftragDB.filter(
@@ -65,7 +47,19 @@ export default function EntnahmeFilter({
       );
     }
     setFilterDB(filteredValue);
-    setFilter(false);
+  };
+
+  let lower = "";
+  let upper = "";
+  if (beschichtungsdicke === "<= 2") {
+    lower = 0;
+    upper = 3;
+  } else if (beschichtungsdicke === "2 - 6") {
+    lower = 1;
+    upper = 7;
+  } else if (beschichtungsdicke === "> 6") {
+    lower = 6;
+    upper = 100;
   }
 
   return (

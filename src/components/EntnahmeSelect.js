@@ -14,7 +14,7 @@ export default function EntnahmeSelect({
         onChange={handleChangeBeschichtungsart}
       >
         <option value="" disabled hidden>
-          --Bitte eine Option auswählen--
+          Alle
         </option>
         <option value="Fire">Fire</option>
         <option value="Gold">Gold</option>

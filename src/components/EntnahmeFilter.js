@@ -28,14 +28,15 @@ export default function EntnahmeFilter({
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
           //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
-          element.BeschichtungsDicke > lower &&
-          element.BeschichtungsDicke < upper &&
+          /* element.BeschichtungsDicke > lower &&
+          element.BeschichtungsDicke < upper && */
           element.Menge > 0
       );
     } else if (beschichtungsdicke === "") {
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
-          element.BeschichtungsArt === beschichtungsart && element.Menge > 0
+          // element.BeschichtungsArt === beschichtungsart && element.Menge > 0
+          element.Menge > 0
       );
     } else {
       filteredValue = fertigungsauftragDB.filter(
@@ -77,7 +78,7 @@ export default function EntnahmeFilter({
             onChange={handleChangeBeschichtungsart}
           >
             <option value="" disabled hidden>
-              --Bitte eine Option auswählen--
+              Alle
             </option>
             <option value="Fire">Fire</option>
             <option value="Gold">Gold</option>
@@ -99,7 +100,7 @@ export default function EntnahmeFilter({
             onChange={handleChangeBeschichtungsdicke}
           >
             <option value="" disabled hidden>
-              --Bitte eine Option auswählen--
+              Alle
             </option>
             <option>&lt;= 2</option>
             <option>2 - 6</option>

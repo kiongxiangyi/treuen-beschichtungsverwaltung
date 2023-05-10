@@ -300,7 +300,7 @@ export default function Wareneingang({ articleDB }) {
     //fetch Artikel every X second
     interval = setInterval(() => {
       fetchWareneingangOrders();
-    }, 2 * 1000);
+    }, 1 * 1000);
 
     return () => {
       clearInterval(interval);

@@ -115,7 +115,7 @@ function App() {
     //fetch Artikel every X second
     interval = setInterval(() => {
       fetchOrders();
-    }, 2 * 1000);
+    }, 1 * 1000);
 
     return () => {
       clearInterval(interval);
@@ -142,7 +142,7 @@ function App() {
     //fetch Artikel every X second
     interval = setInterval(() => {
       fetchArtikel();
-    }, 2 * 1000);
+    }, 1 * 1000);
 
     return () => {
       clearInterval(interval);

@@ -187,7 +187,7 @@ export default function EntnahmeModal({
       //fetch Artikel every X second
       interval = setInterval(() => {
         fetchWithdrawalOrders();
-      }, 2 * 1000);
+      }, 1 * 1000);
 
       return () => {
         clearInterval(interval);

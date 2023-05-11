@@ -19,7 +19,7 @@ export default function EntnahmeModal({
   const selectAllCheckbox =
     document.getElementsByClassName("selectAllCheckbox");
 
-  const handleQuittieren = () => {
+  const handleQuittieren = async () => {
     for (let i = 0; i < withdrawnOrders.length; i++) {
       //loop withdrawn orders
       let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer; // get order number
@@ -28,7 +28,9 @@ export default function EntnahmeModal({
       let storagebin = withdrawnOrders[i].Lagerplatz;
       let withdrawnQuantity = withdrawnOrders[i].withdrawnQty;
 
-      fetch(`${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`, {
+      console.log(withdrawnOrders[i])
+
+      await fetch(`${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`, {
         //update new Qty to DB
         method: "PUT",
         headers: {
@@ -50,7 +52,7 @@ export default function EntnahmeModal({
         })
         .catch((err) => console.log(err));
 
-      fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
+      await fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
         method: "PUT",
         headers: {
           Accept: "application/json",
@@ -65,7 +67,8 @@ export default function EntnahmeModal({
         .then((res) => res.json())
         .catch((err) => console.log(err));
 
-      fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
+      // without await, the booking data in the loop could not be finished.
+      await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -169,7 +172,7 @@ export default function EntnahmeModal({
                 }
               }
             }
-
+ 
             if (countRef.current === withdrawnOrders.length) {
               countRef.current = 0; //reset count when all withdrawnOrders processed
               setButtonDisabled(false);

@@ -28,11 +28,9 @@ export default function EntnahmeModal({
       let storagebin = withdrawnOrders[i].Lagerplatz;
       let withdrawnQuantity = withdrawnOrders[i].withdrawnQty;
 
-      console.log(withdrawnOrders[i])
-
-      await fetch(`${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`, {
-        //update new Qty to DB
-        method: "PUT",
+      // without await, the booking data in the loop could not be finished.
+      await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
+        method: "POST",
         headers: {
           Accept: "application/json",
           "Content-Type": "application/json",
@@ -41,8 +39,31 @@ export default function EntnahmeModal({
         body: JSON.stringify({
           fertigungsauftrag,
           newQuantity,
+          oldQuantity,
+          storagebin,
+          withdrawnQuantity,
         }),
       })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
+
+      //Buchungsdaten have to be first updated, because the BestandAlt in Auftragsnummer will be updated after that.
+      await fetch(
+        `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`,
+        {
+          //update new Qty to DB
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            fertigungsauftrag,
+            newQuantity,
+          }),
+        }
+      )
         .then((res) => res.json())
         .then((res) => {
           setBeschichtungsart("Fire"); //reset filter Beschichtungsart
@@ -62,25 +83,6 @@ export default function EntnahmeModal({
         body: JSON.stringify({
           fertigungsauftrag,
           newQuantity,
-        }),
-      })
-        .then((res) => res.json())
-        .catch((err) => console.log(err));
-
-      // without await, the booking data in the loop could not be finished.
-      await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          fertigungsauftrag,
-          newQuantity,
-          oldQuantity,
-          storagebin,
-          withdrawnQuantity,
         }),
       })
         .then((res) => res.json())
@@ -172,7 +174,7 @@ export default function EntnahmeModal({
                 }
               }
             }
- 
+
             if (countRef.current === withdrawnOrders.length) {
               countRef.current = 0; //reset count when all withdrawnOrders processed
               setButtonDisabled(false);

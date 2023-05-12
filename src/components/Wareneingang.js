@@ -14,8 +14,6 @@ export default function Wareneingang({ articleDB }) {
   const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
   const [beschichtungsArt, setBeschichtungsArt] = useState("");
   const [beschichtungsDicke, setBeschichtungsDicke] = useState("");
-  const [arrWareneingangQty, setArrWareneingangQty] = useState([]);
-  let previousQuantity;
 
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
@@ -28,7 +26,6 @@ export default function Wareneingang({ articleDB }) {
       .then((res) => res.json())
       .then((data) => {
         setFreeStorageBins(data);
-        console.log("render1", data);
       })
       .catch((err) => {
         console.log(err.message);
@@ -44,7 +41,7 @@ export default function Wareneingang({ articleDB }) {
       .catch((err) => {
         console.log(err.message);
       });
-  }
+  };
   const handleClose = () => {
     setShowSAPchecked(false);
     setShow(false);
@@ -202,6 +199,8 @@ export default function Wareneingang({ articleDB }) {
             results[i].Einlagerung === true &&
             results[i].Erledigt === true
           ) {
+            let oldQuantity = results[i].BestandAlt; //assign old quantity for Buchungsdaten
+            let recordForOldQuantity = results[i].Menge; //assign the current quanity for BestandAlt in DB 
             //reset tblEShelf
             fetch(
               `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,
@@ -214,6 +213,7 @@ export default function Wareneingang({ articleDB }) {
 
                 body: JSON.stringify({
                   fertigungsauftrag,
+                  recordForOldQuantity,
                 }),
               }
             )
@@ -257,6 +257,7 @@ export default function Wareneingang({ articleDB }) {
               body: JSON.stringify({
                 fertigungsauftrag,
                 storagebin,
+                oldQuantity,
                 newQuantity,
               }),
             })
@@ -265,7 +266,7 @@ export default function Wareneingang({ articleDB }) {
 
             setShow(false);
             setShowSAPchecked(true);
-          } else if (results[i].Bemerkung === "not found") {
+          } else if (results[i].Bemerkung === "keine FA vorhanden") {
             //reset tblEShelf
             fetch(
               `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,

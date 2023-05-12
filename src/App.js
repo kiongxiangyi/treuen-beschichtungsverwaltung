@@ -29,7 +29,7 @@ function App() {
           if (
             results[i].Auslagerung === false &&
             results[i].Einlagerung === false &&
-            results[i].Menge === 0
+            results[i].Bemerkung === "Alles wurde entnommen"
           ) {
             fetch(`${process.env.REACT_APP_API}/LagerPlatz/releaseStorageBin`, {
               method: "PUT",

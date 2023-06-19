@@ -47,7 +47,6 @@ body {
   opacity: 0.5;
 }
 
-
 .bg::before {
   content: "";
   background-image: url("/public/pictures/Tool_Management.png");
@@ -134,6 +133,12 @@ h1 {
   background-color: #e7e7e7;
   border: 2px solid;
   border-radius: 10px;
+}
+
+.wareneingang-beschichtung-select  {
+  width: 7rem;
+  border: 2px solid;
+  text-align-last: center
 }
 
 .beschichtung-select option:nth-child(2) {

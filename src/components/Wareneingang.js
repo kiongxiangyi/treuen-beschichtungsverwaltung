@@ -14,12 +14,24 @@ export default function Wareneingang({ articleDB }) {
   const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
   const [beschichtungsArt, setBeschichtungsArt] = useState("");
   const [beschichtungsDicke, setBeschichtungsDicke] = useState("");
-
+  const [beschichtungsText, setBeschichtungsText] = useState("");
+  const [wareneingangBeschichtungsart, setWareneingangBeschichtungsart] =
+    useState("");
+  const [wareneingangBeschichtungsdicke, setWareneingangBeschichtungsdicke] =
+    useState("");
   //bootstrap modal prompt message
   const [show, setShow] = useState(false);
   const [showSAPchecked, setShowSAPchecked] = useState(false);
   const [showNotFoundOrderMessage, setShowNotFoundOrderMessage] =
     useState(false);
+
+  const handleChangeWareneingangBeschichtungsart = (event) => {
+    setWareneingangBeschichtungsart(event.target.value);
+  };
+
+  const handleChangeWareneingangBeschichtungsdicke = (event) => {
+    setWareneingangBeschichtungsdicke(event.target.value);
+  };
 
   const fetchFreeStorageBins = () => {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/freeStorageBins`)
@@ -42,11 +54,41 @@ export default function Wareneingang({ articleDB }) {
         console.log(err.message);
       });
   };
+
   const handleClose = () => {
     setShowSAPchecked(false);
     setShow(false);
     fetchFreeStorageBins();
     fetchOccupiedStorageBins();
+  };
+
+  const handleCloseAndUpdateBeschichtung = () => {
+    if (wareneingangBeschichtungsart && wareneingangBeschichtungsdicke) {
+      setShowSAPchecked(false);
+      setShow(false);
+      fetchFreeStorageBins();
+      fetchOccupiedStorageBins();
+      //update beschictungsart and dicke to DB
+      fetch(`${process.env.REACT_APP_API}/Auftragsnummer/BeschichtungsText`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          fertigungsauftragDummy,
+          wareneingangBeschichtungsart,
+          wareneingangBeschichtungsdicke,
+        }),
+      })
+        .then((res) => res.json())
+        .then((res) => {
+          setWareneingangBeschichtungsart("");
+          setWareneingangBeschichtungsdicke("");
+        })
+        .catch((err) => console.log(err));
+    } 
   };
 
   useEffect(() => {
@@ -200,7 +242,7 @@ export default function Wareneingang({ articleDB }) {
             results[i].Erledigt === true
           ) {
             let oldQuantity = results[i].BestandAlt; //assign old quantity for Buchungsdaten
-            let recordForOldQuantity = results[i].Menge; //assign the current quanity for BestandAlt in DB 
+            let recordForOldQuantity = results[i].Menge; //assign the current quanity for BestandAlt in DB
             //reset tblEShelf
             fetch(
               `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,
@@ -221,6 +263,7 @@ export default function Wareneingang({ articleDB }) {
               .then((res) => {
                 setBeschichtungsArt(results[i].BeschichtungsArt);
                 setBeschichtungsDicke(results[i].BeschichtungsDicke);
+                setBeschichtungsText(results[i].BeschichtungsText);
               })
               .catch((err) => console.log(err));
 
@@ -266,7 +309,7 @@ export default function Wareneingang({ articleDB }) {
 
             setShow(false);
             setShowSAPchecked(true);
-          } else if (results[i].Bemerkung === "keine FA vorhanden") {
+          } else if (results[i].Bemerkung === "kein FA vorhanden") {
             //reset tblEShelf
             fetch(
               `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,
@@ -385,12 +428,47 @@ export default function Wareneingang({ articleDB }) {
                     <th className="tabledata">{fertigungsauftragDummy}</th>
                   </tr>
                   <tr>
+                    <td className="tabledata">Beschichtungstext</td>
+                    <th className="tabledata">{beschichtungsText}</th>
+                  </tr>
+                  <tr>
                     <td className="tabledata">Beschichtungsart</td>
-                    <th className="tabledata">{beschichtungsArt}</th>
+                    <th className="tabledata">
+                      <div>
+                        <select
+                          className="wareneingang-beschichtung-select"
+                          name="beschichtungsart"
+                          id="beschichtungsart-select"
+                          value={wareneingangBeschichtungsart}
+                          onChange={handleChangeWareneingangBeschichtungsart}
+                        >
+                          <option value="" disabled hidden></option>
+                          <option value="Fire">Fire</option>
+                          <option value="Gold">Gold</option>
+                          <option value="Silber">Silber</option>
+                          <option value="TiN">TiN</option>
+                        </select>
+                      </div>
+                    </th>
                   </tr>
                   <tr>
                     <td className="tabledata">Beschichtungsdicke</td>
-                    <th className="tabledata">{beschichtungsDicke}</th>
+                    <th className="tabledata">
+                      <div>
+                        <select
+                          className="wareneingang-beschichtung-select"
+                          name="beschichtungsdicke"
+                          id="beschichtungsdicke-select"
+                          value={wareneingangBeschichtungsdicke}
+                          onChange={handleChangeWareneingangBeschichtungsdicke}
+                        >
+                          <option value="" disabled hidden></option>
+                          <option>&lt;= 2</option>
+                          <option>2 - 6</option>
+                          <option>&gt; 6</option>
+                        </select>
+                      </div>
+                    </th>
                   </tr>
                   <tr>
                     <td className="tabledata">Menge</td>
@@ -404,7 +482,10 @@ export default function Wareneingang({ articleDB }) {
               </table>
             </Modal.Body>
             <Modal.Footer>
-              <Button className="modalButton" onClick={handleClose}>
+              <Button
+                className="modalButton"
+                onClick={handleCloseAndUpdateBeschichtung}
+              >
                 Quittieren
               </Button>
             </Modal.Footer>

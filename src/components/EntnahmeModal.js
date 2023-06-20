@@ -66,8 +66,8 @@ export default function EntnahmeModal({
       )
         .then((res) => res.json())
         .then((res) => {
-          setBeschichtungsart("Fire"); //reset filter Beschichtungsart
-          setBeschichtungsdicke("<= 2"); //reset filter Beschichtungsdicke
+          setBeschichtungsart(""); //reset filter Beschichtungsart
+          setBeschichtungsdicke(""); //reset filter Beschichtungsdicke
           setFilterDB([]); //reset filter of orders
           setSubmittedOrders([]); //reset, if not when click "weiter", previous order will be booked.
         })
@@ -150,7 +150,7 @@ export default function EntnahmeModal({
                   results[j].Auftragsnummer ===
                     withdrawnOrders[i].Auftragsnummer && //find withdrawal order in DB
                   results[j].Auslagerung === true &&
-                  results[j].Erledigt === true //check if it is set to TRUE
+                  results[j].Bemerkung === "E-Label wurde gedruckt" //check if it is set to TRUE
                 ) {
                   let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;
                   countRef.current++; // update count when one order in array withdrawnOrders done

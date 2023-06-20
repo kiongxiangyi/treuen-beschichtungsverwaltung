@@ -88,7 +88,7 @@ export default function Wareneingang({ articleDB }) {
           setWareneingangBeschichtungsdicke("");
         })
         .catch((err) => console.log(err));
-    } 
+    }
   };
 
   useEffect(() => {
@@ -245,7 +245,7 @@ export default function Wareneingang({ articleDB }) {
             let recordForOldQuantity = results[i].Menge; //assign the current quanity for BestandAlt in DB
             //reset tblEShelf
             fetch(
-              `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,
+              `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFalse`,
               {
                 method: "PUT",
                 headers: {
@@ -312,7 +312,7 @@ export default function Wareneingang({ articleDB }) {
           } else if (results[i].Bemerkung === "kein FA vorhanden") {
             //reset tblEShelf
             fetch(
-              `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangErledigtFalse`,
+              `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangKeinFAVorhanden`,
               {
                 method: "PUT",
                 headers: {

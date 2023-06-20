@@ -77,7 +77,7 @@ export default function EntnahmeFilter({
             value={beschichtungsart}
             onChange={handleChangeBeschichtungsart}
           >
-            <option value="" disabled hidden>
+            <option value=""> {/* disable hidden */}
               Alle
             </option>
             <option value="Fire">Fire</option>
@@ -99,7 +99,7 @@ export default function EntnahmeFilter({
             value={beschichtungsdicke}
             onChange={handleChangeBeschichtungsdicke}
           >
-            <option value="" disabled hidden>
+            <option value="">
               Alle
             </option>
             <option>&lt;= 2</option>

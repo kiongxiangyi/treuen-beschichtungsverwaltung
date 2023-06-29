@@ -14,6 +14,8 @@ export default function Wareneingang({ articleDB }) {
   const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
   const [beschichtungsArt, setBeschichtungsArt] = useState("");
   const [beschichtungsDicke, setBeschichtungsDicke] = useState("");
+  const [beschichtungsartOptions, setBeschichtungsartOptions] = useState([]);
+  const [beschichtungsdickeOptions, setBeschichtungsdickeOptions] = useState([]);
   const [beschichtungsText, setBeschichtungsText] = useState("");
   const [wareneingangBeschichtungsart, setWareneingangBeschichtungsart] =
     useState("");
@@ -24,10 +26,6 @@ export default function Wareneingang({ articleDB }) {
   const [showSAPchecked, setShowSAPchecked] = useState(false);
   const [showNotFoundOrderMessage, setShowNotFoundOrderMessage] =
     useState(false);
-
-  const handleChangeWareneingangBeschichtungsart = (event) => {
-    setWareneingangBeschichtungsart(event.target.value);
-  };
 
   const handleChangeWareneingangBeschichtungsdicke = (event) => {
     setWareneingangBeschichtungsdicke(event.target.value);
@@ -49,6 +47,24 @@ export default function Wareneingang({ articleDB }) {
       .then((res) => res.json())
       .then((data) => {
         setOccupiedStorageBins(data);
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  };
+
+  const fetchBeschichtungKriterien = () => {
+    fetch(`${process.env.REACT_APP_API}/BeschichtungKriterien`)
+      .then((res) => res.json())
+      .then((data) => {
+        setBeschichtungsartOptions(
+          //remove duplicate of data
+          data.reduce(function (acc, curr) {
+            if (!acc.includes(curr.Beschichtungsart))
+              acc.push(curr.Beschichtungsart);
+            return acc;
+          }, [])
+        );
       })
       .catch((err) => {
         console.log(err.message);
@@ -94,6 +110,7 @@ export default function Wareneingang({ articleDB }) {
   useEffect(() => {
     fetchFreeStorageBins();
     fetchOccupiedStorageBins();
+    fetchBeschichtungKriterien();
   }, []);
 
   const handleCloseNotFoundOrderMessage = () => {
@@ -440,13 +457,15 @@ export default function Wareneingang({ articleDB }) {
                           name="beschichtungsart"
                           id="beschichtungsart-select"
                           value={wareneingangBeschichtungsart}
-                          onChange={handleChangeWareneingangBeschichtungsart}
+                          onChange={(e) =>
+                            setWareneingangBeschichtungsart(e.target.value)
+                          }
                         >
-                          <option value="" disabled hidden></option>
-                          <option value="Fire">Fire</option>
-                          <option value="Gold">Gold</option>
-                          <option value="Silber">Silber</option>
-                          <option value="TiN">TiN</option>
+                          {beschichtungsartOptions.map((option, i) => (
+                            <option value={option} key={i}>
+                              {option}
+                            </option>
+                          ))}
                         </select>
                       </div>
                     </th>
@@ -457,16 +476,26 @@ export default function Wareneingang({ articleDB }) {
                       <div>
                         <select
                           className="wareneingang-beschichtung-select"
-                          name="beschichtungsdicke"
-                          id="beschichtungsdicke-select"
+                          name="beschichtungsart"
+                          id="beschichtungsart-select"
                           value={wareneingangBeschichtungsdicke}
                           onChange={handleChangeWareneingangBeschichtungsdicke}
                         >
-                          <option value="" disabled hidden></option>
-                          <option>&lt;= 2</option>
-                          <option>2 - 6</option>
-                          <option>&gt; 6</option>
+                          {beschichtungsdickeOptions.map((option, i) => (
+                            <option value={option} key={i}>
+                              {option}
+                            </option>
+                          ))}
+                          
                         </select>
+                        {/*  <input
+                          className="wareneingang-beschichtung-select"
+                          type="text"
+                          id="beschichtungsdicke-select"
+                          name="beschichtungsdicke"
+                          value={wareneingangBeschichtungsdicke}
+                          onChange={handleChangeWareneingangBeschichtungsdicke}
+                        ></input> */}
                       </div>
                     </th>
                   </tr>

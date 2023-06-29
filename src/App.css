@@ -141,7 +141,7 @@ h1 {
   text-align-last: center
 }
 
-.beschichtung-select option:nth-child(2) {
+/* .beschichtung-select option:nth-child(2) {
   background: red;
 }
 
@@ -155,7 +155,7 @@ h1 {
 
 .beschichtung-select option:nth-child(5) {
   background: #d3d4d5;
-}
+} */
 
 .form-check-input {
   font-size: 30px;

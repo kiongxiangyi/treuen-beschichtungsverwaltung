@@ -15,7 +15,10 @@ export default function Wareneingang({ articleDB }) {
   const [beschichtungsArt, setBeschichtungsArt] = useState("");
   const [beschichtungsDicke, setBeschichtungsDicke] = useState("");
   const [beschichtungsartOptions, setBeschichtungsartOptions] = useState([]);
-  const [beschichtungsdickeOptions, setBeschichtungsdickeOptions] = useState([]);
+  const [arrBeschichtungsdicke, setArrBeschichtungsdicke] = useState([]);
+  const [beschichtungsdickeOptions, setBeschichtungsdickeOptions] = useState(
+    []
+  );
   const [beschichtungsText, setBeschichtungsText] = useState("");
   const [wareneingangBeschichtungsart, setWareneingangBeschichtungsart] =
     useState("");
@@ -26,6 +29,10 @@ export default function Wareneingang({ articleDB }) {
   const [showSAPchecked, setShowSAPchecked] = useState(false);
   const [showNotFoundOrderMessage, setShowNotFoundOrderMessage] =
     useState(false);
+
+  const handleChangeWareneingangBeschichtungsart = (event) => {
+    setWareneingangBeschichtungsart(event.target.value);
+  };
 
   const handleChangeWareneingangBeschichtungsdicke = (event) => {
     setWareneingangBeschichtungsdicke(event.target.value);
@@ -70,6 +77,29 @@ export default function Wareneingang({ articleDB }) {
         console.log(err.message);
       });
   };
+
+  //get beschichtungsdicke option from backend when beschichtungsart in frontend being selected
+  useEffect(() => {
+    if (wareneingangBeschichtungsart) {
+      fetch(
+        `${process.env.REACT_APP_API}/BeschichtungKriterien/Beschichtungsdicke?Beschichtungsart=${wareneingangBeschichtungsart}`
+      )
+        .then((res) => res.json())
+        .then((data) => {
+          setBeschichtungsdickeOptions(
+            //remove duplicate of data
+            data.reduce(function (acc, curr) {
+              if (!acc.includes(curr.Beschichtungsdicke))
+                acc.push(curr.Beschichtungsdicke);
+              return acc;
+            }, [])
+          );
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    }
+  }, [wareneingangBeschichtungsart]);
 
   const handleClose = () => {
     setShowSAPchecked(false);
@@ -457,10 +487,9 @@ export default function Wareneingang({ articleDB }) {
                           name="beschichtungsart"
                           id="beschichtungsart-select"
                           value={wareneingangBeschichtungsart}
-                          onChange={(e) =>
-                            setWareneingangBeschichtungsart(e.target.value)
-                          }
+                          onChange={handleChangeWareneingangBeschichtungsart}
                         >
+                          <option value=""></option>
                           {beschichtungsartOptions.map((option, i) => (
                             <option value={option} key={i}>
                               {option}
@@ -481,12 +510,12 @@ export default function Wareneingang({ articleDB }) {
                           value={wareneingangBeschichtungsdicke}
                           onChange={handleChangeWareneingangBeschichtungsdicke}
                         >
+                          <option value=""></option>
                           {beschichtungsdickeOptions.map((option, i) => (
                             <option value={option} key={i}>
                               {option}
                             </option>
                           ))}
-                          
                         </select>
                         {/*  <input
                           className="wareneingang-beschichtung-select"

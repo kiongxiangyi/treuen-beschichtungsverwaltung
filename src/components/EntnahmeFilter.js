@@ -7,6 +7,8 @@ export default function EntnahmeFilter({
   setBeschichtungsart,
   beschichtungsdicke,
   setBeschichtungsdicke,
+  beschichtungsartOptions,
+  beschichtungsdickeOptions,
 }) {
   //tutorial: https://www.simplilearn.com/tutorials/reactjs-tutorial/how-to-create-functional-react-dropdown-menu
   //select beschichtungsart
@@ -24,7 +26,7 @@ export default function EntnahmeFilter({
     event.preventDefault();
 
     let filteredValue = [];
-    if (beschichtungsart === "") {
+    if (beschichtungsart === "alle") {
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
           //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
@@ -32,7 +34,7 @@ export default function EntnahmeFilter({
           element.BeschichtungsDicke < upper && */
           element.Menge > 0
       );
-    } else if (beschichtungsdicke === "") {
+    } else if (beschichtungsdicke === "alle") {
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
           // element.BeschichtungsArt === beschichtungsart && element.Menge > 0
@@ -42,27 +44,12 @@ export default function EntnahmeFilter({
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
           element.BeschichtungsArt === beschichtungsart &&
-          element.BeschichtungsDicke > lower &&
-          element.BeschichtungsDicke < upper &&
+          element.BeschichtungsDicke === beschichtungsdicke &&
           element.Menge > 0
-          
       );
     }
     setFilterDB(filteredValue);
   };
-
-  let lower = "";
-  let upper = "";
-  if (beschichtungsdicke === "<= 2,0") {
-    lower = 0;
-    upper = 3;
-  } else if (beschichtungsdicke === "2,0 - 6") {
-    lower = 1;
-    upper = 7;
-  } else if (beschichtungsdicke === "> 6") {
-    lower = 6;
-    upper = 100;
-  }
 
   return (
     <div>
@@ -78,26 +65,12 @@ export default function EntnahmeFilter({
             value={beschichtungsart}
             onChange={handleChangeBeschichtungsart}
           >
-            <option value="">
-              {" "}
-              {/* disable hidden */}
-              Alle
-            </option>
-            <option value="Tin">Tin</option>
-            <option value="A-TiAlN">A-TiAlN</option>
-            <option value="Super A">Super A</option>
-            <option value="Fire">Fire</option>
-            <option value="nano Fire">nano Fire</option>
-            <option value="nano A">nano A</option>
-            <option value="Signum">Signum</option>
-            <option value="Zenit">Zenit</option>
-            <option value="Raptor">Raptor</option>
-            <option value="Sirius">Sirius</option>
-            <option value="Congressor">Congressor</option>
-            <option value="Endurum ">Endurum </option>
-            <option value="Ferrox ">Ferrox </option>
-            <option value="Perrox ">Perrox </option>
-            <option value="Perrox ">Perrox </option>
+            <option value="alle">Alle</option>
+            {beschichtungsartOptions.map((option, i) => (
+              <option value={option} key={i}>
+                {option}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -113,10 +86,12 @@ export default function EntnahmeFilter({
             value={beschichtungsdicke}
             onChange={handleChangeBeschichtungsdicke}
           >
-            <option value="">Alle</option>
-            <option value="<= 2,0">&lt;= 2,0</option>
-            <option value="2,0 - 6">2,0 - 6</option>
-            <option value="> 6">&gt; 6</option>
+            <option value="alle">Alle</option>
+            {beschichtungsdickeOptions.map((option, i) => (
+              <option value={option} key={i}>
+                {option}
+              </option>
+            ))}
           </select>
         </div>
       </div>

@@ -15,7 +15,6 @@ export default function Wareneingang({ articleDB }) {
   const [beschichtungsArt, setBeschichtungsArt] = useState("");
   const [beschichtungsDicke, setBeschichtungsDicke] = useState("");
   const [beschichtungsartOptions, setBeschichtungsartOptions] = useState([]);
-  const [arrBeschichtungsdicke, setArrBeschichtungsdicke] = useState([]);
   const [beschichtungsdickeOptions, setBeschichtungsdickeOptions] = useState(
     []
   );

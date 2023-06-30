@@ -5,8 +5,8 @@ import EntnahmeButton from "./EntnahmeButton";
 import EntnahmeModal from "./EntnahmeModal";
 
 export default function Entnahme({ fertigungsauftragDB }) {
-  const [beschichtungsart, setBeschichtungsart] = useState("");
-  const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
+  const [beschichtungsart, setBeschichtungsart] = useState("alle");
+  const [beschichtungsdicke, setBeschichtungsdicke] = useState("alle");
   const [filterDB, setFilterDB] = useState([]);
   const [submittedOrders, setSubmittedOrders] = useState([]);
   const [withdrawnOrders, setWithdrawnOrders] = useState([]);

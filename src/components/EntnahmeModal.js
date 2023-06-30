@@ -18,6 +18,7 @@ export default function EntnahmeModal({
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const selectAllCheckbox =
     document.getElementsByClassName("selectAllCheckbox");
+  const [timeoutLagerplatz, setTimeouttimeoutLagerplatz] = useState("");
 
   const handleQuittieren = async () => {
     for (let i = 0; i < withdrawnOrders.length; i++) {
@@ -180,6 +181,11 @@ export default function EntnahmeModal({
               setButtonDisabled(false);
             }
           }
+
+          const timer = setTimeout(() => {
+            setButtonDisabled(false);
+          }, 45000);
+          return () => clearTimeout(timer);
         } catch (err) {
           console.log(err);
           toast.error(

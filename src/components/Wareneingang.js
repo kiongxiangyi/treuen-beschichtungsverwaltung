@@ -108,6 +108,7 @@ export default function Wareneingang({ articleDB }) {
   };
 
   const handleCloseAndUpdateBeschichtung = () => {
+    
     if (wareneingangBeschichtungsart && wareneingangBeschichtungsdicke) {
       setShowSAPchecked(false);
       setShow(false);
@@ -316,6 +317,11 @@ export default function Wareneingang({ articleDB }) {
             //update qty from SAP when Erledigt is TRUE
             let newQuantity = results[i].Menge;
             let storagebin = results[i].Lagerplatz;
+            let maxQuantity = results[i].Maximalbestand;
+
+            if (newQuantity > maxQuantity) {
+              let remainQuantity = newQuantity - maxQuantity;
+            }
 
             fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
               method: "PUT",

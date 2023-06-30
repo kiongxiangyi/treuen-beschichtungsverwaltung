@@ -25,11 +25,12 @@ function App() {
         for (let i = 0; i < results.length; i++) {
           let fertigungsauftrag = results[i].Auftragsnummer;
 
-          //Entnahme fertig
+          //Entnahme fertig oder keine FA vorhanden
           if (
-            results[i].Auslagerung === false &&
-            results[i].Einlagerung === false &&
-            results[i].Bemerkung === "Alles wurde entnommen"
+            (results[i].Auslagerung === false &&
+              results[i].Einlagerung === false &&
+              results[i].Bemerkung === "Alles wurde entnommen") ||
+            results[i].Bemerkung === "kein FA vorhanden - es wird gelöscht"
           ) {
             fetch(`${process.env.REACT_APP_API}/LagerPlatz/releaseStorageBin`, {
               method: "PUT",

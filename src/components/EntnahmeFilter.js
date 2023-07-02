@@ -24,9 +24,9 @@ export default function EntnahmeFilter({
   //Aufträge anzeigen button submit
   const handleSubmitOrder = (event) => {
     event.preventDefault();
-
+    
     let filteredValue = [];
-    if (beschichtungsart === "alle") {
+    if (beschichtungsart === "") {
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
           //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
@@ -34,7 +34,7 @@ export default function EntnahmeFilter({
           element.BeschichtungsDicke < upper && */
           element.Menge > 0
       );
-    } else if (beschichtungsdicke === "alle") {
+    } else if (beschichtungsdicke === "") {
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
           // element.BeschichtungsArt === beschichtungsart && element.Menge > 0
@@ -65,7 +65,7 @@ export default function EntnahmeFilter({
             value={beschichtungsart}
             onChange={handleChangeBeschichtungsart}
           >
-            <option value="alle">Alle</option>
+            <option value="">Alle</option>
             {beschichtungsartOptions.map((option, i) => (
               <option value={option} key={i}>
                 {option}
@@ -86,7 +86,7 @@ export default function EntnahmeFilter({
             value={beschichtungsdicke}
             onChange={handleChangeBeschichtungsdicke}
           >
-            <option value="alle">Alle</option>
+            <option value="">Alle</option>
             {beschichtungsdickeOptions.map((option, i) => (
               <option value={option} key={i}>
                 {option}

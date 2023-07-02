@@ -319,6 +319,9 @@ export default function Wareneingang({ articleDB }) {
             let storagebin = results[i].Lagerplatz;
             let maxQuantity = results[i].Maximalbestand;
 
+            //check tblLagerPlatz Maximalbestand
+            //compare SAP Menge mit Maximalbestand
+            //while loop -> if SAP Menge > Maximalbestand, SAP Menge minus Maximalbestand -> Lagerplatz zuordnen
             if (newQuantity > maxQuantity) {
               let remainQuantity = newQuantity - maxQuantity;
             }

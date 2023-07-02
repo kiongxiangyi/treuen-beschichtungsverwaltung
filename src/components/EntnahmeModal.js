@@ -19,15 +19,16 @@ export default function EntnahmeModal({
   const selectAllCheckbox =
     document.getElementsByClassName("selectAllCheckbox");
   const [timeoutLagerplatz, setTimeouttimeoutLagerplatz] = useState("");
+  let quittiertWithdrawnOrders = [];
 
   const handleQuittieren = async () => {
-    for (let i = 0; i < withdrawnOrders.length; i++) {
+    for (let i = 0; i < quittiertWithdrawnOrders.length; i++) {
       //loop withdrawn orders
-      let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer; // get order number
-      let newQuantity = withdrawnOrders[i].newQty; // get new qty
-      let oldQuantity = withdrawnOrders[i].Menge;
-      let storagebin = withdrawnOrders[i].Lagerplatz;
-      let withdrawnQuantity = withdrawnOrders[i].withdrawnQty;
+      let fertigungsauftrag = quittiertWithdrawnOrders[i].Auftragsnummer; // get order number
+      let newQuantity = quittiertWithdrawnOrders[i].newQty; // get new qty
+      let oldQuantity = quittiertWithdrawnOrders[i].Menge;
+      let storagebin = quittiertWithdrawnOrders[i].Lagerplatz;
+      let withdrawnQuantity = quittiertWithdrawnOrders[i].withdrawnQty;
 
       // without await, the booking data in the loop could not be finished.
       await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
@@ -148,14 +149,15 @@ export default function EntnahmeModal({
               for (let j = 0; j < results.length; j++) {
                 //loop data in DB
                 if (
-                  results[j].Auftragsnummer ===
-                    withdrawnOrders[i].Auftragsnummer && //find withdrawal order in DB
+                  withdrawnOrders[i].Auftragsnummer ===
+                    results[j].Auftragsnummer && //find withdrawal order in DB
                   results[j].Auslagerung === true &&
-                  results[j].Bemerkung === "E-Label wurde gedruckt" //check if it is set to TRUE
+                  results[j].Bemerkung === "E-Label wurde angeklickt" //check if it is set to TRUE
                 ) {
                   let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;
-                  countRef.current++; // update count when one order in array withdrawnOrders done
-
+                  //countRef.current++; // update count when one order in array withdrawnOrders done
+                  quittiertWithdrawnOrders.push(withdrawnOrders[i]);
+                  withdrawnOrders.splice(i, 1);
                   fetch(
                     `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmePending`,
                     {
@@ -176,15 +178,17 @@ export default function EntnahmeModal({
               }
             }
 
-            if (countRef.current === withdrawnOrders.length) {
+            /* if (countRef.current === withdrawnOrders.length) {
               countRef.current = 0; //reset count when all withdrawnOrders processed
               setButtonDisabled(false);
-            }
+            } */
+          } else {
+            handleQuittieren();
           }
 
           const timer = setTimeout(() => {
             setButtonDisabled(false);
-          }, 45000);
+          }, 15000);
           return () => clearTimeout(timer);
         } catch (err) {
           console.log(err);
@@ -198,7 +202,7 @@ export default function EntnahmeModal({
       //fetch Artikel every X second
       interval = setInterval(() => {
         fetchWithdrawalOrders();
-      }, 1 * 1000);
+      }, 1 * 5000);
 
       return () => {
         clearInterval(interval);

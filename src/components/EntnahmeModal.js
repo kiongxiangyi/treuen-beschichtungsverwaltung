@@ -13,6 +13,7 @@ export default function EntnahmeModal({
   withdrawnOrders,
   setWithdrawnOrders,
 }) {
+  console.log(withdrawnOrders);
   const countRef = useRef(0); //count initial value 0
   const fullscreen = true;
   const [buttonDisabled, setButtonDisabled] = useState(true);
@@ -208,7 +209,7 @@ export default function EntnahmeModal({
         clearInterval(interval);
       };
     }
-  }, [show, withdrawnOrders]);
+  }, [show, withdrawnOrders, handleQuittieren, quittiertWithdrawnOrders]);
 
   return (
     <div>

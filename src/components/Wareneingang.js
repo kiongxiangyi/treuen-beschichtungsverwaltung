@@ -37,6 +37,7 @@ export default function Wareneingang({ articleDB }) {
   const fullscreen = true;
   const [numberOfStorageBins, setNumberOfStorageBins] = useState([]);
   const [wareneingangOrders, setWareneingangOrders] = useState([]);
+  let quittiertWareneingangOrders = [];
 
   const handleWareneingangOrders = () => {
     fetchFreeStorageBins();
@@ -293,8 +294,8 @@ export default function Wareneingang({ articleDB }) {
       ) {
         setShowSAPchecked(false);
 
-        await fetch(`${process.env.REACT_APP_API}/Auftragsnummer/OldData`, {
-          method: "DELETE",
+        fetch(`${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`, {
+          method: "PUT",
           headers: {
             Accept: "application/json",
             "Content-Type": "application/json",
@@ -302,63 +303,45 @@ export default function Wareneingang({ articleDB }) {
 
           body: JSON.stringify({
             fertigungsauftrag,
+            quantity,
+            anzahlSteckbretter,
           }),
         })
           .then((res) => res.json())
           .catch((err) => console.log(err));
 
-        for (let i = 0; i < anzahlSteckbretter; i++) {
-          await fetch(
-            `${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`,
-            {
-              method: "PUT",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
+        fetch(
+          `${process.env.REACT_APP_API}/Auftragsnummer/AddMoreStorageBins`,
+          {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
 
-              body: JSON.stringify({
-                fertigungsauftrag,
-                quantity,
-                anzahlSteckbretter,
-                i,
-              }),
-            }
-          )
-            .then((res) => res.json())
-            .catch((err) => console.log(err));
-
-          fetch(
-            `${process.env.REACT_APP_API}/Auftragsnummer/AddMoreStorageBins`,
-            {
-              method: "POST",
-              headers: {
-                Accept: "application/json",
-                "Content-Type": "application/json",
-              },
-
-              body: JSON.stringify({
-                fertigungsauftrag,
-                wareneingangBeschichtungsart,
-                wareneingangBeschichtungsdicke,
-                beschichtungsText,
-                quantity,
-                anzahlSteckbretter,
-                i,
-              }),
-            }
-          )
-            .then((res) => res.json())
-            .catch((err) => console.log(err));
-        }
-
-        setAnzahlSteckbretter(1);
-        setWareneingangBeschichtungsart("");
-        setWareneingangBeschichtungsdicke("");
-        setFertigungsauftrag("");
-        setBeschichtungsText("");
-        setQuantity("");
+            body: JSON.stringify({
+              fertigungsauftrag,
+              wareneingangBeschichtungsart,
+              wareneingangBeschichtungsdicke,
+              beschichtungsText,
+              quantity,
+              anzahlSteckbretter,
+            }),
+          }
+        )
+          .then((res) => res.json())
+          .then((data) => {
+            setWareneingangOrders(data);
+          })
+          .catch((err) => console.log(err));
       }
+
+      setAnzahlSteckbretter(1);
+      setWareneingangBeschichtungsart("");
+      setWareneingangBeschichtungsdicke("");
+
+      setShowWareneingangOrders(true);
+      console.log("1", wareneingangOrders);
     } catch (err) {
       console.log(err);
       toast.error(
@@ -405,26 +388,10 @@ export default function Wareneingang({ articleDB }) {
                 setFertigungsauftrag(results[i].Auftragsnummer);
                 setBeschichtungsText(results[i].BeschichtungsText);
                 setQuantity(results[i].Menge);
+                setShow(false);
+                setShowSAPchecked(true);
               })
               .catch((err) => console.log(err));
-
-            setShow(false);
-            setShowSAPchecked(true);
-          } else if (
-            results[i].Einlagerung === false &&
-            results[i].Erledigt === true &&
-            results[i].Bemerkung ===
-              "SAP checked - Anzahl Steckbretter eingegeben"
-          ) {
-            console.log("show orders");
-
-            /*    wareneingangOrders.push({
-              Auftragsnummer: fertigungsauftragDummy,
-              Beschichtungsart: wareneingangBeschichtungsart,
-              Beschichtungsdicke: wareneingangBeschichtungsdicke,
-              Lagerplatz: "1",
-            }); */
-            //setShowWareneingangOrders(true);
           } else if (results[i].Bemerkung === "kein FA vorhanden") {
             //reset tblEShelf
             fetch(
@@ -466,6 +433,112 @@ export default function Wareneingang({ articleDB }) {
       clearInterval(interval);
     };
   }, []);
+
+  //get tblEShelfBeschichtung
+  useEffect(() => {
+    let interval;
+    if (showWareneingangOrders) {
+      const fetchWareneingangOrders = async () => {
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_API}/Auftragsnummer`
+          );
+          const results = await response.json();
+
+          if (wareneingangOrders.length > 0) {
+            console.log("2", wareneingangOrders);
+            for (let i = 0; i < wareneingangOrders.length; i++) {
+              for (let j = 0; j < results.length; j++) {
+                if (
+                  wareneingangOrders[i].Auftragsnummer ===
+                    results[j].Auftragsnummer &&
+                  results[j].Bemerkung ===
+                    "E-Label wurde angeklickt - Wareneingang" &&
+                  wareneingangOrders[i].Lagerplatz === results[j].Lagerplatz
+                ) {
+                  let fertigungsauftrag = wareneingangOrders[i].Auftragsnummer;
+                  let storageBin = wareneingangOrders[i].Lagerplatz;
+                  quittiertWareneingangOrders.push(wareneingangOrders[i]);
+                  wareneingangOrders.splice(i, 1);
+                  fetch(
+                    `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangPending`,
+                    {
+                      method: "PUT",
+                      headers: {
+                        Accept: "application/json",
+                        "Content-Type": "application/json",
+                      },
+
+                      body: JSON.stringify({
+                        fertigungsauftrag,
+                        storageBin,
+                      }),
+                    }
+                  )
+                    .then((res) => res.json())
+                    .catch((err) => console.log(err));
+                }
+                if (wareneingangOrders.length === 0) {
+                  handleQuittieren();
+                }
+              }
+            }
+          }
+
+          const timer = setTimeout(() => {
+            setButtonDisabled(false);
+          }, 10000);
+          return () => clearTimeout(timer);
+        } catch (err) {
+          console.log(err);
+          toast.error(
+            "There is no connection to database. Please check the database server."
+          );
+        }
+      };
+      fetchWareneingangOrders();
+
+      //fetch Artikel every X second
+      interval = setInterval(() => {
+        fetchWareneingangOrders();
+      }, 1 * 1000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [showWareneingangOrders, wareneingangOrders]);
+
+  const handleQuittieren = async () => {
+    if (wareneingangOrders.length > 0) {
+      for (let i = 0; i < wareneingangOrders.length; i++) {
+        let fertigungsauftrag = wareneingangOrders[i].Auftragsnummer;
+        let storageBin = wareneingangOrders[i].Lagerplatz;
+
+        await fetch(
+          `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangPending`,
+          {
+            method: "PUT",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              fertigungsauftrag,
+              storageBin,
+            }),
+          }
+        )
+          .then((res) => res.json())
+          .catch((err) => console.log(err));
+      }
+    }
+
+    setButtonDisabled(true); //reset button to disabled
+    setShowWareneingangOrders(false); //close message box
+    setWareneingangOrders([]); //reset previous withdrawals record
+  };
 
   return (
     <div>
@@ -649,8 +722,8 @@ export default function Wareneingang({ articleDB }) {
                   {wareneingangOrders.map((item, i) => (
                     <tr key={i}>
                       <td>{item.Auftragsnummer}</td>
-                      <td>{item.Beschichtungsart}</td>
-                      <td>{item.Beschichtungsdicke}</td>
+                      <td>{item.BeschichtungsArt}</td>
+                      <td>{item.BeschichtungsDicke}</td>
                       <td>{item.Lagerplatz}</td>
                     </tr>
                   ))}
@@ -661,7 +734,7 @@ export default function Wareneingang({ articleDB }) {
               <Button
                 className="modalButton"
                 disabled={buttonDisabled}
-                onClick={handleWareneingangOrders}
+                onClick={handleQuittieren}
               >
                 Quittieren
               </Button>

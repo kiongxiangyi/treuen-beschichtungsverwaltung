@@ -27,6 +27,7 @@ export default function EntnahmeButton({
       let withdrawnQuantityOfSelectedOrder;
       let fertigungsauftrag;
       let arrWithdrawnOrders = [];
+      console.log(submittedOrders);
       //loop and update quantity of selected orders
       for (let i = 0; i < submittedOrders.length; i++) {
         selectedOrders = fertigungsauftragDB.find(

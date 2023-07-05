@@ -111,7 +111,7 @@ function App() {
         );
       }
     };
-    fetchOrders();
+    //fetchOrders();
 
     //fetch Artikel every X second
     interval = setInterval(() => {

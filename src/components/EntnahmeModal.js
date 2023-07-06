@@ -22,130 +22,47 @@ export default function EntnahmeModal({
   let quittiertWithdrawnOrders = [];
 
   const handleQuittieren = async () => {
+    let orders;
     if (withdrawnOrders.length === 0) {
-      for (let i = 0; i < quittiertWithdrawnOrders.length; i++) {
-        //loop withdrawn orders
-        let fertigungsauftrag = quittiertWithdrawnOrders[i].Auftragsnummer; // get order number
-        let newQuantity = quittiertWithdrawnOrders[i].newQty; // get new qty
-        let oldQuantity = quittiertWithdrawnOrders[i].Menge;
-        let storagebin = quittiertWithdrawnOrders[i].Lagerplatz;
-        let withdrawnQuantity = quittiertWithdrawnOrders[i].withdrawnQty;
-
-        // without await, the booking data in the loop could not be finished.
-        await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            fertigungsauftrag,
-            newQuantity,
-            oldQuantity,
-            storagebin,
-            withdrawnQuantity,
-          }),
-        })
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
-
-        //Buchungsdaten have to be first updated, because the BestandAlt in Auftragsnummer will be updated after that.
-        await fetch(
-          `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`,
-          {
-            //update new Qty to DB
-            method: "PUT",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-
-            body: JSON.stringify({
-              fertigungsauftrag,
-              newQuantity,
-            }),
-          }
-        )
-          .then((res) => res.json())
-          .then((res) => {
-            setBeschichtungsart(""); //reset filter Beschichtungsart
-            setBeschichtungsdicke(""); //reset filter Beschichtungsdicke
-            setFilterDB([]); //reset filter of orders
-            setSubmittedOrders([]); //reset, if not when click "weiter", previous order will be booked.
-          })
-          .catch((err) => console.log(err));
-
-        await fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            fertigungsauftrag,
-            newQuantity,
-          }),
-        })
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
-      }
+      orders = quittiertWithdrawnOrders;
     } else {
-      for (let i = 0; i < withdrawnOrders.length; i++) {
-        //loop withdrawn orders
-        let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer; // get order number
-        let newQuantity = withdrawnOrders[i].newQty; // get new qty
-        let oldQuantity = withdrawnOrders[i].Menge;
-        let storagebin = withdrawnOrders[i].Lagerplatz;
-        let withdrawnQuantity = withdrawnOrders[i].withdrawnQty;
+      orders = withdrawnOrders;
+    }
 
-        // without await, the booking data in the loop could not be finished.
-        await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
+    for (let i = 0; i < orders.length; i++) {
+      //loop withdrawn orders
+      let fertigungsauftrag = orders[i].Auftragsnummer; // get order number
+      let oldQuantity = orders[i].Menge;
+      let storagebin = orders[i].Lagerplatz;
 
-          body: JSON.stringify({
-            fertigungsauftrag,
-            newQuantity,
-            oldQuantity,
-            storagebin,
-            withdrawnQuantity,
-          }),
-        })
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
+      let withdrawnQuantity = orders[i].withdrawnQty;
+      let newQuantity = orders[i].newQty; // get new qty
+      let storageBin = orders[i].Lagerplatz;
+      // without await, the booking data in the loop could not be finished.
+      await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
 
-        //Buchungsdaten have to be first updated, because the BestandAlt in Auftragsnummer will be updated after that.
-        await fetch(
-          `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`,
-          {
-            //update new Qty to DB
-            method: "PUT",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
+        body: JSON.stringify({
+          fertigungsauftrag,
+          newQuantity,
+          oldQuantity,
+          storagebin,
+          withdrawnQuantity,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
 
-            body: JSON.stringify({
-              fertigungsauftrag,
-              newQuantity,
-            }),
-          }
-        )
-          .then((res) => res.json())
-          .then((res) => {
-            setBeschichtungsart(""); //reset filter Beschichtungsart
-            setBeschichtungsdicke(""); //reset filter Beschichtungsdicke
-            setFilterDB([]); //reset filter of orders
-            setSubmittedOrders([]); //reset, if not when click "weiter", previous order will be booked.
-          })
-          .catch((err) => console.log(err));
-
-        await fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
+      //Buchungsdaten have to be first updated, because the BestandAlt in Auftragsnummer will be updated after that.
+      //update newQty and Bemerkung of withdrawn storage bins
+      await fetch(
+        `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`,
+        {
+          //update new Qty to DB
           method: "PUT",
           headers: {
             Accept: "application/json",
@@ -154,12 +71,33 @@ export default function EntnahmeModal({
 
           body: JSON.stringify({
             fertigungsauftrag,
-            newQuantity,
+            storageBin,
           }),
+        }
+      )
+        .then((res) => res.json())
+        .then((res) => {
+          setBeschichtungsart(""); //reset filter Beschichtungsart
+          setBeschichtungsdicke(""); //reset filter Beschichtungsdicke
+          setFilterDB([]); //reset filter of orders
+          setSubmittedOrders([]); //reset, if not when click "weiter", previous order will be booked.
         })
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
-      }
+        .catch((err) => console.log(err));
+
+      await fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+
+        body: JSON.stringify({
+          fertigungsauftrag,
+          newQuantity,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
     }
 
     setButtonDisabled(true); //reset button to disabled
@@ -206,6 +144,7 @@ export default function EntnahmeModal({
   useEffect(() => {
     let interval;
     if (show) {
+      console.log("withdrawnOrders", withdrawnOrders);
       const fetchWithdrawalOrders = async () => {
         try {
           const response = await fetch(
@@ -223,15 +162,17 @@ export default function EntnahmeModal({
                   withdrawnOrders[i].Auftragsnummer ===
                     results[j].Auftragsnummer && //find withdrawal order in DB
                   results[j].Auslagerung === true &&
-                  results[j].Bemerkung === "E-Label wurde angeklickt" && //check if it is set to TRUE
+                  results[j].Bemerkung ===
+                    "E-Label wurde angeklickt - Entnahme" && //check if it is set to TRUE
                   withdrawnOrders[i].Lagerplatz === results[j].Lagerplatz
                 ) {
                   let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;
+                  let storageBin = withdrawnOrders[i].Lagerplatz;
                   //countRef.current++; // update count when one order in array withdrawnOrders done
                   quittiertWithdrawnOrders.push(withdrawnOrders[i]);
                   withdrawnOrders.splice(i, 1);
                   fetch(
-                    `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmePending`,
+                    `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`,
                     {
                       method: "PUT",
                       headers: {
@@ -241,6 +182,7 @@ export default function EntnahmeModal({
 
                       body: JSON.stringify({
                         fertigungsauftrag,
+                        storageBin,
                       }),
                     }
                   )
@@ -260,8 +202,11 @@ export default function EntnahmeModal({
 
           const timer = setTimeout(() => {
             setButtonDisabled(false);
-          }, 1000);
-          return () => clearTimeout(timer);
+          }, 10000);
+          return () => {
+            clearTimeout(timer);
+            setButtonDisabled(true);
+          };
         } catch (err) {
           console.log(err);
           toast.error(

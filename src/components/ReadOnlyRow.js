@@ -7,10 +7,11 @@ const ReadOnlyRow = ({ item, handleEditQuantityClick }) => {
       <td>{item.Auftragsnummer}</td>
       <td>{item.BeschichtungsArt}</td>
       <td>{item.BeschichtungsDicke}</td>
+      <td>{item.Lagerplatz}</td>
       <td>{item.Menge}</td>
       <td>
         <Button
-        className="actionBtn"
+          className="actionBtn"
           type="button"
           onClick={(event) => handleEditQuantityClick(event, item)}
         >

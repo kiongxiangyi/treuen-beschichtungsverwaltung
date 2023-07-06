@@ -294,19 +294,22 @@ export default function Wareneingang({ articleDB }) {
       ) {
         setShowSAPchecked(false);
 
-        fetch(`${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`, {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
+        await fetch(
+          `${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`,
+          {
+            method: "PUT",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
 
-          body: JSON.stringify({
-            fertigungsauftrag,
-            quantity,
-            anzahlSteckbretter,
-          }),
-        })
+            body: JSON.stringify({
+              fertigungsauftrag,
+              quantity,
+              anzahlSteckbretter,
+            }),
+          }
+        )
           .then((res) => res.json())
           .catch((err) => console.log(err));
 
@@ -341,7 +344,6 @@ export default function Wareneingang({ articleDB }) {
       setWareneingangBeschichtungsdicke("");
 
       setShowWareneingangOrders(true);
-      console.log("1", wareneingangOrders);
     } catch (err) {
       console.log(err);
       toast.error(
@@ -367,7 +369,8 @@ export default function Wareneingang({ articleDB }) {
           if (
             //Wareneingang fertig
             results[i].Einlagerung === true &&
-            results[i].Erledigt === true
+            results[i].Erledigt === true &&
+            results[i].Lagerplatz === 0
           ) {
             fetch(
               `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFalse`,
@@ -446,7 +449,6 @@ export default function Wareneingang({ articleDB }) {
           const results = await response.json();
 
           if (wareneingangOrders.length > 0) {
-            console.log("2", wareneingangOrders);
             for (let i = 0; i < wareneingangOrders.length; i++) {
               for (let j = 0; j < results.length; j++) {
                 if (
@@ -488,7 +490,10 @@ export default function Wareneingang({ articleDB }) {
           const timer = setTimeout(() => {
             setButtonDisabled(false);
           }, 10000);
-          return () => clearTimeout(timer);
+          return () => {
+            clearTimeout(timer);
+            setButtonDisabled(false);
+          };
         } catch (err) {
           console.log(err);
           toast.error(

@@ -15,6 +15,7 @@ export default function EntnahmeTable({
     Auftragsnummer: "",
     BeschichtungsArt: "",
     BeschichtungsDicke: "",
+    Lagerplatz: "",
     Menge: "",
   });
 
@@ -29,6 +30,7 @@ export default function EntnahmeTable({
       Auftragsnummer: item.Auftragsnummer,
       BeschichtungsArt: item.BeschichtungsArt,
       BeschichtungsDicke: item.BeschichtungsDicke,
+      Lagerplatz: item.Lagerplatz,
       Menge: item.Menge,
     };
 
@@ -57,6 +59,7 @@ export default function EntnahmeTable({
       Auftragsnummer: editQuantity.Auftragsnummer,
       BeschichtungsArt: editQuantity.BeschichtungsArt,
       BeschichtungsDicke: editQuantity.BeschichtungsDicke,
+      Lagerplatz: editQuantity.Lagerplatz,
       Menge: editQuantity.Menge,
     };
 
@@ -154,6 +157,7 @@ export default function EntnahmeTable({
 
       let selectAllCheckbox =
         document.getElementsByClassName("selectAllCheckbox");
+
       if (
         tempOrder.filter((order) => order.isChecked === true).length !==
         tempOrder.length
@@ -198,6 +202,7 @@ export default function EntnahmeTable({
             <th>Fertigungsauftrag</th>
             <th>Beschichtungsart</th>
             <th>Beschichtungsdicke</th>
+            <th>Lagerplatz</th>
             <th>Menge</th>
             <th className="aktion">Aktion</th>
           </tr>
@@ -209,7 +214,7 @@ export default function EntnahmeTable({
                 <input
                   type="checkbox"
                   className="form-check-input checkedID"
-                  name={item.Auftragsnummer}
+                  name={item.name}
                 />
               </td>
 

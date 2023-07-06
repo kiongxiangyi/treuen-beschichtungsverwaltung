@@ -9,6 +9,7 @@ export default function EntnahmeButton({
   filterDB,
   setWithdrawnOrders,
   setShow,
+  setWithdrawnOrdersWithQuantity,
 }) {
   const navigate = useNavigate(); //hook for navigation
 
@@ -22,19 +23,21 @@ export default function EntnahmeButton({
   } = useForm();
 
   const onSubmit = () => {
+    //console.log("submittedOrders", submittedOrders);
     if (submittedOrders.length > 0) {
-      let selectedOrders;
+      let selectedOrdersWithoutQuantity = [];
       let withdrawnQuantityOfSelectedOrder;
       let fertigungsauftrag;
       let arrWithdrawnOrders = [];
-      console.log(submittedOrders);
       //loop and update quantity of selected orders
       for (let i = 0; i < submittedOrders.length; i++) {
-        selectedOrders = fertigungsauftragDB.find(
+        selectedOrdersWithoutQuantity = fertigungsauftragDB.filter(
           //current quantity in DB
-          ({ Auftragsnummer }) =>
-            Auftragsnummer === submittedOrders[i].Auftragsnummer
+          ({ Auftragsnummer, Lagerplatz }) =>
+            Auftragsnummer === submittedOrders[i].Auftragsnummer &&
+            Lagerplatz !== 0
         );
+
         withdrawnQuantityOfSelectedOrder = filterDB.find(
           //withdrawal quantity input in frontend
           ({ Auftragsnummer }) =>
@@ -43,17 +46,11 @@ export default function EntnahmeButton({
 
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
-        let newQuantity =
-          selectedOrders.Menge - withdrawnQuantityOfSelectedOrder.Menge;
-
         let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
 
-        arrWithdrawnOrders.push({
-          ...selectedOrders,
-          newQty: newQuantity,
-          withdrawnQty: withdrawnQuantity,
-        }); //save orders of loops in a local variable because useState does not render in loop
+        arrWithdrawnOrders.push(...selectedOrdersWithoutQuantity);
 
+        //Auslagerung TRUE where Lagerplatz != 0 and update newQuantity
         fetch(
           `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeAuslagerungTrue`,
           {
@@ -65,6 +62,7 @@ export default function EntnahmeButton({
 
             body: JSON.stringify({
               fertigungsauftrag,
+              withdrawnQuantity,
             }),
           }
         )

@@ -24,28 +24,23 @@ export default function EntnahmeFilter({
   //Aufträge anzeigen button submit
   const handleSubmitOrder = (event) => {
     event.preventDefault();
-    
+
     let filteredValue = [];
     if (beschichtungsart === "") {
       filteredValue = fertigungsauftragDB.filter(
-        (element) =>
-          //element.Auftragsnummer === location.state.fertigungsauftrag && element.Auslagerung === false
-          /* element.BeschichtungsDicke > lower &&
-          element.BeschichtungsDicke < upper && */
-          element.Menge > 0
+        (element) => element.Menge > 0 && element.Lagerplatz === 0
       );
     } else if (beschichtungsdicke === "") {
       filteredValue = fertigungsauftragDB.filter(
-        (element) =>
-          // element.BeschichtungsArt === beschichtungsart && element.Menge > 0
-          element.Menge > 0
+        (element) => element.Menge > 0 && element.Lagerplatz === 0
       );
     } else {
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
           element.BeschichtungsArt === beschichtungsart &&
           element.BeschichtungsDicke === beschichtungsdicke &&
-          element.Menge > 0
+          element.Menge > 0 &&
+          element.Lagerplatz === 0
       );
     }
     setFilterDB(filteredValue);

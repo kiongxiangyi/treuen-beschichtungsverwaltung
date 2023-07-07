@@ -31,13 +31,14 @@ export default function Wareneingang({ articleDB }) {
     useState(false);
   const [showAbfrageSteckbretter, setShowAbfrageSteckbretter] = useState(false);
   const [showWareneingangOrders, setShowWareneingangOrders] = useState(false);
-  const [anzahlSteckbretter, setAnzahlSteckbretter] = useState(1);
+  let [anzahlSteckbretter, setAnzahlSteckbretter] = useState(1);
   const innerRef = useRef();
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const fullscreen = true;
   const [numberOfStorageBins, setNumberOfStorageBins] = useState([]);
   const [wareneingangOrders, setWareneingangOrders] = useState([]);
   let quittiertWareneingangOrders = [];
+  const [showNoStorageBins, setShowNoStorageBins] = useState(false);
 
   const handleWareneingangOrders = () => {
     fetchFreeStorageBins();
@@ -118,7 +119,7 @@ export default function Wareneingang({ articleDB }) {
   const handleClose = () => {
     setShowSAPchecked(false);
     setShow(false);
-    //setShowAbfrageSteckbretter(false);
+    setShowNoStorageBins(false);
     setShowWareneingangOrders(false);
     fetchFreeStorageBins();
     fetchOccupiedStorageBins();
@@ -287,7 +288,10 @@ export default function Wareneingang({ articleDB }) {
 
   const handleBestätigenWareneingangOrders = async () => {
     try {
-      if (
+      if (freeStorageBins < anzahlSteckbretter) {
+        setShowNoStorageBins(true);
+        setShowSAPchecked(false);
+      } else if (
         wareneingangBeschichtungsart &&
         wareneingangBeschichtungsdicke &&
         anzahlSteckbretter !== ""
@@ -337,13 +341,13 @@ export default function Wareneingang({ articleDB }) {
             setWareneingangOrders(data);
           })
           .catch((err) => console.log(err));
+
+        setShowWareneingangOrders(true);
       }
 
       setAnzahlSteckbretter(1);
       setWareneingangBeschichtungsart("");
       setWareneingangBeschichtungsdicke("");
-
-      setShowWareneingangOrders(true);
     } catch (err) {
       console.log(err);
       toast.error(
@@ -545,6 +549,15 @@ export default function Wareneingang({ articleDB }) {
     setWareneingangOrders([]); //reset previous withdrawals record
   };
 
+  const incAnzahlSteckbretter = () => {
+    setAnzahlSteckbretter(++anzahlSteckbretter);
+  };
+  const decAnzahlSteckbretter = () => {
+    if (anzahlSteckbretter > 0) {
+      setAnzahlSteckbretter(--anzahlSteckbretter);
+    }
+  };
+
   return (
     <div>
       <div className="scan-field">
@@ -597,7 +610,6 @@ export default function Wareneingang({ articleDB }) {
             </Modal.Header>
             <Modal.Body>
               In SAP wird es geprüft, ob die Fertigungsauftrag vorhanden ist.
-              Klicken Sie die E-Label an, wenn sie blinkt.
             </Modal.Body>
             <Modal.Footer></Modal.Footer>
           </Modal>
@@ -675,17 +687,26 @@ export default function Wareneingang({ articleDB }) {
                   <tr>
                     <td className="tabledata">Anzahl Steckbretter</td>
                     <th className="tabledata">
+                      <button
+                        className="button-anzahl-steckbretter"
+                        type="button"
+                        onClick={decAnzahlSteckbretter}
+                      >
+                        -
+                      </button>
                       <input
-                        className=""
-                        autoFocus
-                        type="number"
-                        id="anzahlSteckbretter"
-                        name="anzahlSteckbretter"
-                        pattern="[0-9]+"
-                        placeholder="1"
+                        className="text-anzahl-steckbretter"
+                        type="text"
                         value={anzahlSteckbretter}
                         onChange={(e) => setAnzahlSteckbretter(e.target.value)}
                       ></input>
+                      <button
+                        className="button-anzahl-steckbretter"
+                        type="button"
+                        onClick={incAnzahlSteckbretter}
+                      >
+                        +
+                      </button>
                     </th>
                   </tr>
                 </tbody>
@@ -769,6 +790,27 @@ export default function Wareneingang({ articleDB }) {
                 Quittieren
               </Button>
             </Modal.Footer>
+          </Modal>
+
+          <Modal
+            show={showNoStorageBins}
+            onHide={handleClose}
+            backdrop="static"
+            keyboard={false}
+          >
+            <Modal.Header className="modalHeader" closeButton>
+              <Modal.Title className="modalHeader">
+                Aktuelle Buchung: 3001 - Wareneingang
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              Es gibt keine genüge Lagerplätze. Die Buchung wird abgebrochen.
+            </Modal.Body>
+            {/* <Modal.Footer>
+              <Button className="modalButton" onClick={handleClose}>
+                Schließen
+              </Button>
+            </Modal.Footer> */}
           </Modal>
         </form>
       </div>

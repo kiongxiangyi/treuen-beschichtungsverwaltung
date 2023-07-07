@@ -13,7 +13,6 @@ const EditableRow = ({
       <td>{item.Auftragsnummer}</td>
       <td>{item.BeschichtungsArt}</td>
       <td>{item.BeschichtungsDicke}</td>
-      <td>{item.Lagerplatz}</td>
       <td>
         <input
           type="number"

@@ -141,6 +141,17 @@ h1 {
   text-align-last: center
 }
 
+.text-anzahl-steckbretter  {
+  width: 3rem;
+  text-align-last: center
+}
+
+.button-anzahl-steckbretter  {
+  width: 2rem;
+  border: 2px solid;
+  text-align-last: center
+}
+
 /* .beschichtung-select option:nth-child(2) {
   background: red;
 }
@@ -205,7 +216,7 @@ p {
 }
 
 .modalButton {
-  width: 15rem ;
+  width: 14rem ;
   background-color: #e7e7e7 !important;
   color: black !important;
   margin: 0.4rem 0;

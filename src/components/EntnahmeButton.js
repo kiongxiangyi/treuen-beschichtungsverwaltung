@@ -23,7 +23,7 @@ export default function EntnahmeButton({
   } = useForm();
 
   const onSubmit = () => {
-    //console.log("submittedOrders", submittedOrders);
+    //submitted Orders depend on Lagerplatz 0
     if (submittedOrders.length > 0) {
       let selectedOrdersWithoutQuantity = [];
       let withdrawnQuantityOfSelectedOrder;
@@ -50,24 +50,29 @@ export default function EntnahmeButton({
 
         arrWithdrawnOrders.push(...selectedOrdersWithoutQuantity);
 
-        //Auslagerung TRUE where Lagerplatz != 0 and update newQuantity
-        fetch(
-          `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeAuslagerungTrue`,
-          {
-            method: "PUT",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
+        //update Auslagerung True for E-Label interface according to storage bins
+        for (let i = 0; i < selectedOrdersWithoutQuantity.length; i++) {
+          let storageBin = selectedOrdersWithoutQuantity[i].Lagerplatz;
+          //Auslagerung TRUE where Lagerplatz != 0 and update newQuantity
+          fetch(
+            `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeAuslagerungTrue`,
+            {
+              method: "PUT",
+              headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+              },
 
-            body: JSON.stringify({
-              fertigungsauftrag,
-              withdrawnQuantity,
-            }),
-          }
-        )
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
+              body: JSON.stringify({
+                fertigungsauftrag,
+                withdrawnQuantity,
+                storageBin,
+              }),
+            }
+          )
+            .then((res) => res.json())
+            .catch((err) => console.log(err));
+        }
       }
 
       setWithdrawnOrders(arrWithdrawnOrders); //save the orders in useState

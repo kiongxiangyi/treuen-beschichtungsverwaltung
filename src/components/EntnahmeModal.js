@@ -39,7 +39,7 @@ export default function EntnahmeModal({
       let newQuantity = orders[i].newQty; // get new qty
       let storageBin = orders[i].Lagerplatz;
       // without await, the booking data in the loop could not be finished.
-      await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
+      /* await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
         method: "POST",
         headers: {
           Accept: "application/json",
@@ -55,7 +55,7 @@ export default function EntnahmeModal({
         }),
       })
         .then((res) => res.json())
-        .catch((err) => console.log(err));
+        .catch((err) => console.log(err)); */
 
       //Buchungsdaten have to be first updated, because the BestandAlt in Auftragsnummer will be updated after that.
       //update newQty and Bemerkung of withdrawn storage bins
@@ -120,6 +120,7 @@ export default function EntnahmeModal({
     for (let i = 0; i < withdrawnOrders.length; i++) {
       //loop withdrawn orders
       let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;
+      let storageBin = withdrawnOrders[i].Lagerplatz;
       fetch(
         `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeAuslagerungFalse`,
         {
@@ -131,6 +132,7 @@ export default function EntnahmeModal({
 
           body: JSON.stringify({
             fertigungsauftrag,
+            storageBin,
           }),
         }
       )
@@ -145,7 +147,7 @@ export default function EntnahmeModal({
   useEffect(() => {
     let interval;
     if (show) {
-      console.log("withdrawnOrders", withdrawnOrders);
+      //console.log("withdrawnOrders", withdrawnOrders);
       const fetchWithdrawalOrders = async () => {
         try {
           const response = await fetch(

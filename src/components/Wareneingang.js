@@ -122,9 +122,34 @@ export default function Wareneingang({ articleDB }) {
     setShowSAPchecked(false);
     setShow(false);
     setShowNoStorageBins(false);
-    setShowWareneingangOrders(false);
+
     fetchFreeStorageBins();
     fetchOccupiedStorageBins();
+  };
+
+  //show booking failed in Bemerkung when close
+  const handleCloseWithoutBooking = () => {
+    for (let i = 0; i < wareneingangOrders.length; i++) {
+      let storageBin = wareneingangOrders[i].Lagerplatz;
+      fetch(
+        `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFailed`,
+        {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+
+          body: JSON.stringify({
+            fertigungsauftrag,
+            storageBin,
+          }),
+        }
+      )
+        .then((res) => res.json())
+        .then((res) => setShowWareneingangOrders(false))
+        .catch((err) => console.log(err));
+    }
   };
 
   /* const handleCloseAndUpdateBeschichtung = () => {
@@ -731,7 +756,7 @@ export default function Wareneingang({ articleDB }) {
           <Modal
             fullscreen={fullscreen}
             show={showWareneingangOrders}
-            onHide={handleClose}
+            onHide={handleCloseWithoutBooking}
             backdrop="static"
             keyboard={false}
           >

@@ -24,13 +24,16 @@ function App() {
         setFertigungsauftragDB(results);
         for (let i = 0; i < results.length; i++) {
           let fertigungsauftrag = results[i].Auftragsnummer;
-
+          let storageBin = results[i].Lagerplatz;
           //Entnahme fertig oder keine FA vorhanden
           if (
             (results[i].Auslagerung === false &&
               results[i].Einlagerung === false &&
-              results[i].Menge === 0) ||
-            results[i].Bemerkung === "kein FA vorhanden - es wird gelöscht"
+              results[i].Menge === 0 &&
+              results[i].Bemerkung === "löschen") ||
+            results[i].Bemerkung === "kein FA vorhanden - es wird gelöscht" ||
+            results[i].Bemerkung ===
+              "Wareneingang wurde nicht durchgeführt"
           ) {
             fetch(`${process.env.REACT_APP_API}/LagerPlatz/releaseStorageBin`, {
               method: "PUT",
@@ -41,6 +44,7 @@ function App() {
 
               body: JSON.stringify({
                 fertigungsauftrag,
+                storageBin,
               }),
             })
               .then((res) => res.json())
@@ -98,6 +102,7 @@ function App() {
 
               body: JSON.stringify({
                 fertigungsauftrag,
+                storageBin,
               }),
             })
               .then((res) => res.json())

@@ -109,6 +109,7 @@ export default function EntnahmeModal({
 
   //if close button, nothing happen, reset everything, close message box
   const handleCloseButton = () => {
+    setButtonDisabled(true); //reset Button after timeout
     setShow(false);
     setWithdrawnOrders([]);
     setFilterDB([]);
@@ -199,14 +200,6 @@ export default function EntnahmeModal({
           } else {
             handleQuittieren();
           }
-
-          const timer = setTimeout(() => {
-            setButtonDisabled(false);
-          }, 10000);
-          return () => {
-            clearTimeout(timer);
-            setButtonDisabled(true);
-          };
         } catch (err) {
           console.log(err);
           toast.error(
@@ -226,6 +219,19 @@ export default function EntnahmeModal({
       };
     }
   }, [show, withdrawnOrders]);
+
+  useEffect(() => {
+    let timer;
+    if (show) {
+      timer = setTimeout(() => {
+        setButtonDisabled(false);
+      }, 5000);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [show]);
 
   return (
     <div>

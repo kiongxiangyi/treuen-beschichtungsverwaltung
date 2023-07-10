@@ -3,6 +3,7 @@ import "../App.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { toast } from "react-toastify";
+import { clear } from "@testing-library/user-event/dist/clear";
 
 export default function Wareneingang({ articleDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
@@ -117,6 +118,7 @@ export default function Wareneingang({ articleDB }) {
   }, [wareneingangBeschichtungsart]);
 
   const handleClose = () => {
+    setButtonDisabled(true); //reset Button after timeout
     setShowSAPchecked(false);
     setShow(false);
     setShowNoStorageBins(false);
@@ -441,11 +443,10 @@ export default function Wareneingang({ articleDB }) {
     };
   }, []);
 
-  //get tblEShelfBeschichtung
   useEffect(() => {
     let interval;
     if (showWareneingangOrders) {
-      const fetchWareneingangOrders = async () => {
+      const waitForELabel = async () => {
         try {
           const response = await fetch(
             `${process.env.REACT_APP_API}/Auftragsnummer`
@@ -490,14 +491,6 @@ export default function Wareneingang({ articleDB }) {
               }
             }
           }
-
-          const timer = setTimeout(() => {
-            setButtonDisabled(false);
-          }, 10000);
-          return () => {
-            clearTimeout(timer);
-            setButtonDisabled(false);
-          };
         } catch (err) {
           console.log(err);
           toast.error(
@@ -505,11 +498,11 @@ export default function Wareneingang({ articleDB }) {
           );
         }
       };
-      fetchWareneingangOrders();
+      waitForELabel();
 
       //fetch Artikel every X second
       interval = setInterval(() => {
-        fetchWareneingangOrders();
+        waitForELabel();
       }, 1 * 1000);
 
       return () => {
@@ -517,6 +510,19 @@ export default function Wareneingang({ articleDB }) {
       };
     }
   }, [showWareneingangOrders, wareneingangOrders]);
+
+  useEffect(() => {
+    let timer;
+    if (showWareneingangOrders) {
+      timer = setTimeout(() => {
+        setButtonDisabled(false);
+      }, 5000);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [showWareneingangOrders]);
 
   const handleQuittieren = async () => {
     if (wareneingangOrders.length > 0) {

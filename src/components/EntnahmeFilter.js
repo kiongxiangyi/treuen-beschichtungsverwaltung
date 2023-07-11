@@ -28,11 +28,19 @@ export default function EntnahmeFilter({
     let filteredValue = [];
     if (beschichtungsart === "") {
       filteredValue = fertigungsauftragDB.filter(
-        (element) => element.Menge > 0 && element.Lagerplatz === 0
+        (element) =>
+          element.Menge > 0 &&
+          element.Lagerplatz === 0 &&
+          element.BeschichtungsArt !== "" &&
+          element.BeschichtungsDicke !== ""
       );
     } else if (beschichtungsdicke === "") {
       filteredValue = fertigungsauftragDB.filter(
-        (element) => element.Menge > 0 && element.Lagerplatz === 0
+        (element) =>
+          element.Menge > 0 &&
+          element.Lagerplatz === 0 &&
+          element.BeschichtungsArt !== "" &&
+          element.BeschichtungsDicke !== ""
       );
     } else {
       filteredValue = fertigungsauftragDB.filter(

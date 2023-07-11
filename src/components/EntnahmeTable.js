@@ -124,7 +124,7 @@ export default function EntnahmeTable({
 
       let selectAllCheckbox =
         document.getElementsByClassName("selectAllCheckbox");
-
+  
       if (
         tempOrder.filter((order) => order.isChecked === true).length !==
         tempOrder.length
@@ -210,7 +210,7 @@ export default function EntnahmeTable({
                 <input
                   type="checkbox"
                   className="form-check-input checkedID"
-                  name={item.name}
+                  name={item.Auftragsnummer}
                 />
               </td>
 

@@ -110,17 +110,20 @@ export default function EntnahmeModal({
   //if close button, nothing happen, reset everything, close message box
   const handleCloseButton = () => {
     setButtonDisabled(true); //reset Button after timeout
-    setShow(false);
+    //setShow(false);
     setWithdrawnOrders([]);
     setFilterDB([]);
     setSubmittedOrders([]);
     setBeschichtungsart("");
     setBeschichtungsdicke("");
 
+
     for (let i = 0; i < withdrawnOrders.length; i++) {
       //loop withdrawn orders
       let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;
       let storageBin = withdrawnOrders[i].Lagerplatz;
+
+      //Withrawal not successful in Bemerkung. If total Quantity 0, will delete the all the data also
       fetch(
         `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeAuslagerungFalse`,
         {

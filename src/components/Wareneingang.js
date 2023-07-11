@@ -550,6 +550,8 @@ export default function Wareneingang({ articleDB }) {
   }, [showWareneingangOrders]);
 
   const handleQuittieren = async () => {
+    fetchFreeStorageBins();
+    fetchOccupiedStorageBins();
     if (wareneingangOrders.length > 0) {
       for (let i = 0; i < wareneingangOrders.length; i++) {
         let fertigungsauftrag = wareneingangOrders[i].Auftragsnummer;
@@ -639,9 +641,7 @@ export default function Wareneingang({ articleDB }) {
                 Aktuelle Buchung: 3001 - Wareneingang
               </Modal.Title>
             </Modal.Header>
-            <Modal.Body>
-              In SAP wird es geprüft, ob die Fertigungsauftrag vorhanden ist.
-            </Modal.Body>
+            <Modal.Body>Die Fertigungsauftrag wird in SAP geprüft.</Modal.Body>
             <Modal.Footer></Modal.Footer>
           </Modal>
 
@@ -835,7 +835,8 @@ export default function Wareneingang({ articleDB }) {
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Es gibt keine genüge Lagerplätze. Die Buchung wird abgebrochen.
+              Es sind nicht genügend Lagerplätze vorhanden. Die Buchung kann
+              nicht durchgeführt werden.
             </Modal.Body>
             {/* <Modal.Footer>
               <Button className="modalButton" onClick={handleClose}>

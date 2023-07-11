@@ -109,7 +109,7 @@ export default function EntnahmeButton({
         className="modalButton"
         onClick={handleWareneingang}
       >
-        Teilmenge Rückgabe
+        Teilmengem zurückgeben
       </Button>
     </div>
   );

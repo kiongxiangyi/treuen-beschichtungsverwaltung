@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../App.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { toast } from "react-toastify";
-import { clear } from "@testing-library/user-event/dist/clear";
 
 export default function Wareneingang({ articleDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
@@ -11,11 +10,7 @@ export default function Wareneingang({ articleDB }) {
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
   const [fertigungsauftragDummy, setFertigungsauftragDummy] = useState("");
   const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
-  const [lagerPlatzDB, setLagerPlatzDB] = useState([]);
   const [quantity, setQuantity] = useState(""); //quantity for display after booking
-  const [storageBin, setStorageBin] = useState(""); //storage bin for display after booking
-  const [beschichtungsArt, setBeschichtungsArt] = useState("");
-  const [beschichtungsDicke, setBeschichtungsDicke] = useState("");
   const [beschichtungsartOptions, setBeschichtungsartOptions] = useState([]);
   const [beschichtungsdickeOptions, setBeschichtungsdickeOptions] = useState(
     []
@@ -25,35 +20,23 @@ export default function Wareneingang({ articleDB }) {
     useState("");
   const [wareneingangBeschichtungsdicke, setWareneingangBeschichtungsdicke] =
     useState("");
+
   //bootstrap modal prompt message
-  const [show, setShow] = useState(false);
+  const [showNoInput, setShowNoInput] = useState(false);
+  const [showCheckingSAP, setShowCheckingSAP] = useState(false);
   const [showSAPchecked, setShowSAPchecked] = useState(false);
   const [showNotFoundOrderMessage, setShowNotFoundOrderMessage] =
     useState(false);
-  const [showAbfrageSteckbretter, setShowAbfrageSteckbretter] = useState(false);
   const [showWareneingangOrders, setShowWareneingangOrders] = useState(false);
   let [anzahlSteckbretter, setAnzahlSteckbretter] = useState(1);
-  const innerRef = useRef();
+
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const fullscreen = true;
-  const [numberOfStorageBins, setNumberOfStorageBins] = useState([]);
   const [wareneingangOrders, setWareneingangOrders] = useState([]);
-  let quittiertWareneingangOrders = [];
+  // let quittiertWareneingangOrders = [];
   const [showNoStorageBins, setShowNoStorageBins] = useState(false);
 
-  const handleWareneingangOrders = () => {
-    fetchFreeStorageBins();
-    fetchOccupiedStorageBins();
-  };
-
-  const handleChangeWareneingangBeschichtungsart = (event) => {
-    setWareneingangBeschichtungsart(event.target.value);
-  };
-
-  const handleChangeWareneingangBeschichtungsdicke = (event) => {
-    setWareneingangBeschichtungsdicke(event.target.value);
-  };
-
+  //get storage bins data
   const fetchFreeStorageBins = () => {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/freeStorageBins`)
       .then((res) => res.json())
@@ -64,7 +47,6 @@ export default function Wareneingang({ articleDB }) {
         console.log(err.message);
       });
   };
-
   const fetchOccupiedStorageBins = () => {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/occupiedStorageBins`)
       .then((res) => res.json())
@@ -76,6 +58,7 @@ export default function Wareneingang({ articleDB }) {
       });
   };
 
+  //fetch data from tblEShelfBeschichtungKriterien
   const fetchBeschichtungKriterien = () => {
     fetch(`${process.env.REACT_APP_API}/BeschichtungKriterien`)
       .then((res) => res.json())
@@ -92,6 +75,24 @@ export default function Wareneingang({ articleDB }) {
       .catch((err) => {
         console.log(err.message);
       });
+  };
+
+  //run one time in page to get actual status in tblLagerplatz and tblBeschichtungKriterien
+  useEffect(() => {
+    fetchFreeStorageBins();
+    fetchOccupiedStorageBins();
+    fetchBeschichtungKriterien();
+  }, []);
+
+  //increase and decrease number of Steckbretter
+  const incAnzahlSteckbretter = () => {
+    setAnzahlSteckbretter(++anzahlSteckbretter);
+  };
+  const decAnzahlSteckbretter = () => {
+    if (anzahlSteckbretter > 0) {
+      //prevent negative values
+      setAnzahlSteckbretter(--anzahlSteckbretter);
+    }
   };
 
   //get beschichtungsdicke option from backend when beschichtungsart in frontend being selected
@@ -117,17 +118,19 @@ export default function Wareneingang({ articleDB }) {
     }
   }, [wareneingangBeschichtungsart]);
 
+  //close all message box and get get/update storage bins data
   const handleClose = () => {
     setButtonDisabled(true); //reset Button after timeout
     setShowSAPchecked(false);
-    setShow(false);
+    setShowCheckingSAP(false);
     setShowNoStorageBins(false);
-
     fetchFreeStorageBins();
     fetchOccupiedStorageBins();
   };
 
-  //show booking failed in Bemerkung when close
+  const handleCloseNoInput = () => setShowNoInput(false);
+
+  //show booking failed in Bemerkung when click X to close
   const handleCloseWithoutBooking = () => {
     for (let i = 0; i < wareneingangOrders.length; i++) {
       let storageBin = wareneingangOrders[i].Lagerplatz;
@@ -152,82 +155,69 @@ export default function Wareneingang({ articleDB }) {
     }
   };
 
-  /* const handleCloseAndUpdateBeschichtung = () => {
-    if (wareneingangBeschichtungsart && wareneingangBeschichtungsdicke) {
-      setShowSAPchecked(false);
-      setShowWareneingangOrders(true);
-      fetchFreeStorageBins();
-      fetchOccupiedStorageBins();
-      //update beschictungsart and dicke to DB
-      fetch(`${process.env.REACT_APP_API}/Auftragsnummer/BeschichtungsText`, {
-        method: "PUT",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-
-        body: JSON.stringify({
-          fertigungsauftragDummy,
-          wareneingangBeschichtungsart,
-          wareneingangBeschichtungsdicke,
-        }),
-      })
-        .then((res) => res.json())
-        .then((res) => {
-          setWareneingangBeschichtungsart("");
-          setWareneingangBeschichtungsdicke("");
-        })
-        .catch((err) => console.log(err));
-    }
-  }; */
-
-  useEffect(() => {
-    fetchFreeStorageBins();
-    fetchOccupiedStorageBins();
-    fetchBeschichtungKriterien();
-  }, []);
-
   const handleCloseNotFoundOrderMessage = () => {
     setShowNotFoundOrderMessage(false);
   };
 
-  const [showNoInput, setShowNoInput] = useState(false);
-  const handleCloseNoInput = () => setShowNoInput(false);
+  //function for successful Wareneingang or manuell Quittieren
+  const handleQuittieren = useCallback(async () => {
+    //update storage bins data
+    fetchFreeStorageBins();
+    fetchOccupiedStorageBins();
+    //if E-Label not being clicked, wareneingangOrders are not empty
+    if (wareneingangOrders.length > 0) {
+      for (let i = 0; i < wareneingangOrders.length; i++) {
+        let fertigungsauftrag = wareneingangOrders[i].Auftragsnummer;
+        let storageBin = wareneingangOrders[i].Lagerplatz;
 
+        await fetch(
+          `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangSuccess`,
+          {
+            method: "PUT",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              fertigungsauftrag,
+              storageBin,
+            }),
+          }
+        )
+          .then((res) => res.json())
+          .catch((err) => console.log(err));
+      }
+    }
+
+    setButtonDisabled(true); //reset button to disabled
+    setShowWareneingangOrders(false); //close message box
+    setWareneingangOrders([]); //reset previous withdrawals record
+  }, [wareneingangOrders]);
+
+  //Step 1: Scan Order
   const handleSubmit = (event) => {
     event.preventDefault();
 
     if (!fertigungsauftrag) {
+      //error message when empty field
       setShowNoInput(true);
     } else {
-      setFertigungsauftragDummy(fertigungsauftrag);
+      setFertigungsauftragDummy(fertigungsauftrag); //get the order number
 
-      //find auftragsnummer in DB
+      //find the order in DB tblEShelfBeschichtung
       const findAuftrag = fertigungsauftragDB.find(
         (tblEShelfBeschichtung) =>
           tblEShelfBeschichtung.Auftragsnummer === fertigungsauftrag
       );
 
-      //find Artikel in DB
+      //find the order in DB tblArtikel
       const findArticle = articleDB.find(
         (tblArtikel) => tblArtikel.Artikel === fertigungsauftrag
       );
 
+      //if no article exists, create article, article supplier and storage location
       if (!findArticle) {
-        /* fetch(`${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`, {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            fertigungsauftrag,
-          }),
-        })
-          .then((res) => res.json())
-          .catch((err) => console.log(err)); */
-
         fetch(`${process.env.REACT_APP_API}/Artikel`, {
           method: "POST",
           headers: {
@@ -271,7 +261,7 @@ export default function Wareneingang({ articleDB }) {
           .catch((err) => console.log(err));
       }
 
-      //if found in tblEShelfBeschichtung, update data
+      //if found in tblEShelfBeschichtung, update data for SAP interface to be activated
       if (findAuftrag) {
         fetch(`${process.env.REACT_APP_API}/Auftragsnummer/Wareneingang`, {
           method: "PUT",
@@ -309,22 +299,112 @@ export default function Wareneingang({ articleDB }) {
           .catch((err) => console.log(err));
       }
 
-      setShow(true);
+      setShowCheckingSAP(true); //show message "in checking process with SAP"
     }
   };
 
+  //Step 2: Every second check tblEShelfBeschichtung if Erledigt is TRUE (feedback from SAP interface)
+  useEffect(() => {
+    let interval;
+    const fetchWareneingangOrders = async () => {
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_API}/Auftragsnummer`
+        );
+        const results = await response.json();
+        setFertigungsauftragDB(results);
+
+        for (let i = 0; i < results.length; i++) {
+          let fertigungsauftrag = results[i].Auftragsnummer;
+
+          if (
+            //if in SAP exists (Erledigt TRUE)
+            results[i].Einlagerung === true &&
+            results[i].Erledigt === true &&
+            results[i].Lagerplatz === "0"
+          ) {
+            //update Eingelung false and Bemerkung "SAP checked"
+            fetch(
+              `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFalse`,
+              {
+                method: "PUT",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+                  fertigungsauftrag,
+                }),
+              }
+            )
+              .then((res) => res.json())
+              .then((res) => {
+                setFertigungsauftrag(results[i].Auftragsnummer); //get order number from table and show it later in next message box
+                setBeschichtungsText(results[i].BeschichtungsText); //get Beschichtungstext from table and show it later in next message box
+                setQuantity(results[i].Menge); //get quantity from table and show it later in next message box
+                setShowCheckingSAP(false); //close current message box
+                setShowSAPchecked(true); // open next message box
+              })
+              .catch((err) => console.log(err));
+          }
+          // if in SAP not exists
+          else if (results[i].Bemerkung === "kein FA vorhanden") {
+            //update Bemerkung: "kein FA vorhanden - es wird gelöscht"
+            fetch(
+              `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangKeinFAVorhanden`,
+              {
+                method: "PUT",
+                headers: {
+                  Accept: "application/json",
+                  "Content-Type": "application/json",
+                },
+
+                body: JSON.stringify({
+                  fertigungsauftrag,
+                }),
+              }
+            )
+              .then((res) => res.json())
+              .catch((err) => console.log(err));
+
+            setShowCheckingSAP(false); //close current message box
+            setShowNotFoundOrderMessage(true); // open next message box
+          }
+        }
+      } catch (err) {
+        console.log(err);
+        toast.error(
+          "There is no connection to database. Please check the database server."
+        );
+      }
+    };
+    fetchWareneingangOrders();
+
+    //fetch Artikel every one second
+    interval = setInterval(() => {
+      fetchWareneingangOrders();
+    }, 1 * 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  //Step 3: After select the number of Steckbretter, show order
   const handleBestätigenWareneingangOrders = async () => {
     try {
+      //if no more storage bins available
       if (freeStorageBins < anzahlSteckbretter) {
-        setShowNoStorageBins(true);
-        setShowSAPchecked(false);
+        setShowNoStorageBins(true); //show message no more storage bins
+        setShowSAPchecked(false); //close current message box
       } else if (
+        //make sure all the 3 infos are selected
         wareneingangBeschichtungsart &&
         wareneingangBeschichtungsdicke &&
         anzahlSteckbretter !== ""
       ) {
-        setShowSAPchecked(false);
-
+        //assign storage bins
         await fetch(
           `${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`,
           {
@@ -344,6 +424,7 @@ export default function Wareneingang({ articleDB }) {
           .then((res) => res.json())
           .catch((err) => console.log(err));
 
+        //Add more data in tblEShelfBeschichtung and write in DB Bemerkung: "E-Label leuchtet"
         fetch(
           `${process.env.REACT_APP_API}/Auftragsnummer/AddMoreStorageBins`,
           {
@@ -365,16 +446,17 @@ export default function Wareneingang({ articleDB }) {
         )
           .then((res) => res.json())
           .then((data) => {
-            setWareneingangOrders(data);
+            setWareneingangOrders(data); //get the results from backend of all the data of the order
           })
           .catch((err) => console.log(err));
 
-        setShowWareneingangOrders(true);
+        setShowSAPchecked(false); //close current message box
+        setShowWareneingangOrders(true); //show next message box
       }
 
-      setAnzahlSteckbretter(1);
-      setWareneingangBeschichtungsart("");
-      setWareneingangBeschichtungsdicke("");
+      setAnzahlSteckbretter(1); //reset
+      setWareneingangBeschichtungsart(""); //reset
+      setWareneingangBeschichtungsdicke(""); //reset
     } catch (err) {
       console.log(err);
       toast.error(
@@ -383,91 +465,7 @@ export default function Wareneingang({ articleDB }) {
     }
   };
 
-  //get tblEShelfBeschichtung
-  useEffect(() => {
-    let interval;
-    const fetchWareneingangOrders = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API}/Auftragsnummer`
-        );
-        const results = await response.json();
-        setFertigungsauftragDB(results);
-
-        for (let i = 0; i < results.length; i++) {
-          let fertigungsauftrag = results[i].Auftragsnummer;
-
-          if (
-            //Wareneingang fertig
-            results[i].Einlagerung === true &&
-            results[i].Erledigt === true &&
-            results[i].Lagerplatz === 0
-          ) {
-            fetch(
-              `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFalse`,
-              {
-                method: "PUT",
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                },
-
-                body: JSON.stringify({
-                  fertigungsauftrag,
-                }),
-              }
-            )
-              .then((res) => res.json())
-              .then((res) => {
-                setFertigungsauftrag(results[i].Auftragsnummer);
-                setBeschichtungsText(results[i].BeschichtungsText);
-                setQuantity(results[i].Menge);
-                setShow(false);
-                setShowSAPchecked(true);
-              })
-              .catch((err) => console.log(err));
-          } else if (results[i].Bemerkung === "kein FA vorhanden") {
-            //reset tblEShelf
-            fetch(
-              `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangKeinFAVorhanden`,
-              {
-                method: "PUT",
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                },
-
-                body: JSON.stringify({
-                  fertigungsauftrag,
-                }),
-              }
-            )
-              .then((res) => res.json())
-              .catch((err) => console.log(err));
-
-            setShow(false);
-            setShowNotFoundOrderMessage(true);
-          }
-        }
-      } catch (err) {
-        console.log(err);
-        toast.error(
-          "There is no connection to database. Please check the database server."
-        );
-      }
-    };
-    fetchWareneingangOrders();
-
-    //fetch Artikel every X second
-    interval = setInterval(() => {
-      fetchWareneingangOrders();
-    }, 1 * 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, []);
-
+  //Step 4: Every second check if E-Label is clicked
   useEffect(() => {
     let interval;
     if (showWareneingangOrders) {
@@ -481,19 +479,20 @@ export default function Wareneingang({ articleDB }) {
           if (wareneingangOrders.length > 0) {
             for (let i = 0; i < wareneingangOrders.length; i++) {
               for (let j = 0; j < results.length; j++) {
+                //check if E-Label of the order with storage bins being clicked and make it disapper line by line in frontend
                 if (
                   wareneingangOrders[i].Auftragsnummer ===
                     results[j].Auftragsnummer &&
-                  results[j].Bemerkung ===
-                    "E-Label wurde angeklickt - Wareneingang" &&
+                  results[j].Bemerkung === "E-Label wurde angeklickt" &&
                   wareneingangOrders[i].Lagerplatz === results[j].Lagerplatz
                 ) {
                   let fertigungsauftrag = wareneingangOrders[i].Auftragsnummer;
                   let storageBin = wareneingangOrders[i].Lagerplatz;
-                  quittiertWareneingangOrders.push(wareneingangOrders[i]);
-                  wareneingangOrders.splice(i, 1);
+                  //quittiertWareneingangOrders.push(wareneingangOrders[i]); //array for manual booking if E-Label lost connection
+                  wareneingangOrders.splice(i, 1); //delete the array where E-Label being clicked
+                  //write Bemerkung: "E-Label wurde angeklickt - Wareneingang -> success"
                   fetch(
-                    `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangPending`,
+                    `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangSuccess`,
                     {
                       method: "PUT",
                       headers: {
@@ -510,6 +509,7 @@ export default function Wareneingang({ articleDB }) {
                     .then((res) => res.json())
                     .catch((err) => console.log(err));
                 }
+                //after all the E-Labels of storage bins of the orders being clicked
                 if (wareneingangOrders.length === 0) {
                   handleQuittieren();
                 }
@@ -534,8 +534,9 @@ export default function Wareneingang({ articleDB }) {
         clearInterval(interval);
       };
     }
-  }, [showWareneingangOrders, wareneingangOrders]);
+  }, [wareneingangOrders, showWareneingangOrders, handleQuittieren]);
 
+  //Timeout for Quittieren Button
   useEffect(() => {
     let timer;
     if (showWareneingangOrders) {
@@ -548,48 +549,6 @@ export default function Wareneingang({ articleDB }) {
       };
     }
   }, [showWareneingangOrders]);
-
-  const handleQuittieren = async () => {
-    fetchFreeStorageBins();
-    fetchOccupiedStorageBins();
-    if (wareneingangOrders.length > 0) {
-      for (let i = 0; i < wareneingangOrders.length; i++) {
-        let fertigungsauftrag = wareneingangOrders[i].Auftragsnummer;
-        let storageBin = wareneingangOrders[i].Lagerplatz;
-
-        await fetch(
-          `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangPending`,
-          {
-            method: "PUT",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
-
-            body: JSON.stringify({
-              fertigungsauftrag,
-              storageBin,
-            }),
-          }
-        )
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
-      }
-    }
-
-    setButtonDisabled(true); //reset button to disabled
-    setShowWareneingangOrders(false); //close message box
-    setWareneingangOrders([]); //reset previous withdrawals record
-  };
-
-  const incAnzahlSteckbretter = () => {
-    setAnzahlSteckbretter(++anzahlSteckbretter);
-  };
-  const decAnzahlSteckbretter = () => {
-    if (anzahlSteckbretter > 0) {
-      setAnzahlSteckbretter(--anzahlSteckbretter);
-    }
-  };
 
   return (
     <div>
@@ -620,7 +579,7 @@ export default function Wareneingang({ articleDB }) {
               <Modal.Title className="modalHeader">Fehler</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Es darf nicht leer sein. Bitte Fertigungsauftrag scannen.
+              Es darf nicht leer sein. Bitte ein Fertigungsauftrag scannen.
             </Modal.Body>
             <Modal.Footer>
               <Button className="modalButton" onClick={handleCloseNoInput}>
@@ -630,11 +589,10 @@ export default function Wareneingang({ articleDB }) {
           </Modal>
 
           <Modal
-            show={show}
+            show={showCheckingSAP}
             onHide={handleClose}
             backdrop="static"
             keyboard={false}
-            // centered
           >
             <Modal.Header className="modalHeader" closeButton>
               <Modal.Title className="modalHeader">
@@ -678,7 +636,9 @@ export default function Wareneingang({ articleDB }) {
                           name="beschichtungsart"
                           id="beschichtungsart-select"
                           value={wareneingangBeschichtungsart}
-                          onChange={handleChangeWareneingangBeschichtungsart}
+                          onChange={(e) =>
+                            setWareneingangBeschichtungsart(e.target.value)
+                          }
                         >
                           <option value=""></option>
                           {beschichtungsartOptions.map((option, i) => (
@@ -699,7 +659,9 @@ export default function Wareneingang({ articleDB }) {
                           name="beschichtungsart"
                           id="beschichtungsart-select"
                           value={wareneingangBeschichtungsdicke}
-                          onChange={handleChangeWareneingangBeschichtungsdicke}
+                          onChange={(e) =>
+                            setWareneingangBeschichtungsdicke(e.target.value)
+                          }
                         >
                           <option value=""></option>
                           {beschichtungsdickeOptions.map((option, i) => (

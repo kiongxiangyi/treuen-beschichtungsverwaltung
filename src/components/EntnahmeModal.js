@@ -117,7 +117,6 @@ export default function EntnahmeModal({
     setBeschichtungsart("");
     setBeschichtungsdicke("");
 
-
     for (let i = 0; i < withdrawnOrders.length; i++) {
       //loop withdrawn orders
       let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;
@@ -168,8 +167,7 @@ export default function EntnahmeModal({
                   withdrawnOrders[i].Auftragsnummer ===
                     results[j].Auftragsnummer && //find withdrawal order in DB
                   results[j].Auslagerung === true &&
-                  results[j].Bemerkung ===
-                    "E-Label wurde angeklickt - Entnahme" && //check if it is set to TRUE
+                  results[j].Bemerkung === "E-Label wurde angeklickt" && //check if it is set to TRUE
                   withdrawnOrders[i].Lagerplatz === results[j].Lagerplatz
                 ) {
                   let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;

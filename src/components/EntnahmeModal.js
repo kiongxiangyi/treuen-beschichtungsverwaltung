@@ -223,12 +223,26 @@ export default function EntnahmeModal({
     }
   }, [show, withdrawnOrders]);
 
+  const [time, setTime] = useState(1000);
+  //Timeout for Quittieren Button
   useEffect(() => {
     let timer;
+    const fetchTimeout = async () => {
+      await fetch(`${process.env.REACT_APP_API}/LagerPlatz/ButtonTimeout`)
+        .then((res) => res.json())
+        .then((data) => {
+          setTime(data);
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    };
+    fetchTimeout();
+
     if (show) {
       timer = setTimeout(() => {
         setButtonDisabled(false);
-      }, 5000);
+      }, time);
 
       return () => {
         clearTimeout(timer);

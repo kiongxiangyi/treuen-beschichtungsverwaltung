@@ -35,7 +35,7 @@ export default function EntnahmeButton({
           //current quantity in DB
           ({ Auftragsnummer, Lagerplatz }) =>
             Auftragsnummer === submittedOrders[i].Auftragsnummer &&
-            Lagerplatz !== 0
+            Lagerplatz !== "0"
         );
 
         withdrawnQuantityOfSelectedOrder = filterDB.find(

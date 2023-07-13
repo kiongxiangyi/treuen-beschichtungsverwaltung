@@ -536,13 +536,26 @@ export default function Wareneingang({ articleDB }) {
     }
   }, [wareneingangOrders, showWareneingangOrders, handleQuittieren]);
 
+  const [time, setTime] = useState(10000);
   //Timeout for Quittieren Button
   useEffect(() => {
     let timer;
+    const fetchTimeout = async () => {
+      await fetch(`${process.env.REACT_APP_API}/LagerPlatz/ButtonTimeout`)
+        .then((res) => res.json())
+        .then((data) => {
+          setTime(data);
+        })
+        .catch((err) => {
+          console.log(err.message);
+        });
+    };
+    fetchTimeout();
+
     if (showWareneingangOrders) {
       timer = setTimeout(() => {
         setButtonDisabled(false);
-      }, 5000);
+      }, time);
 
       return () => {
         clearTimeout(timer);
@@ -579,7 +592,8 @@ export default function Wareneingang({ articleDB }) {
               <Modal.Title className="modalHeader">Fehler</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Es darf nicht leer sein. Bitte ein Fertigungsauftrag scannen.
+              Feld darf nicht leer sein! Bitte scannen Sie einen gültigen
+              Fertigungsauftrag.
             </Modal.Body>
             <Modal.Footer>
               <Button className="modalButton" onClick={handleCloseNoInput}>
@@ -772,8 +786,8 @@ export default function Wareneingang({ articleDB }) {
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              Die Fertigungsauftragsnummer {fertigungsauftragDummy} wurde nicht
-              in SAP gefunden. Bitte scannen Sie eine gültige Auftragsnummer.
+              Der Fertigungsauftrag {fertigungsauftragDummy} existiert nicht.
+              Bitte scannen Sie einen gültigen Fertigungsauftrag.
             </Modal.Body>
             <Modal.Footer>
               <Button
@@ -800,11 +814,6 @@ export default function Wareneingang({ articleDB }) {
               Es sind nicht genügend Lagerplätze vorhanden. Die Buchung kann
               nicht durchgeführt werden.
             </Modal.Body>
-            {/* <Modal.Footer>
-              <Button className="modalButton" onClick={handleClose}>
-                Schließen
-              </Button>
-            </Modal.Footer> */}
           </Modal>
         </form>
       </div>

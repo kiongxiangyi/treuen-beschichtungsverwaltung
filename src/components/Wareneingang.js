@@ -491,7 +491,7 @@ export default function Wareneingang({ articleDB }) {
                   //quittiertWareneingangOrders.push(wareneingangOrders[i]); //array for manual booking if E-Label lost connection
                   wareneingangOrders.splice(i, 1); //delete the array where E-Label being clicked
                   //write Bemerkung: "E-Label wurde angeklickt - Wareneingang -> success"
-                  fetch(
+                  await fetch(
                     `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangSuccess`,
                     {
                       method: "PUT",

@@ -13,12 +13,10 @@ export default function EntnahmeModal({
   withdrawnOrders,
   setWithdrawnOrders,
 }) {
-  const countRef = useRef(0); //count initial value 0
   const fullscreen = true;
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const selectAllCheckbox =
     document.getElementsByClassName("selectAllCheckbox");
-  const [timeoutLagerplatz, setTimeouttimeoutLagerplatz] = useState("");
   let quittiertWithdrawnOrders = [];
 
   const handleQuittieren = async () => {
@@ -164,44 +162,23 @@ export default function EntnahmeModal({
               for (let j = 0; j < results.length; j++) {
                 //loop data in DB
                 if (
-                  withdrawnOrders[i].Auftragsnummer ===
-                    results[j].Auftragsnummer && //find withdrawal order in DB
+                  results[j].Auftragsnummer ===
+                    withdrawnOrders[i].Auftragsnummer && //find withdrawal order in DB
                   results[j].Auslagerung === true &&
                   results[j].Bemerkung === "E-Label wurde angeklickt" && //check if it is set to TRUE
                   withdrawnOrders[i].Lagerplatz === results[j].Lagerplatz
                 ) {
-                  let fertigungsauftrag = withdrawnOrders[i].Auftragsnummer;
-                  let storageBin = withdrawnOrders[i].Lagerplatz;
-                  //countRef.current++; // update count when one order in array withdrawnOrders done
-                  quittiertWithdrawnOrders.push(withdrawnOrders[i]);
-                  withdrawnOrders.splice(i, 1);
-                  fetch(
-                    `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeSuccess`,
-                    {
-                      method: "PUT",
-                      headers: {
-                        Accept: "application/json",
-                        "Content-Type": "application/json",
-                      },
+                  console.log(withdrawnOrders);
+                  quittiertWithdrawnOrders.push(withdrawnOrders[i]); //save the orders in array for the function handleQuittieren
+                  withdrawnOrders.splice(i, 1); // make the orders disappear line by line
+                }
 
-                      body: JSON.stringify({
-                        fertigungsauftrag,
-                        storageBin,
-                      }),
-                    }
-                  )
-                    .then((res) => res.json())
-                    .catch((err) => console.log(err));
+                if (withdrawnOrders.length === 0) {
+                  handleQuittieren();
+                  break;
                 }
               }
             }
-
-            /* if (countRef.current === withdrawnOrders.length) {
-              countRef.current = 0; //reset count when all withdrawnOrders processed
-              setButtonDisabled(false);
-            } */
-          } else {
-            handleQuittieren();
           }
         } catch (err) {
           console.log(err);

@@ -15,6 +15,11 @@ export default function Homepage() {
     navigate("/Entnahme");
   };
 
+  const handleSubmitRückgabe = (e) => {
+    e.preventDefault();
+    navigate("/Rueckgabe");
+  };
+
   return (
     <div>
       <div className="homepage">
@@ -25,6 +30,11 @@ export default function Homepage() {
       <div className="homepage">
         <button className="bookingButton" onClick={handleSubmitEntnahme}>
           Entnahme
+        </button>
+      </div>
+      <div className="homepage">
+        <button className="bookingButton" onClick={handleSubmitRückgabe}>
+          Rückgabe
         </button>
       </div>
     </div>

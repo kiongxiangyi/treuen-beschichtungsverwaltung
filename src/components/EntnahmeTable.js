@@ -124,7 +124,7 @@ export default function EntnahmeTable({
 
       let selectAllCheckbox =
         document.getElementsByClassName("selectAllCheckbox");
-  
+
       if (
         tempOrder.filter((order) => order.isChecked === true).length !==
         tempOrder.length

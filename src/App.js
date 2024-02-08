@@ -2,6 +2,7 @@ import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "./components/Header";
 import Wareneingang from "./components/Wareneingang";
+import Rueckgabe from "./components/Rueckgabe";
 import Entnahme from "./components/Entnahme";
 import Homepage from "./components/Homepage";
 import { Route, Routes } from "react-router-dom";
@@ -32,8 +33,7 @@ function App() {
               results[i].Menge === 0 &&
               results[i].Bemerkung === "löschen") ||
             results[i].Bemerkung === "kein FA vorhanden - es wird gelöscht" ||
-            results[i].Bemerkung ===
-              "Wareneingang wurde nicht durchgeführt"
+            results[i].Bemerkung === "Wareneingang wurde nicht durchgeführt"
           ) {
             fetch(`${process.env.REACT_APP_API}/LagerPlatz/releaseStorageBin`, {
               method: "PUT",
@@ -173,6 +173,15 @@ function App() {
           <Route
             path="/Entnahme"
             element={<Entnahme fertigungsauftragDB={fertigungsauftragDB} />}
+          />
+          <Route
+            path="/Rueckgabe"
+            element={
+              <Rueckgabe
+                fertigungsauftragDB={fertigungsauftragDB}
+                articleDB={articleDB}
+              />
+            }
           />
         </Routes>
       </div>

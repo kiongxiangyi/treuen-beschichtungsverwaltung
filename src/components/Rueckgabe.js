@@ -4,7 +4,7 @@ import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { toast } from "react-toastify";
 
-export default function Wareneingang({ articleDB }) {
+export default function Rueckgabe({ articleDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
   const [freeStorageBins, setFreeStorageBins] = useState("");
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
@@ -126,7 +126,6 @@ export default function Wareneingang({ articleDB }) {
     setShowNoStorageBins(false);
     fetchFreeStorageBins();
     fetchOccupiedStorageBins();
-    setFertigungsauftrag("");
   };
 
   const handleCloseNoInput = () => setShowNoInput(false);
@@ -136,7 +135,7 @@ export default function Wareneingang({ articleDB }) {
     for (let i = 0; i < wareneingangOrders.length; i++) {
       let storageBin = wareneingangOrders[i].Lagerplatz;
       fetch(
-        `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFailed`,
+        `${process.env.REACT_APP_API}/Auftragsnummer/ReturnEinlagerungFailed`,
         {
           method: "PUT",
           headers: {
@@ -151,10 +150,7 @@ export default function Wareneingang({ articleDB }) {
         }
       )
         .then((res) => res.json())
-        .then((res) => {
-          setShowWareneingangOrders(false);
-          setFertigungsauftrag("");
-        })
+        .then((res) => setShowWareneingangOrders(false))
         .catch((err) => console.log(err));
     }
   };
@@ -175,7 +171,7 @@ export default function Wareneingang({ articleDB }) {
         let storageBin = wareneingangOrders[i].Lagerplatz;
 
         await fetch(
-          `${process.env.REACT_APP_API}/Auftragsnummer/WareneingangSuccess`,
+          `${process.env.REACT_APP_API}/Auftragsnummer/ReturnSuccess`,
           {
             method: "PUT",
             headers: {
@@ -190,9 +186,6 @@ export default function Wareneingang({ articleDB }) {
           }
         )
           .then((res) => res.json())
-          .then((res) => {
-            setFertigungsauftrag("");
-          })
           .catch((err) => console.log(err));
       }
     }
@@ -433,7 +426,7 @@ export default function Wareneingang({ articleDB }) {
 
         //Add more data in tblEShelfBeschichtung and write in DB Bemerkung: "E-Label leuchtet"
         fetch(
-          `${process.env.REACT_APP_API}/Auftragsnummer/AddMoreStorageBins`,
+          `${process.env.REACT_APP_API}/Auftragsnummer/AddMoreStorageBinsReturn`,
           {
             method: "POST",
             headers: {
@@ -617,7 +610,7 @@ export default function Wareneingang({ articleDB }) {
           >
             <Modal.Header className="modalHeader" closeButton>
               <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
+                Aktuelle Buchung: 2001 - Rückgabe
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>Die Fertigungsauftrag wird in SAP geprüft.</Modal.Body>
@@ -632,7 +625,7 @@ export default function Wareneingang({ articleDB }) {
           >
             <Modal.Header className="modalHeader" closeButton>
               <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
+                Aktuelle Buchung: 2001 - Rückgabe
               </Modal.Title>
             </Modal.Header>
 
@@ -745,7 +738,7 @@ export default function Wareneingang({ articleDB }) {
           >
             <Modal.Header className="modalHeader" closeButton>
               <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
+                Aktuelle Buchung: 2001 - Rückgabe
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -789,7 +782,7 @@ export default function Wareneingang({ articleDB }) {
           >
             <Modal.Header className="modalHeader" closeButton>
               <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
+                Aktuelle Buchung: 2001 - Rückgabe
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -814,7 +807,7 @@ export default function Wareneingang({ articleDB }) {
           >
             <Modal.Header className="modalHeader" closeButton>
               <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
+                Aktuelle Buchung: 2001 - Rückgabe
               </Modal.Title>
             </Modal.Header>
             <Modal.Body>

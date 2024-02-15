@@ -28,13 +28,12 @@ export default function EntnahmeModal({
     }
 
     for (let i = 0; i < orders.length; i++) {
+      console.log("orders", orders);
       //loop withdrawn orders
       let fertigungsauftrag = orders[i].Auftragsnummer; // get order number
-      let oldQuantity = orders[i].Menge;
-      let storagebin = orders[i].Lagerplatz;
-
-      let withdrawnQuantity = orders[i].withdrawnQty;
-      let newQuantity = orders[i].newQty; // get new qty
+      let newQuantity = orders[i].BestandAlt - orders[i].Menge;
+      let oldQuantity = orders[i].BestandAlt;
+      let withdrawnQuantity = orders[i].Menge;
       let storageBin = orders[i].Lagerplatz;
       // without await, the booking data in the loop could not be finished.
       /* await fetch(`${process.env.REACT_APP_API}/Buchungsdaten/Entnahme`, {
@@ -70,6 +69,8 @@ export default function EntnahmeModal({
           body: JSON.stringify({
             fertigungsauftrag,
             storageBin,
+            withdrawnQuantity,
+            oldQuantity,
           }),
         }
       )
@@ -92,6 +93,7 @@ export default function EntnahmeModal({
         body: JSON.stringify({
           fertigungsauftrag,
           newQuantity,
+          storageBin,
         }),
       })
         .then((res) => res.json())
@@ -108,7 +110,7 @@ export default function EntnahmeModal({
   //if close button, nothing happen, reset everything, close message box
   const handleCloseButton = () => {
     setButtonDisabled(true); //reset Button after timeout
-    //setShow(false);
+    setShow(false);
     setWithdrawnOrders([]);
     setFilterDB([]);
     setSubmittedOrders([]);
@@ -168,7 +170,7 @@ export default function EntnahmeModal({
                   results[j].Bemerkung === "E-Label wurde angeklickt" && //check if it is set to TRUE
                   withdrawnOrders[i].Lagerplatz === results[j].Lagerplatz
                 ) {
-                  console.log(withdrawnOrders);
+                  console.log("withdrawnOrders", withdrawnOrders);
                   quittiertWithdrawnOrders.push(withdrawnOrders[i]); //save the orders in array for the function handleQuittieren
                   withdrawnOrders.splice(i, 1); // make the orders disappear line by line
                 }
@@ -248,9 +250,9 @@ export default function EntnahmeModal({
                 <td>Fertigungsauftrag</td>
                 <td>Beschichtungsart</td>
                 <td>Beschichtungsdicke</td>
+                <td>Lagerplatz</td>
                 <td>Menge</td>
                 <td>Restmenge</td>
-                <td>Lagerplatz</td>
               </tr>
             </thead>
             <tbody>
@@ -259,9 +261,9 @@ export default function EntnahmeModal({
                   <td>{item.Auftragsnummer}</td>
                   <td>{item.BeschichtungsArt}</td>
                   <td>{item.BeschichtungsDicke}</td>
-                  <th>{item.withdrawnQty}</th>
-                  <td>{item.newQty}</td>
                   <td>{item.Lagerplatz}</td>
+                  <th>{item.Menge}</th>
+                  <td>{item.BestandAlt - item.Menge}</td>
                 </tr>
               ))}
             </tbody>

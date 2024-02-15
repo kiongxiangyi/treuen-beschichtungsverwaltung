@@ -28,7 +28,6 @@ export default function Wareneingang({ articleDB }) {
   const [showNotFoundOrderMessage, setShowNotFoundOrderMessage] =
     useState(false);
   const [showWareneingangOrders, setShowWareneingangOrders] = useState(false);
-  let [anzahlSteckbretter, setAnzahlSteckbretter] = useState(1);
 
   const [buttonDisabled, setButtonDisabled] = useState(true);
   const fullscreen = true;
@@ -84,15 +83,78 @@ export default function Wareneingang({ articleDB }) {
     fetchBeschichtungKriterien();
   }, []);
 
-  //increase and decrease number of Steckbretter
-  const incAnzahlSteckbretter = () => {
-    setAnzahlSteckbretter(++anzahlSteckbretter);
-  };
-  const decAnzahlSteckbretter = () => {
-    if (anzahlSteckbretter > 0) {
-      //prevent negative values
-      setAnzahlSteckbretter(--anzahlSteckbretter);
+  const [anzahlSteckbretter, setAnzahlSteckbretter] = useState(1);
+
+  const [mengeSteckbretter, setMengeSteckbretter] = useState(() => {
+    return Array.from({ length: anzahlSteckbretter }, () => 0);
+  });
+
+  useEffect(() => {
+    //if anzahlSteckbretter change back to 1, need to setMengeSteckbretter again
+    if (anzahlSteckbretter === 1) {
+      setMengeSteckbretter([quantity]);
+    } else {
+      // Update `mengeSteckbretter` whenever `anzahlSteckbretter` changes
+      setMengeSteckbretter(Array.from({ length: anzahlSteckbretter }, () => 0));
     }
+  }, [anzahlSteckbretter]);
+
+  // Function to handle change in quantity of a specific Steckbretter
+  const handleChangeMenge = (value, index) => {
+    const newMengeSteckbretter = [...mengeSteckbretter];
+    newMengeSteckbretter[index] = parseInt(value) || 0;
+    setMengeSteckbretter(newMengeSteckbretter);
+  };
+
+  // Function to decrease the quantity of a specific Steckbretter
+  const decMengeSteckbretter = (index) => {
+    const newMengeSteckbretter = [...mengeSteckbretter];
+    if (newMengeSteckbretter[index] > 0) {
+      newMengeSteckbretter[index]--;
+      setMengeSteckbretter(newMengeSteckbretter);
+    }
+  };
+
+  // Function to increase the quantity of a specific Steckbretter
+  const incMengeSteckbretter = (index) => {
+    const newMengeSteckbretter = [...mengeSteckbretter];
+    newMengeSteckbretter[index]++;
+    setMengeSteckbretter(newMengeSteckbretter);
+  };
+
+  // JSX to render the input fields for Menge Steckbretter
+  const renderMengeSteckbretterInputs = () => {
+    const inputs = [];
+    for (let i = 0; i < anzahlSteckbretter; i++) {
+      inputs.push(
+        <tr key={`steckbretter-${i}`}>
+          <td className="tabledata">{`Menge Steckbretter ${i + 1}`}</td>
+          <th className="tabledata">
+            <button
+              className="button-anzahl-steckbretter"
+              type="button"
+              onClick={() => decMengeSteckbretter(i)}
+            >
+              -
+            </button>
+            <input
+              className="text-anzahl-steckbretter"
+              type="text"
+              value={mengeSteckbretter[i]}
+              onChange={(e) => handleChangeMenge(e.target.value, i)}
+            />
+            <button
+              className="button-anzahl-steckbretter"
+              type="button"
+              onClick={() => incMengeSteckbretter(i)}
+            >
+              +
+            </button>
+          </th>
+        </tr>
+      );
+    }
+    return inputs;
   };
 
   //get beschichtungsdicke option from backend when beschichtungsart in frontend being selected
@@ -127,6 +189,9 @@ export default function Wareneingang({ articleDB }) {
     fetchFreeStorageBins();
     fetchOccupiedStorageBins();
     setFertigungsauftrag("");
+    setAnzahlSteckbretter(1); //reset
+    const resetArray = Array(mengeSteckbretter.length).fill(0);
+    setMengeSteckbretter(resetArray);
   };
 
   const handleCloseNoInput = () => setShowNoInput(false);
@@ -352,6 +417,10 @@ export default function Wareneingang({ articleDB }) {
                 setQuantity(results[i].Menge); //get quantity from table and show it later in next message box
                 setShowCheckingSAP(false); //close current message box
                 setShowSAPchecked(true); // open next message box
+                if (anzahlSteckbretter === 1) {
+                  //when initial anzahlSteckbretter not changed -> set the quantity in the DB table
+                  setMengeSteckbretter([results[i].Menge]);
+                }
               })
               .catch((err) => console.log(err));
           }
@@ -423,8 +492,9 @@ export default function Wareneingang({ articleDB }) {
 
             body: JSON.stringify({
               fertigungsauftrag,
-              quantity,
+              //quantity,
               anzahlSteckbretter,
+              mengeSteckbretter,
             }),
           }
         )
@@ -446,8 +516,9 @@ export default function Wareneingang({ articleDB }) {
               wareneingangBeschichtungsart,
               wareneingangBeschichtungsdicke,
               beschichtungsText,
-              quantity,
+              //quantity,
               anzahlSteckbretter,
+              mengeSteckbretter,
             }),
           }
         )
@@ -459,6 +530,8 @@ export default function Wareneingang({ articleDB }) {
 
         setShowSAPchecked(false); //close current message box
         setShowWareneingangOrders(true); //show next message box
+      } else {
+        toast.error("Bitte alle Felder ausfüllen!");
       }
 
       setAnzahlSteckbretter(1); //reset
@@ -704,7 +777,11 @@ export default function Wareneingang({ articleDB }) {
                       <button
                         className="button-anzahl-steckbretter"
                         type="button"
-                        onClick={decAnzahlSteckbretter}
+                        onClick={() =>
+                          setAnzahlSteckbretter(
+                            Math.max(1, anzahlSteckbretter - 1)
+                          )
+                        }
                       >
                         -
                       </button>
@@ -717,12 +794,16 @@ export default function Wareneingang({ articleDB }) {
                       <button
                         className="button-anzahl-steckbretter"
                         type="button"
-                        onClick={incAnzahlSteckbretter}
+                        onClick={() =>
+                          setAnzahlSteckbretter(anzahlSteckbretter + 1)
+                        }
                       >
                         +
                       </button>
                     </th>
                   </tr>
+                  {anzahlSteckbretter > 1 &&
+                    renderMengeSteckbretterInputs(anzahlSteckbretter)}
                 </tbody>
               </table>
             </Modal.Body>
@@ -756,6 +837,7 @@ export default function Wareneingang({ articleDB }) {
                     <td>Beschichtungsart</td>
                     <td>Beschichtungsdicke</td>
                     <td>Lagerplatz</td>
+                    <td>Menge</td>
                   </tr>
                 </thead>
                 <tbody>
@@ -765,6 +847,7 @@ export default function Wareneingang({ articleDB }) {
                       <td>{item.BeschichtungsArt}</td>
                       <td>{item.BeschichtungsDicke}</td>
                       <td>{item.Lagerplatz}</td>
+                      <td>{item.Menge}</td>
                     </tr>
                   ))}
                 </tbody>

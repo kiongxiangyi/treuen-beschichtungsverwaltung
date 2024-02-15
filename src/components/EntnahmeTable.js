@@ -105,9 +105,14 @@ export default function EntnahmeTable({
       event.target.parentElement.childNodes[0].childNodes[0].checked =
         !event.target.parentElement.childNodes[0].childNodes[0].checked;
 
+      //check which item is click based on Auftragsnummer and Lagerplatz
       let tempOrder = filterDB.map((order) =>
         order.Auftragsnummer ===
-        event.target.parentElement.childNodes[0].childNodes[0].name
+          event.target.parentElement.childNodes[0].childNodes[0].name &&
+        order.Lagerplatz ===
+          event.target.parentElement.childNodes[0].childNodes[0].getAttribute(
+            "storagebin"
+          )
           ? {
               ...order,
               isChecked:
@@ -137,8 +142,11 @@ export default function EntnahmeTable({
       //when select checkbox
       let tempOrder = filterDB.map((order) =>
         order.Auftragsnummer ===
-        event.target.parentElement.parentElement.childNodes[1].childNodes[0]
-          .data
+          event.target.parentElement.parentElement.childNodes[1].childNodes[0] //childNodes[1] refer to td Fertigungsauftrag
+            .data &&
+        order.Lagerplatz ===
+          event.target.parentElement.parentElement.childNodes[4].childNodes[0] //childNodes[4] refer to td Lagerplatz
+            .data
           ? {
               ...order,
               isChecked: event.target.checked,
@@ -199,6 +207,7 @@ export default function EntnahmeTable({
             <th>Fertigungsauftrag</th>
             <th>Beschichtungsart</th>
             <th>Beschichtungsdicke</th>
+            <th>Lagerplatz</th>
             <th>Menge</th>
             <th className="aktion">Aktion</th>
           </tr>
@@ -211,6 +220,7 @@ export default function EntnahmeTable({
                   type="checkbox"
                   className="form-check-input checkedID"
                   name={item.Auftragsnummer}
+                  storagebin={item.Lagerplatz}
                 />
               </td>
 

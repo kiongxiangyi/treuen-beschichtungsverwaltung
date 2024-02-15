@@ -23,6 +23,7 @@ export default function EntnahmeButton({
   } = useForm();
 
   const onSubmit = () => {
+    console.log("submittedOrders", submittedOrders);
     //submitted Orders depend on Lagerplatz 0
     if (submittedOrders.length > 0) {
       let selectedOrdersWithoutQuantity = [];
@@ -35,13 +36,14 @@ export default function EntnahmeButton({
           //current quantity in DB
           ({ Auftragsnummer, Lagerplatz }) =>
             Auftragsnummer === submittedOrders[i].Auftragsnummer &&
-            Lagerplatz !== "0"
+            Lagerplatz === submittedOrders[i].Lagerplatz
         );
 
         withdrawnQuantityOfSelectedOrder = filterDB.find(
           //withdrawal quantity input in frontend
-          ({ Auftragsnummer }) =>
-            Auftragsnummer === submittedOrders[i].Auftragsnummer
+          ({ Auftragsnummer, Lagerplatz }) =>
+            Auftragsnummer === submittedOrders[i].Auftragsnummer &&
+            Lagerplatz === submittedOrders[i].Lagerplatz
         );
 
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
@@ -49,7 +51,15 @@ export default function EntnahmeButton({
         let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
 
         arrWithdrawnOrders.push(...selectedOrdersWithoutQuantity);
-
+        console.log(
+          "withdrawnQuantityOfSelectedOrder",
+          withdrawnQuantityOfSelectedOrder
+        );
+        console.log(
+          "selectedOrdersWithoutQuantity",
+          selectedOrdersWithoutQuantity
+        );
+        console.log("arrWithdrawnOrders", arrWithdrawnOrders);
         //update Auslagerung True for E-Label interface according to storage bins
         for (let i = 0; i < selectedOrdersWithoutQuantity.length; i++) {
           let storageBin = selectedOrdersWithoutQuantity[i].Lagerplatz;

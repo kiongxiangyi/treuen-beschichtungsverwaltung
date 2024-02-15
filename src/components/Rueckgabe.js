@@ -793,9 +793,7 @@ export default function Rueckgabe({ articleDB }) {
               <Button
                 className="modalButton"
                 onClick={handleCloseNotFoundOrderMessage}
-              >
-                Quittieren
-              </Button>
+              ></Button>
             </Modal.Footer>
           </Modal>
 

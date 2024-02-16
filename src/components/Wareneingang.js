@@ -184,7 +184,6 @@ export default function Wareneingang({ articleDB }) {
   const handleClose = () => {
     setButtonDisabled(true); //reset Button after timeout
 
-    setShowCheckingSAP(false);
     setShowNoStorageBins(false);
     fetchFreeStorageBins();
     fetchOccupiedStorageBins();
@@ -194,8 +193,8 @@ export default function Wareneingang({ articleDB }) {
     setMengeSteckbretter(resetArray);
   };
 
-  const handleCloseWithoutGoodReceipt = () => {
-    fetch(`${process.env.REACT_APP_API}/Auftragsnummer/withoutGoodReceipt`, {
+  const handleCloseWithoutBookingInDB = () => {
+    fetch(`${process.env.REACT_APP_API}/Auftragsnummer/withoutBooking`, {
       method: "DELETE",
       headers: {
         Accept: "application/json",
@@ -203,7 +202,10 @@ export default function Wareneingang({ articleDB }) {
       },
     })
       .then((res) => res.json())
-      .then(() => setShowSAPchecked(false))
+      .then(() => {
+        setShowCheckingSAP(false);
+        setShowSAPchecked(false);
+      })
       .catch((err) => console.log(err));
   };
 
@@ -697,7 +699,7 @@ export default function Wareneingang({ articleDB }) {
 
           <Modal
             show={showCheckingSAP}
-            onHide={handleClose}
+            onHide={handleCloseWithoutBookingInDB}
             backdrop="static"
             keyboard={false}
           >
@@ -712,7 +714,7 @@ export default function Wareneingang({ articleDB }) {
 
           <Modal
             show={showSAPchecked}
-            onHide={handleCloseWithoutGoodReceipt}
+            onHide={handleCloseWithoutBookingInDB}
             backdrop="static"
             keyboard={false}
           >

@@ -9,6 +9,7 @@ export default function EntnahmeFilter({
   setBeschichtungsdicke,
   beschichtungsartOptions,
   beschichtungsdickeOptions,
+  setMaximumValueDB,
 }) {
   //tutorial: https://www.simplilearn.com/tutorials/reactjs-tutorial/how-to-create-functional-react-dropdown-menu
   //select beschichtungsart
@@ -52,6 +53,7 @@ export default function EntnahmeFilter({
       );
     }
     setFilterDB(filteredValue);
+    setMaximumValueDB(filteredValue);
   };
 
   return (

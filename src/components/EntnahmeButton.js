@@ -49,8 +49,7 @@ export default function EntnahmeButton({
 
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
-        let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
-        selectedOrders[i].Menge = withdrawnQuantity; //update the withdrawal quantity on the booking summary page
+        selectedOrders[0].Menge = withdrawnQuantityOfSelectedOrder.Menge; //update the withdrawal quantity on the booking summary page, selectedOrders is in array, so need to set the first array and change the Menge
 
         arrWithdrawnOrders.push(...selectedOrders);
         console.log(

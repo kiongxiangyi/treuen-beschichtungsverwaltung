@@ -57,6 +57,9 @@ export default function Entnahme({ fertigungsauftragDB }) {
     }
   }, [beschichtungsart]);
 
+  //state for a copy of filtered orders to save the temporary maximum Quantity
+  const [maximumValueDB, setMaximumValueDB] = useState([]);
+
   return (
     <div>
       <EntnahmeFilter
@@ -68,11 +71,13 @@ export default function Entnahme({ fertigungsauftragDB }) {
         setBeschichtungsdicke={setBeschichtungsdicke}
         beschichtungsartOptions={beschichtungsartOptions}
         beschichtungsdickeOptions={beschichtungsdickeOptions}
+        setMaximumValueDB={setMaximumValueDB}
       />
       <EntnahmeTable
         filterDB={filterDB}
         setFilterDB={setFilterDB}
         setSubmittedOrders={setSubmittedOrders}
+        maximumValueDB={maximumValueDB}
       />
 
       <EntnahmeButton

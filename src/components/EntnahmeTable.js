@@ -2,11 +2,13 @@ import React, { useState, Fragment } from "react";
 import Table from "react-bootstrap/Table";
 import ReadOnlyRow from "./ReadOnlyRow";
 import EditableRow from "./EditableRow";
+import Feedback from "react-bootstrap/esm/Feedback";
 
 export default function EntnahmeTable({
   setSubmittedOrders,
   filterDB,
   setFilterDB,
+  maximumValueDB,
 }) {
   //Edit, Save, Cancel quantity buttons function https://youtu.be/dYjdzpZv5yc
   const [editItemId, setEditItemId] = useState(null);
@@ -235,6 +237,7 @@ export default function EntnahmeTable({
                     handleEditQuantityChange={handleEditQuantityChange}
                     handleCancelClick={handleCancelClick}
                     handleEditQuantitySubmit={handleEditQuantitySubmit}
+                    maximumValueDB={maximumValueDB}
                   />
                 ) : (
                   <ReadOnlyRow

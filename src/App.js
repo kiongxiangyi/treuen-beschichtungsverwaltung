@@ -30,7 +30,7 @@ function App() {
           if (
             (results[i].Auslagerung === false &&
               results[i].Einlagerung === false &&
-              results[i].Menge === 0 &&
+              //results[i].Menge === 0 &&
               results[i].Bemerkung === "löschen") ||
             results[i].Bemerkung === "kein FA vorhanden - es wird gelöscht" ||
             results[i].Bemerkung === "Wareneingang wurde nicht durchgeführt"
@@ -121,7 +121,7 @@ function App() {
     //fetch Artikel every X second
     interval = setInterval(() => {
       fetchOrders();
-    }, 1 * 1000);
+    }, 1 * 10000);
 
     return () => {
       clearInterval(interval);
@@ -148,7 +148,7 @@ function App() {
     //fetch Artikel every X second
     interval = setInterval(() => {
       fetchArtikel();
-    }, 1 * 1000);
+    }, 1 * 10000);
 
     return () => {
       clearInterval(interval);

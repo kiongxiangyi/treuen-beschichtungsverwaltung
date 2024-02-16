@@ -183,7 +183,7 @@ export default function Wareneingang({ articleDB }) {
   //close all message box and get get/update storage bins data
   const handleClose = () => {
     setButtonDisabled(true); //reset Button after timeout
-    setShowSAPchecked(false);
+
     setShowCheckingSAP(false);
     setShowNoStorageBins(false);
     fetchFreeStorageBins();
@@ -192,6 +192,19 @@ export default function Wareneingang({ articleDB }) {
     setAnzahlSteckbretter(1); //reset
     const resetArray = Array(mengeSteckbretter.length).fill(0);
     setMengeSteckbretter(resetArray);
+  };
+
+  const handleCloseWithoutGoodReceipt = () => {
+    fetch(`${process.env.REACT_APP_API}/Auftragsnummer/withoutGoodReceipt`, {
+      method: "DELETE",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then(() => setShowSAPchecked(false))
+      .catch((err) => console.log(err));
   };
 
   const handleCloseNoInput = () => setShowNoInput(false);
@@ -699,7 +712,7 @@ export default function Wareneingang({ articleDB }) {
 
           <Modal
             show={showSAPchecked}
-            onHide={handleClose}
+            onHide={handleCloseWithoutGoodReceipt}
             backdrop="static"
             keyboard={false}
           >

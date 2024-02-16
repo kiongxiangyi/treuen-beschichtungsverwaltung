@@ -15,6 +15,7 @@ export default function EntnahmeTable({
     Auftragsnummer: "",
     BeschichtungsArt: "",
     BeschichtungsDicke: "",
+    Lagerplatz: "",
     Menge: "",
   });
 
@@ -29,6 +30,7 @@ export default function EntnahmeTable({
       Auftragsnummer: item.Auftragsnummer,
       BeschichtungsArt: item.BeschichtungsArt,
       BeschichtungsDicke: item.BeschichtungsDicke,
+      Lagerplatz: item.Lagerplatz,
       Menge: item.Menge,
     };
 
@@ -57,6 +59,7 @@ export default function EntnahmeTable({
       Auftragsnummer: editQuantity.Auftragsnummer,
       BeschichtungsArt: editQuantity.BeschichtungsArt,
       BeschichtungsDicke: editQuantity.BeschichtungsDicke,
+      Lagerplatz: editQuantity.Lagerplatz,
       Menge: editQuantity.Menge,
     };
 

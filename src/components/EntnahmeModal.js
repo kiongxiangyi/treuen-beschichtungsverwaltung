@@ -31,8 +31,6 @@ export default function EntnahmeModal({
       console.log("orders", orders);
       //loop withdrawn orders
       let fertigungsauftrag = orders[i].Auftragsnummer; // get order number
-      let newQuantity = orders[i].BestandAlt - orders[i].Menge;
-      let oldQuantity = orders[i].BestandAlt;
       let withdrawnQuantity = orders[i].Menge;
       let storageBin = orders[i].Lagerplatz;
       // without await, the booking data in the loop could not be finished.
@@ -70,7 +68,6 @@ export default function EntnahmeModal({
             fertigungsauftrag,
             storageBin,
             withdrawnQuantity,
-            oldQuantity,
           }),
         }
       )
@@ -82,7 +79,7 @@ export default function EntnahmeModal({
           setSubmittedOrders([]); //reset, if not when click "weiter", previous order will be booked.
         })
         .catch((err) => console.log(err));
-
+      /* 
       await fetch(`${process.env.REACT_APP_API}/Lagerplatz/UpdateQty`, {
         method: "PUT",
         headers: {
@@ -97,7 +94,7 @@ export default function EntnahmeModal({
         }),
       })
         .then((res) => res.json())
-        .catch((err) => console.log(err));
+        .catch((err) => console.log(err));*/
     }
 
     setButtonDisabled(true); //reset button to disabled

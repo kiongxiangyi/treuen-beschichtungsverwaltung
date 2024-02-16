@@ -23,16 +23,17 @@ export default function EntnahmeButton({
   } = useForm();
 
   const onSubmit = () => {
+    console.log("filterDB", filterDB);
     console.log("submittedOrders", submittedOrders);
     //submitted Orders depend on Lagerplatz 0
     if (submittedOrders.length > 0) {
-      let selectedOrdersWithoutQuantity = [];
+      let selectedOrders = [];
       let withdrawnQuantityOfSelectedOrder;
       let fertigungsauftrag;
       let arrWithdrawnOrders = [];
       //loop and update quantity of selected orders
       for (let i = 0; i < submittedOrders.length; i++) {
-        selectedOrdersWithoutQuantity = fertigungsauftragDB.filter(
+        selectedOrders = fertigungsauftragDB.filter(
           //current quantity in DB
           ({ Auftragsnummer, Lagerplatz }) =>
             Auftragsnummer === submittedOrders[i].Auftragsnummer &&
@@ -49,20 +50,18 @@ export default function EntnahmeButton({
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
         let withdrawnQuantity = withdrawnQuantityOfSelectedOrder.Menge;
+        selectedOrders[i].Menge = withdrawnQuantity; //update the withdrawal quantity on the booking summary page
 
-        arrWithdrawnOrders.push(...selectedOrdersWithoutQuantity);
+        arrWithdrawnOrders.push(...selectedOrders);
         console.log(
           "withdrawnQuantityOfSelectedOrder",
           withdrawnQuantityOfSelectedOrder
         );
-        console.log(
-          "selectedOrdersWithoutQuantity",
-          selectedOrdersWithoutQuantity
-        );
+        console.log("selectedOrders", selectedOrders);
         console.log("arrWithdrawnOrders", arrWithdrawnOrders);
         //update Auslagerung True for E-Label interface according to storage bins
-        for (let i = 0; i < selectedOrdersWithoutQuantity.length; i++) {
-          let storageBin = selectedOrdersWithoutQuantity[i].Lagerplatz;
+        for (let i = 0; i < selectedOrders.length; i++) {
+          let storageBin = selectedOrders[i].Lagerplatz;
           //Auslagerung TRUE where Lagerplatz != 0 and update newQuantity
           fetch(
             `${process.env.REACT_APP_API}/Auftragsnummer/EntnahmeAuslagerungTrue`,
@@ -75,7 +74,6 @@ export default function EntnahmeButton({
 
               body: JSON.stringify({
                 fertigungsauftrag,
-                withdrawnQuantity,
                 storageBin,
               }),
             }

@@ -15,6 +15,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsdickeOptions, setBeschichtungsdickeOptions] = useState(
     []
   );
+  const [arrCurrentQuantity, setArrCurrentQuantity] = useState([]);
 
   const fetchBeschichtungKriterienFromTblEShelfBeschichtung = () => {
     fetch(`${process.env.REACT_APP_API}/Auftragsnummer`)
@@ -28,6 +29,8 @@ export default function Entnahme({ fertigungsauftragDB }) {
             return acc;
           }, [])
         );
+
+        setArrCurrentQuantity(fertigungsauftragDB); //save the currentQuantity to used for the calculation of current qty minus withdrawal shown in frontend in EntnhameModal.js
       })
       .catch((err) => {
         console.log(err.message);
@@ -86,6 +89,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
         filterDB={filterDB}
         setWithdrawnOrders={setWithdrawnOrders}
         setShow={setShow}
+        arrCurrentQuantity={arrCurrentQuantity}
       />
 
       <EntnahmeModal

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Button from "react-bootstrap/Button";
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ export default function EntnahmeButton({
   filterDB,
   setWithdrawnOrders,
   setShow,
+  arrCurrentQuantity,
   setWithdrawnOrdersWithQuantity,
 }) {
   const navigate = useNavigate(); //hook for navigation
@@ -21,8 +22,9 @@ export default function EntnahmeButton({
     formState,
     //formState: { errors },
   } = useForm();
-
+  
   const onSubmit = () => {
+    console.log("arrCurrentQuantity", arrCurrentQuantity);
     console.log("filterDB", filterDB);
     console.log("submittedOrders", submittedOrders);
     //submitted Orders depend on Lagerplatz 0
@@ -31,6 +33,7 @@ export default function EntnahmeButton({
       let withdrawnQuantityOfSelectedOrder;
       let fertigungsauftrag;
       let arrWithdrawnOrders = [];
+      let currentQuantityOfSelectedOrder = [];
       //loop and update quantity of selected orders
       for (let i = 0; i < submittedOrders.length; i++) {
         selectedOrders = fertigungsauftragDB.filter(
@@ -47,9 +50,16 @@ export default function EntnahmeButton({
             Lagerplatz === submittedOrders[i].Lagerplatz
         );
 
+        currentQuantityOfSelectedOrder = arrCurrentQuantity.find(
+          ({ Auftragsnummer, Lagerplatz }) =>
+            Auftragsnummer === submittedOrders[i].Auftragsnummer &&
+            Lagerplatz === submittedOrders[i].Lagerplatz
+        );
+
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
         selectedOrders[0].Menge = withdrawnQuantityOfSelectedOrder.Menge; //update the withdrawal quantity on the booking summary page, selectedOrders is in array, so need to set the first array and change the Menge
+        selectedOrders[0].CurrentQty = currentQuantityOfSelectedOrder.Menge;
 
         arrWithdrawnOrders.push(...selectedOrders);
         console.log(

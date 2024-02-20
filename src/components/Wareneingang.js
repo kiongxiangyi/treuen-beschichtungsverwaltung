@@ -205,6 +205,7 @@ export default function Wareneingang({ articleDB }) {
       .then(() => {
         setShowCheckingSAP(false);
         setShowSAPchecked(false);
+        setFertigungsauftrag("");
       })
       .catch((err) => console.log(err));
   };

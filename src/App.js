@@ -1,10 +1,11 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Header from "./components/Header";
+import Header from "./components/GoodsReceiptHeader";
 import Wareneingang from "./components/Wareneingang";
 import Rueckgabe from "./components/Rueckgabe";
 import Entnahme from "./components/Entnahme";
-import Homepage from "./components/Homepage";
+import GoodsReceiptHomepage from "./components/GoodsReceiptHomepage";
+import WithdrawalHomepage from "./components/WithdrawalHomepage";
 import { Route, Routes } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -156,35 +157,33 @@ function App() {
   }, []);
 
   return (
-    <div className="background">
-      <Header />
-      <div className="body">
-        <Routes>
-          <Route path="/" element={<Homepage />} />
-          <Route
-            path="/Wareneingang"
-            element={
-              <Wareneingang
-                fertigungsauftragDB={fertigungsauftragDB}
-                articleDB={articleDB}
-              />
-            }
-          />
-          <Route
-            path="/Entnahme"
-            element={<Entnahme fertigungsauftragDB={fertigungsauftragDB} />}
-          />
-          <Route
-            path="/Rueckgabe"
-            element={
-              <Rueckgabe
-                fertigungsauftragDB={fertigungsauftragDB}
-                articleDB={articleDB}
-              />
-            }
-          />
-        </Routes>
-      </div>
+    <div>
+      <Routes>
+        <Route path="/Wareneingangseite" element={<GoodsReceiptHomepage />} />
+        <Route path="/Entnahmeseite" element={<WithdrawalHomepage />} />
+        <Route
+          path="/Wareneingang"
+          element={
+            <Wareneingang
+              fertigungsauftragDB={fertigungsauftragDB}
+              articleDB={articleDB}
+            />
+          }
+        />
+        <Route
+          path="/Entnahme"
+          element={<Entnahme fertigungsauftragDB={fertigungsauftragDB} />}
+        />
+        <Route
+          path="/Rueckgabe"
+          element={
+            <Rueckgabe
+              fertigungsauftragDB={fertigungsauftragDB}
+              articleDB={articleDB}
+            />
+          }
+        />
+      </Routes>
     </div>
   );
 }

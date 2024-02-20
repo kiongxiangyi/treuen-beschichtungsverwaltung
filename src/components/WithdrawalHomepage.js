@@ -1,14 +1,10 @@
 import "../App.css";
 import { useNavigate } from "react-router-dom";
+import WithrawalHeader from "./WithrawalHeader";
 //import Button from "react-bootstrap/Button";
 
-export default function Homepage() {
+export default function WithdrawalHomepage() {
   const navigate = useNavigate(); //hook for navigation
-
-  const handleSubmitWareneingang = (e) => {
-    e.preventDefault();
-    navigate("/Wareneingang");
-  };
 
   const handleSubmitEntnahme = (e) => {
     e.preventDefault();
@@ -22,11 +18,7 @@ export default function Homepage() {
 
   return (
     <div>
-      <div className="homepage">
-        <button className="bookingButton" onClick={handleSubmitWareneingang}>
-          Wareneingang
-        </button>
-      </div>
+      <WithrawalHeader />
       <div className="homepage">
         <button className="bookingButton" onClick={handleSubmitEntnahme}>
           Entnahme

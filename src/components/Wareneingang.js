@@ -3,6 +3,7 @@ import "../App.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { toast } from "react-toastify";
+import GoodsReceiptHeader from "./GoodsReceiptHeader";
 
 export default function Wareneingang({ articleDB }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
@@ -34,6 +35,8 @@ export default function Wareneingang({ articleDB }) {
   const [wareneingangOrders, setWareneingangOrders] = useState([]);
   // let quittiertWareneingangOrders = [];
   const [showNoStorageBins, setShowNoStorageBins] = useState(false);
+
+  let bReturn = false;
 
   //get storage bins data
   const fetchFreeStorageBins = () => {
@@ -267,6 +270,7 @@ export default function Wareneingang({ articleDB }) {
             body: JSON.stringify({
               fertigungsauftrag,
               storageBin,
+              bReturn,
             }),
           }
         )
@@ -517,6 +521,7 @@ export default function Wareneingang({ articleDB }) {
           .then((res) => res.json())
           .catch((err) => console.log(err));
 
+        let bReturn = false; //false for Wareneingang, true for Rückgabe
         //Add more data in tblEShelfBeschichtung and write in DB Bemerkung: "E-Label leuchtet"
         fetch(
           `${process.env.REACT_APP_API}/Auftragsnummer/AddMoreStorageBins`,
@@ -535,6 +540,7 @@ export default function Wareneingang({ articleDB }) {
               //quantity,
               anzahlSteckbretter,
               mengeSteckbretter,
+              bReturn,
             }),
           }
         )
@@ -599,6 +605,7 @@ export default function Wareneingang({ articleDB }) {
                       body: JSON.stringify({
                         fertigungsauftrag,
                         storageBin,
+                        bReturn,
                       }),
                     }
                   )
@@ -660,277 +667,287 @@ export default function Wareneingang({ articleDB }) {
   }, [showWareneingangOrders]);
 
   return (
-    <div>
-      <div className="scan-field">
-        <h1>
-          <b>Fertigungsauftrag scannen:</b>
-        </h1>
-        <form onSubmit={handleSubmit}>
-          <input
-            className="inputFertigungsauftrag"
-            autoFocus
-            type="number"
-            id="fertigungsauftrag"
-            name="fertigungsauftrag"
-            size="35"
-            pattern="[0-9]+"
-            value={fertigungsauftrag}
-            onChange={(e) => setFertigungsauftrag(e.target.value)}
-          />
+    <>
+      <GoodsReceiptHeader />
+      <div className="body">
+        <div className="scan-field">
+          <h1>
+            <b>Fertigungsauftrag scannen:</b>
+          </h1>
+          <form onSubmit={handleSubmit}>
+            <input
+              className="inputFertigungsauftrag"
+              autoFocus
+              type="number"
+              id="fertigungsauftrag"
+              name="fertigungsauftrag"
+              size="35"
+              pattern="[0-9]+"
+              value={fertigungsauftrag}
+              onChange={(e) => setFertigungsauftrag(e.target.value)}
+            />
 
-          <Modal
-            show={showNoInput}
-            onHide={handleCloseNoInput}
-            backdrop="static"
-            keyboard={false}
-          >
-            <Modal.Header className="modalHeader" closeButton>
-              <Modal.Title className="modalHeader">Fehler</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              Feld darf nicht leer sein! Bitte scannen Sie einen gültigen
-              Fertigungsauftrag.
-            </Modal.Body>
-            <Modal.Footer>
-              <Button className="modalButton" onClick={handleCloseNoInput}>
-                Schließen
-              </Button>
-            </Modal.Footer>
-          </Modal>
+            <Modal
+              show={showNoInput}
+              onHide={handleCloseNoInput}
+              backdrop="static"
+              keyboard={false}
+            >
+              <Modal.Header className="modalHeader" closeButton>
+                <Modal.Title className="modalHeader">Fehler</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Feld darf nicht leer sein! Bitte scannen Sie einen gültigen
+                Fertigungsauftrag.
+              </Modal.Body>
+              <Modal.Footer>
+                <Button className="modalButton" onClick={handleCloseNoInput}>
+                  Schließen
+                </Button>
+              </Modal.Footer>
+            </Modal>
 
-          <Modal
-            show={showCheckingSAP}
-            onHide={handleCloseWithoutBookingInDB}
-            backdrop="static"
-            keyboard={false}
-          >
-            <Modal.Header className="modalHeader" closeButton>
-              <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>Die Fertigungsauftrag wird in SAP geprüft.</Modal.Body>
-            <Modal.Footer></Modal.Footer>
-          </Modal>
+            <Modal
+              show={showCheckingSAP}
+              onHide={handleCloseWithoutBookingInDB}
+              backdrop="static"
+              keyboard={false}
+            >
+              <Modal.Header className="modalHeader" closeButton>
+                <Modal.Title className="modalHeader">
+                  Aktuelle Buchung: 3001 - Wareneingang
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Die Fertigungsauftrag wird in SAP geprüft.
+              </Modal.Body>
+              <Modal.Footer></Modal.Footer>
+            </Modal>
 
-          <Modal
-            show={showSAPchecked}
-            onHide={handleCloseWithoutBookingInDB}
-            backdrop="static"
-            keyboard={false}
-          >
-            <Modal.Header className="modalHeader" closeButton>
-              <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
-              </Modal.Title>
-            </Modal.Header>
+            <Modal
+              show={showSAPchecked}
+              onHide={handleCloseWithoutBookingInDB}
+              backdrop="static"
+              keyboard={false}
+            >
+              <Modal.Header className="modalHeader" closeButton>
+                <Modal.Title className="modalHeader">
+                  Aktuelle Buchung: 3001 - Wareneingang
+                </Modal.Title>
+              </Modal.Header>
 
-            <Modal.Body>
-              <table className="table">
-                <thead></thead>
-                <tbody>
-                  <tr>
-                    <td className="tabledata">Fertigungsauftrag</td>
-                    <th className="tabledata">{fertigungsauftragDummy}</th>
-                  </tr>
-                  <tr>
-                    <td className="tabledata">Beschichtungstext</td>
-                    <th className="tabledata">{beschichtungsText}</th>
-                  </tr>
-                  <tr>
-                    <td className="tabledata">Beschichtungsart</td>
-                    <th className="tabledata">
-                      <div>
-                        <select
-                          className="wareneingang-beschichtung-select"
-                          name="beschichtungsart"
-                          id="beschichtungsart-select"
-                          value={wareneingangBeschichtungsart}
-                          onChange={(e) =>
-                            setWareneingangBeschichtungsart(e.target.value)
-                          }
-                        >
-                          <option value=""></option>
-                          {beschichtungsartOptions.map((option, i) => (
-                            <option value={option} key={i}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </th>
-                  </tr>
-                  <tr>
-                    <td className="tabledata">Beschichtungsdicke</td>
-                    <th className="tabledata">
-                      <div>
-                        <select
-                          className="wareneingang-beschichtung-select"
-                          name="beschichtungsart"
-                          id="beschichtungsart-select"
-                          value={wareneingangBeschichtungsdicke}
-                          onChange={(e) =>
-                            setWareneingangBeschichtungsdicke(e.target.value)
-                          }
-                        >
-                          <option value=""></option>
-                          {beschichtungsdickeOptions.map((option, i) => (
-                            <option value={option} key={i}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </th>
-                  </tr>
-                  <tr>
-                    <td className="tabledata">Menge</td>
-                    <th className="tabledata">{quantity}</th>
-                  </tr>
-                  <tr>
-                    <td className="tabledata">Anzahl Steckbretter</td>
-                    <th className="tabledata">
-                      <button
-                        className="button-anzahl-steckbretter"
-                        type="button"
-                        onClick={() =>
-                          setAnzahlSteckbretter(
-                            Math.max(1, anzahlSteckbretter - 1)
-                          )
-                        }
-                      >
-                        -
-                      </button>
-                      <input
-                        className="text-anzahl-steckbretter"
-                        type="text"
-                        value={anzahlSteckbretter}
-                        onChange={(e) => setAnzahlSteckbretter(e.target.value)}
-                      ></input>
-                      <button
-                        className="button-anzahl-steckbretter"
-                        type="button"
-                        onClick={() =>
-                          setAnzahlSteckbretter(anzahlSteckbretter + 1)
-                        }
-                      >
-                        +
-                      </button>
-                    </th>
-                  </tr>
-                  {anzahlSteckbretter > 1 &&
-                    renderMengeSteckbretterInputs(anzahlSteckbretter)}
-                </tbody>
-              </table>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button
-                className="modalButton"
-                onClick={handleBestätigenWareneingangOrders}
-              >
-                Bestätigen
-              </Button>
-            </Modal.Footer>
-          </Modal>
-
-          <Modal
-            fullscreen={fullscreen}
-            show={showWareneingangOrders}
-            onHide={handleCloseWithoutBooking}
-            backdrop="static"
-            keyboard={false}
-          >
-            <Modal.Header className="modalHeader" closeButton>
-              <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <table className="table">
-                <thead>
-                  <tr>
-                    <td>Fertigungsauftrag</td>
-                    <td>Beschichtungsart</td>
-                    <td>Beschichtungsdicke</td>
-                    <td>Lagerplatz</td>
-                    <td>Menge</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  {wareneingangOrders.map((item, i) => (
-                    <tr key={i}>
-                      <td>{item.Auftragsnummer}</td>
-                      <td>{item.BeschichtungsArt}</td>
-                      <td>{item.BeschichtungsDicke}</td>
-                      <td>{item.Lagerplatz}</td>
-                      <td>{item.Menge}</td>
+              <Modal.Body>
+                <table className="table">
+                  <thead></thead>
+                  <tbody>
+                    <tr>
+                      <td className="tabledata">Fertigungsauftrag</td>
+                      <th className="tabledata">{fertigungsauftragDummy}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button
-                className="modalButton"
-                disabled={buttonDisabled}
-                onClick={handleQuittieren}
-              >
-                Quittieren
-              </Button>
-            </Modal.Footer>
-          </Modal>
+                    <tr>
+                      <td className="tabledata">Beschichtungstext</td>
+                      <th className="tabledata">{beschichtungsText}</th>
+                    </tr>
+                    <tr>
+                      <td className="tabledata">Beschichtungsart</td>
+                      <th className="tabledata">
+                        <div>
+                          <select
+                            className="wareneingang-beschichtung-select"
+                            name="beschichtungsart"
+                            id="beschichtungsart-select"
+                            value={wareneingangBeschichtungsart}
+                            onChange={(e) =>
+                              setWareneingangBeschichtungsart(e.target.value)
+                            }
+                          >
+                            <option value=""></option>
+                            {beschichtungsartOptions.map((option, i) => (
+                              <option value={option} key={i}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </th>
+                    </tr>
+                    <tr>
+                      <td className="tabledata">Beschichtungsdicke</td>
+                      <th className="tabledata">
+                        <div>
+                          <select
+                            className="wareneingang-beschichtung-select"
+                            name="beschichtungsart"
+                            id="beschichtungsart-select"
+                            value={wareneingangBeschichtungsdicke}
+                            onChange={(e) =>
+                              setWareneingangBeschichtungsdicke(e.target.value)
+                            }
+                          >
+                            <option value=""></option>
+                            {beschichtungsdickeOptions.map((option, i) => (
+                              <option value={option} key={i}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </th>
+                    </tr>
+                    <tr>
+                      <td className="tabledata">Menge</td>
+                      <th className="tabledata">{quantity}</th>
+                    </tr>
+                    <tr>
+                      <td className="tabledata">Anzahl Steckbretter</td>
+                      <th className="tabledata">
+                        <button
+                          className="button-anzahl-steckbretter"
+                          type="button"
+                          onClick={() =>
+                            setAnzahlSteckbretter(
+                              Math.max(1, anzahlSteckbretter - 1)
+                            )
+                          }
+                        >
+                          -
+                        </button>
+                        <input
+                          className="text-anzahl-steckbretter"
+                          type="text"
+                          value={anzahlSteckbretter}
+                          onChange={(e) =>
+                            setAnzahlSteckbretter(e.target.value)
+                          }
+                        ></input>
+                        <button
+                          className="button-anzahl-steckbretter"
+                          type="button"
+                          onClick={() =>
+                            setAnzahlSteckbretter(anzahlSteckbretter + 1)
+                          }
+                        >
+                          +
+                        </button>
+                      </th>
+                    </tr>
+                    {anzahlSteckbretter > 1 &&
+                      renderMengeSteckbretterInputs(anzahlSteckbretter)}
+                  </tbody>
+                </table>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  className="modalButton"
+                  onClick={handleBestätigenWareneingangOrders}
+                >
+                  Bestätigen
+                </Button>
+              </Modal.Footer>
+            </Modal>
 
-          <Modal
-            show={showNotFoundOrderMessage}
-            onHide={handleCloseNotFoundOrderMessage}
-            backdrop="static"
-            keyboard={false}
-          >
-            <Modal.Header className="modalHeader" closeButton>
-              <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              Der Fertigungsauftrag {fertigungsauftragDummy} existiert nicht.
-              Bitte scannen Sie einen gültigen Fertigungsauftrag.
-            </Modal.Body>
-            <Modal.Footer>
-              <Button
-                className="modalButton"
-                onClick={handleCloseNotFoundOrderMessage}
-              >
-                Quittieren
-              </Button>
-            </Modal.Footer>
-          </Modal>
+            <Modal
+              fullscreen={fullscreen}
+              show={showWareneingangOrders}
+              onHide={handleCloseWithoutBooking}
+              backdrop="static"
+              keyboard={false}
+            >
+              <Modal.Header className="modalHeader" closeButton>
+                <Modal.Title className="modalHeader">
+                  Aktuelle Buchung: 3001 - Wareneingang
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <td>Fertigungsauftrag</td>
+                      <td>Beschichtungsart</td>
+                      <td>Beschichtungsdicke</td>
+                      <td>Lagerplatz</td>
+                      <td>Menge</td>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {wareneingangOrders.map((item, i) => (
+                      <tr key={i}>
+                        <td>{item.Auftragsnummer}</td>
+                        <td>{item.BeschichtungsArt}</td>
+                        <td>{item.BeschichtungsDicke}</td>
+                        <td>{item.Lagerplatz}</td>
+                        <td>{item.Menge}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  className="modalButton"
+                  disabled={buttonDisabled}
+                  onClick={handleQuittieren}
+                >
+                  Quittieren
+                </Button>
+              </Modal.Footer>
+            </Modal>
 
-          <Modal
-            show={showNoStorageBins}
-            onHide={handleClose}
-            backdrop="static"
-            keyboard={false}
-          >
-            <Modal.Header className="modalHeader" closeButton>
-              <Modal.Title className="modalHeader">
-                Aktuelle Buchung: 3001 - Wareneingang
-              </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              Es sind nicht genügend Lagerplätze vorhanden. Die Buchung kann
-              nicht durchgeführt werden.
-            </Modal.Body>
-          </Modal>
-        </form>
+            <Modal
+              show={showNotFoundOrderMessage}
+              onHide={handleCloseNotFoundOrderMessage}
+              backdrop="static"
+              keyboard={false}
+            >
+              <Modal.Header className="modalHeader" closeButton>
+                <Modal.Title className="modalHeader">
+                  Aktuelle Buchung: 3001 - Wareneingang
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Der Fertigungsauftrag {fertigungsauftragDummy} existiert nicht.
+                Bitte scannen Sie einen gültigen Fertigungsauftrag.
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  className="modalButton"
+                  onClick={handleCloseNotFoundOrderMessage}
+                >
+                  Quittieren
+                </Button>
+              </Modal.Footer>
+            </Modal>
+
+            <Modal
+              show={showNoStorageBins}
+              onHide={handleClose}
+              backdrop="static"
+              keyboard={false}
+            >
+              <Modal.Header className="modalHeader" closeButton>
+                <Modal.Title className="modalHeader">
+                  Aktuelle Buchung: 3001 - Wareneingang
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Es sind nicht genügend Lagerplätze vorhanden. Die Buchung kann
+                nicht durchgeführt werden.
+              </Modal.Body>
+            </Modal>
+          </form>
+        </div>
+        <div className="storage-bin">
+          <p>
+            <b>Freie Lagerplätze: {freeStorageBins}</b>
+          </p>
+          <p>
+            <b>Belegte Lagerplätze: {occupiedStorageBins}</b>
+          </p>
+        </div>
+        <div className="bookinglabel">
+          <h2>Aktuelle Buchung: 3001 - Wareneingang</h2>
+        </div>
       </div>
-      <div className="storage-bin">
-        <p>
-          <b>Freie Lagerplätze: {freeStorageBins}</b>
-        </p>
-        <p>
-          <b>Belegte Lagerplätze: {occupiedStorageBins}</b>
-        </p>
-      </div>
-    </div>
+    </>
   );
 }

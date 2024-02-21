@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 function App() {
   const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
   const [articleDB, setArticleDB] = useState([]);
+  const [arrCurrentQuantity, setArrCurrentQuantity] = useState([]);
 
   //get tblEShelfBeschichtung
   useEffect(() => {
@@ -24,6 +25,8 @@ function App() {
         );
         const results = await response.json();
         setFertigungsauftragDB(results);
+        setArrCurrentQuantity(results); //save the currentQuantity to used for the calculation of current qty minus withdrawal shown in frontend in EntnhameModal.js
+
         for (let i = 0; i < results.length; i++) {
           let fertigungsauftrag = results[i].Auftragsnummer;
           let storageBin = results[i].Lagerplatz;
@@ -122,7 +125,7 @@ function App() {
     //fetch Artikel every X second
     interval = setInterval(() => {
       fetchOrders();
-    }, 1 * 10000);
+    }, 1 * 1000);
 
     return () => {
       clearInterval(interval);
@@ -149,7 +152,7 @@ function App() {
     //fetch Artikel every X second
     interval = setInterval(() => {
       fetchArtikel();
-    }, 1 * 10000);
+    }, 1 * 1000);
 
     return () => {
       clearInterval(interval);
@@ -172,7 +175,12 @@ function App() {
         />
         <Route
           path="/Entnahme"
-          element={<Entnahme fertigungsauftragDB={fertigungsauftragDB} />}
+          element={
+            <Entnahme
+              fertigungsauftragDB={fertigungsauftragDB}
+              arrCurrentQuantity={arrCurrentQuantity}
+            />
+          }
         />
         <Route
           path="/Rueckgabe"

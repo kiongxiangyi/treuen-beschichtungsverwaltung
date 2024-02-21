@@ -10,7 +10,6 @@ export default function EntnahmeButton({
   setWithdrawnOrders,
   setShow,
   arrCurrentQuantity,
-  setWithdrawnOrdersWithQuantity,
 }) {
   const navigate = useNavigate(); //hook for navigation
 
@@ -22,11 +21,9 @@ export default function EntnahmeButton({
     formState,
     //formState: { errors },
   } = useForm();
-  
+
   const onSubmit = () => {
     console.log("arrCurrentQuantity", arrCurrentQuantity);
-    console.log("filterDB", filterDB);
-    console.log("submittedOrders", submittedOrders);
     //submitted Orders depend on Lagerplatz 0
     if (submittedOrders.length > 0) {
       let selectedOrders = [];
@@ -62,11 +59,7 @@ export default function EntnahmeButton({
         selectedOrders[0].CurrentQty = currentQuantityOfSelectedOrder.Menge;
 
         arrWithdrawnOrders.push(...selectedOrders);
-        console.log(
-          "withdrawnQuantityOfSelectedOrder",
-          withdrawnQuantityOfSelectedOrder
-        );
-        console.log("selectedOrders", selectedOrders);
+
         console.log("arrWithdrawnOrders", arrWithdrawnOrders);
         //update Auslagerung True for E-Label interface according to storage bins
         for (let i = 0; i < selectedOrders.length; i++) {

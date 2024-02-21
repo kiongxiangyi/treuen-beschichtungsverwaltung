@@ -245,6 +245,7 @@ export default function Wareneingang({ articleDB }) {
 
   const handleCloseNotFoundOrderMessage = () => {
     setShowNotFoundOrderMessage(false);
+    setFertigungsauftrag("");
   };
 
   //function for successful Wareneingang or manuell Quittieren
@@ -585,7 +586,7 @@ export default function Wareneingang({ articleDB }) {
                 if (
                   wareneingangOrders[i].Auftragsnummer ===
                     results[j].Auftragsnummer &&
-                  results[j].Bemerkung === "E-Label wurde angeklickt" &&
+                  results[j].Bemerkung === "E-Label wurde angeklickt - Wareneingang fertig" &&
                   wareneingangOrders[i].Lagerplatz === results[j].Lagerplatz
                 ) {
                   let fertigungsauftrag = wareneingangOrders[i].Auftragsnummer;

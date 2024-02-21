@@ -45,6 +45,8 @@ After installing the application, you can use it to store and retrieve coating m
 
 This process ensures efficient management of coating materials and seamless integration with SAP for accurate information retrieval.
 
+"For more detailed information, refer to the documentation in `Prozessbeschreibung.md`."
+
 ## Features
 
 - **Seamless Integration with SAP:** Treuen Beschichtungsverwaltung seamlessly integrates with SAP to retrieve accurate coating information, ensuring data consistency and reliability.

@@ -164,7 +164,8 @@ export default function EntnahmeModal({
                   results[j].Auftragsnummer ===
                     withdrawnOrders[i].Auftragsnummer && //find withdrawal order in DB
                   results[j].Auslagerung === true &&
-                  results[j].Bemerkung === "E-Label wurde angeklickt" && //check if it is set to TRUE
+                  results[j].Bemerkung ===
+                    "E-Label wurde angeklickt - Entnahme fertig" && //check if it is set to TRUE
                   withdrawnOrders[i].Lagerplatz === results[j].Lagerplatz
                 ) {
                   console.log("withdrawnOrders", withdrawnOrders);

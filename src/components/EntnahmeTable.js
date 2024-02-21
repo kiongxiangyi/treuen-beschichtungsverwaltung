@@ -2,7 +2,6 @@ import React, { useState, Fragment } from "react";
 import Table from "react-bootstrap/Table";
 import ReadOnlyRow from "./ReadOnlyRow";
 import EditableRow from "./EditableRow";
-import Feedback from "react-bootstrap/esm/Feedback";
 
 export default function EntnahmeTable({
   setSubmittedOrders,

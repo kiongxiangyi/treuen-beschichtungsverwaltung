@@ -666,6 +666,33 @@ export default function Wareneingang({ articleDB }) {
     }
   }, [showWareneingangOrders]);
 
+  // useEffect hook to perform side effects
+  useEffect(() => {
+    // Check if showCheckingSAP is true
+    if (showCheckingSAP) {
+      // If true, make a fetch request to execute the SAP script
+      fetch(`${process.env.REACT_APP_API}/exeFileRunner/runSAPScript`, {
+        method: "POST", // HTTP POST request
+        headers: {
+          "Content-Type": "application/json", // Set request header
+        },
+      })
+        // Process the response from the server
+        .then((response) => {
+          // Check if the response is okay (HTTP status code 200-299)
+          if (response.ok) {
+            console.log("SAP Script executed successfully"); // Log success message
+          } else {
+            console.error("Failed to execute SAP script"); // Log failure message
+          }
+        })
+        // Handle any errors that occur during the fetch request
+        .catch((error) => {
+          console.error("Error occurred:", error); // Log the error message
+        });
+    }
+  }, [showCheckingSAP]); // Dependency array, useEffect will re-run whenever showCheckingSAP changes
+
   return (
     <>
       <GoodsReceiptHeader />

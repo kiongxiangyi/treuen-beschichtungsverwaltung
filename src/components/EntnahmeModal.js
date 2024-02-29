@@ -261,7 +261,7 @@ export default function EntnahmeModal({
                   <td>{item.BeschichtungsDicke}</td>
                   <td>{item.Lagerplatz}</td>
                   <th>{item.Menge}</th>
-                  <td>{item.CurrentQty - item.Menge}</td>
+                  <td>{item.BestandAlt - item.Menge}</td>
                 </tr>
               ))}
             </tbody>

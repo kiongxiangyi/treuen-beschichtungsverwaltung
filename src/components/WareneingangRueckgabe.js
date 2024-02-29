@@ -3,9 +3,9 @@ import "../App.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import { toast } from "react-toastify";
-import GoodsReceiptHeader from "./GoodsReceiptHeader";
+import Header from "./Header";
 
-export default function Wareneingang({ articleDB }) {
+export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
   const [freeStorageBins, setFreeStorageBins] = useState("");
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
@@ -586,7 +586,10 @@ export default function Wareneingang({ articleDB }) {
                 if (
                   wareneingangOrders[i].Auftragsnummer ===
                     results[j].Auftragsnummer &&
-                  results[j].Bemerkung === "E-Label wurde angeklickt - Wareneingang fertig" &&
+                  (results[j].Bemerkung ===
+                    "E-Label wurde angeklickt - Wareneingang fertig" ||
+                    results[j].Bemerkung ===
+                      "E-Label wurde angeklickt - Rückgabe fertig") &&
                   wareneingangOrders[i].Lagerplatz === results[j].Lagerplatz
                 ) {
                   let fertigungsauftrag = wareneingangOrders[i].Auftragsnummer;
@@ -696,7 +699,7 @@ export default function Wareneingang({ articleDB }) {
 
   return (
     <>
-      <GoodsReceiptHeader />
+      <Header rueckgabe={rueckgabe} />
       <div className="body">
         <div className="scan-field">
           <h1>
@@ -743,7 +746,8 @@ export default function Wareneingang({ articleDB }) {
             >
               <Modal.Header className="modalHeader" closeButton>
                 <Modal.Title className="modalHeader">
-                  Aktuelle Buchung: 3001 - Wareneingang
+                  Aktuelle Buchung:{" "}
+                  {rueckgabe ? "2001 - Rückgabe" : "3001 - Wareneingang"}
                 </Modal.Title>
               </Modal.Header>
               <Modal.Body>
@@ -760,7 +764,8 @@ export default function Wareneingang({ articleDB }) {
             >
               <Modal.Header className="modalHeader" closeButton>
                 <Modal.Title className="modalHeader">
-                  Aktuelle Buchung: 3001 - Wareneingang
+                  Aktuelle Buchung:{" "}
+                  {rueckgabe ? "2001 - Rückgabe" : "3001 - Wareneingang"}
                 </Modal.Title>
               </Modal.Header>
 
@@ -883,7 +888,8 @@ export default function Wareneingang({ articleDB }) {
             >
               <Modal.Header className="modalHeader" closeButton>
                 <Modal.Title className="modalHeader">
-                  Aktuelle Buchung: 3001 - Wareneingang
+                  Aktuelle Buchung:{" "}
+                  {rueckgabe ? "2001 - Rückgabe" : "3001 - Wareneingang"}
                 </Modal.Title>
               </Modal.Header>
               <Modal.Body>
@@ -929,7 +935,8 @@ export default function Wareneingang({ articleDB }) {
             >
               <Modal.Header className="modalHeader" closeButton>
                 <Modal.Title className="modalHeader">
-                  Aktuelle Buchung: 3001 - Wareneingang
+                  Aktuelle Buchung:{" "}
+                  {rueckgabe ? "2001 - Rückgabe" : "3001 - Wareneingang"}
                 </Modal.Title>
               </Modal.Header>
               <Modal.Body>
@@ -954,7 +961,8 @@ export default function Wareneingang({ articleDB }) {
             >
               <Modal.Header className="modalHeader" closeButton>
                 <Modal.Title className="modalHeader">
-                  Aktuelle Buchung: 3001 - Wareneingang
+                  Aktuelle Buchung:{" "}
+                  {rueckgabe ? "2001 - Rückgabe" : "3001 - Wareneingang"}
                 </Modal.Title>
               </Modal.Header>
               <Modal.Body>
@@ -973,7 +981,10 @@ export default function Wareneingang({ articleDB }) {
           </p>
         </div>
         <div className="bookinglabel">
-          <h2>Aktuelle Buchung: 3001 - Wareneingang</h2>
+          <h2>
+            Aktuelle Buchung:{" "}
+            {rueckgabe ? "2001 - Rückgabe" : "3001 - Wareneingang"}
+          </h2>
         </div>
       </div>
     </>

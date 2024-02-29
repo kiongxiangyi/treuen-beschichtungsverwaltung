@@ -23,7 +23,6 @@ export default function EntnahmeButton({
   } = useForm();
 
   const onSubmit = () => {
-    console.log("arrCurrentQuantity", arrCurrentQuantity);
     //submitted Orders depend on Lagerplatz 0
     if (submittedOrders.length > 0) {
       let selectedOrders = [];
@@ -52,6 +51,15 @@ export default function EntnahmeButton({
             Auftragsnummer === submittedOrders[i].Auftragsnummer &&
             Lagerplatz === submittedOrders[i].Lagerplatz
         );
+        console.log("selectedOrders", selectedOrders);
+        console.log(
+          "withdrawnQuantityOfSelectedOrder",
+          withdrawnQuantityOfSelectedOrder
+        );
+        console.log(
+          "currentQuantityOfSelectedOrder",
+          currentQuantityOfSelectedOrder
+        );
 
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
@@ -60,7 +68,7 @@ export default function EntnahmeButton({
 
         arrWithdrawnOrders.push(...selectedOrders);
 
-        console.log("arrWithdrawnOrders", arrWithdrawnOrders);
+        //console.log("arrWithdrawnOrders", arrWithdrawnOrders);
         //update Auslagerung True for E-Label interface according to storage bins
         for (let i = 0; i < selectedOrders.length; i++) {
           let storageBin = selectedOrders[i].Lagerplatz;

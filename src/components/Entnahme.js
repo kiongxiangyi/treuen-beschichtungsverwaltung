@@ -3,7 +3,7 @@ import EntnahmeFilter from "./EntnahmeFilter";
 import EntnahmeTable from "./EntnahmeTable";
 import EntnahmeButton from "./EntnahmeButton";
 import EntnahmeModal from "./EntnahmeModal";
-import WithrawalHeader from "./WithrawalHeader";
+import Header from "./Header";
 
 export default function Entnahme({ fertigungsauftragDB, arrCurrentQuantity }) {
   const [beschichtungsart, setBeschichtungsart] = useState("");
@@ -62,47 +62,45 @@ export default function Entnahme({ fertigungsauftragDB, arrCurrentQuantity }) {
   const [maximumValueDB, setMaximumValueDB] = useState([]);
 
   return (
-    <>
-      <WithrawalHeader />
-      <div className="body">
-        <EntnahmeFilter
-          fertigungsauftragDB={fertigungsauftragDB}
-          setFilterDB={setFilterDB}
-          beschichtungsart={beschichtungsart}
-          beschichtungsdicke={beschichtungsdicke}
-          setBeschichtungsart={setBeschichtungsart}
-          setBeschichtungsdicke={setBeschichtungsdicke}
-          beschichtungsartOptions={beschichtungsartOptions}
-          beschichtungsdickeOptions={beschichtungsdickeOptions}
-          setMaximumValueDB={setMaximumValueDB}
-        />
-        <EntnahmeTable
-          filterDB={filterDB}
-          setFilterDB={setFilterDB}
-          setSubmittedOrders={setSubmittedOrders}
-          maximumValueDB={maximumValueDB}
-        />
+    <div className="body">
+      <Header rueckgabe={true} />
+      <EntnahmeFilter
+        fertigungsauftragDB={fertigungsauftragDB}
+        setFilterDB={setFilterDB}
+        beschichtungsart={beschichtungsart}
+        beschichtungsdicke={beschichtungsdicke}
+        setBeschichtungsart={setBeschichtungsart}
+        setBeschichtungsdicke={setBeschichtungsdicke}
+        beschichtungsartOptions={beschichtungsartOptions}
+        beschichtungsdickeOptions={beschichtungsdickeOptions}
+        setMaximumValueDB={setMaximumValueDB}
+      />
+      <EntnahmeTable
+        filterDB={filterDB}
+        setFilterDB={setFilterDB}
+        setSubmittedOrders={setSubmittedOrders}
+        maximumValueDB={maximumValueDB}
+      />
 
-        <EntnahmeButton
-          fertigungsauftragDB={fertigungsauftragDB}
-          submittedOrders={submittedOrders}
-          filterDB={filterDB}
-          setWithdrawnOrders={setWithdrawnOrders}
-          setShow={setShow}
-          arrCurrentQuantity={arrCurrentQuantity}
-        />
+      <EntnahmeButton
+        fertigungsauftragDB={fertigungsauftragDB}
+        submittedOrders={submittedOrders}
+        filterDB={filterDB}
+        setWithdrawnOrders={setWithdrawnOrders}
+        setShow={setShow}
+        arrCurrentQuantity={arrCurrentQuantity}
+      />
 
-        <EntnahmeModal
-          setBeschichtungsart={setBeschichtungsart}
-          setBeschichtungsdicke={setBeschichtungsdicke}
-          setFilterDB={setFilterDB}
-          setSubmittedOrders={setSubmittedOrders}
-          setShow={setShow}
-          show={show}
-          withdrawnOrders={withdrawnOrders}
-          setWithdrawnOrders={setWithdrawnOrders}
-        />
-      </div>
-    </>
+      <EntnahmeModal
+        setBeschichtungsart={setBeschichtungsart}
+        setBeschichtungsdicke={setBeschichtungsdicke}
+        setFilterDB={setFilterDB}
+        setSubmittedOrders={setSubmittedOrders}
+        setShow={setShow}
+        show={show}
+        withdrawnOrders={withdrawnOrders}
+        setWithdrawnOrders={setWithdrawnOrders}
+      />
+    </div>
   );
 }

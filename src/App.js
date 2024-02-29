@@ -1,11 +1,8 @@
 import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Header from "./components/GoodsReceiptHeader";
-import Wareneingang from "./components/Wareneingang";
-import Rueckgabe from "./components/Rueckgabe";
+import WareneingangRueckgabe from "./components/WareneingangRueckgabe";
 import Entnahme from "./components/Entnahme";
-import GoodsReceiptHomepage from "./components/GoodsReceiptHomepage";
-import WithdrawalHomepage from "./components/WithdrawalHomepage";
+import Homepage from "./components/Homepage";
 import { Route, Routes } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
@@ -162,15 +159,15 @@ function App() {
   return (
     <div>
       <Routes>
-        <Route path="/Wareneingangseite" element={<GoodsReceiptHomepage />} />
-        <Route path="/Entnahmeseite" element={<WithdrawalHomepage />} />
+        <Route
+          path="/Wareneingangsseite"
+          element={<Homepage rueckgabe={false} />}
+        />
+        <Route path="/Entnahmeseite" element={<Homepage rueckgabe={true} />} />
         <Route
           path="/Wareneingang"
           element={
-            <Wareneingang
-              fertigungsauftragDB={fertigungsauftragDB}
-              articleDB={articleDB}
-            />
+            <WareneingangRueckgabe articleDB={articleDB} rueckgabe={false} />
           }
         />
         <Route
@@ -185,10 +182,7 @@ function App() {
         <Route
           path="/Rueckgabe"
           element={
-            <Rueckgabe
-              fertigungsauftragDB={fertigungsauftragDB}
-              articleDB={articleDB}
-            />
+            <WareneingangRueckgabe articleDB={articleDB} rueckgabe={true} />
           }
         />
       </Routes>

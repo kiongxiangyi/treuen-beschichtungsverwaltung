@@ -28,7 +28,6 @@ export default function EntnahmeModal({
     }
 
     for (let i = 0; i < orders.length; i++) {
-      console.log("orders", orders);
       //loop withdrawn orders
       let fertigungsauftrag = orders[i].Auftragsnummer; // get order number
       let withdrawnQuantity = orders[i].Menge;
@@ -261,7 +260,7 @@ export default function EntnahmeModal({
                   <td>{item.BeschichtungsDicke}</td>
                   <td>{item.Lagerplatz}</td>
                   <th>{item.Menge}</th>
-                  <td>{item.BestandAlt - item.Menge}</td>
+                  <td>{item.BestandNeu - item.Menge}</td>
                 </tr>
               ))}
             </tbody>

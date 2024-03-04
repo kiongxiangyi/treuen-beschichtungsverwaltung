@@ -18,10 +18,12 @@ export default function EntnahmeTable({
     BeschichtungsDicke: "",
     Lagerplatz: "",
     Menge: "",
+    BestandNeu: "",
   });
 
   //when click to edit
   const handleEditQuantityClick = (event, item) => {
+    console.log(item);
     event.preventDefault();
     event.stopPropagation(); //prevent click to activate checkbox
 
@@ -33,6 +35,7 @@ export default function EntnahmeTable({
       BeschichtungsDicke: item.BeschichtungsDicke,
       Lagerplatz: item.Lagerplatz,
       Menge: item.Menge,
+      BestandNeu: item.BestandNeu,
     };
 
     setEditQuantity(formValues); //show the original quantity
@@ -62,6 +65,7 @@ export default function EntnahmeTable({
       BeschichtungsDicke: editQuantity.BeschichtungsDicke,
       Lagerplatz: editQuantity.Lagerplatz,
       Menge: editQuantity.Menge,
+      BestandNeu: editQuantity.Menge, //change the BestandNeu to widthrawal qty to show in the withdrawal table after save quantity
     };
 
     const newQuantity = [...filterDB];

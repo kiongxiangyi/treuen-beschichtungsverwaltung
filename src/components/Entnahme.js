@@ -5,7 +5,7 @@ import EntnahmeButton from "./EntnahmeButton";
 import EntnahmeModal from "./EntnahmeModal";
 import Header from "./Header";
 
-export default function Entnahme({ fertigungsauftragDB, arrCurrentQuantity }) {
+export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsart, setBeschichtungsart] = useState("");
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filterDB, setFilterDB] = useState([]);
@@ -88,7 +88,7 @@ export default function Entnahme({ fertigungsauftragDB, arrCurrentQuantity }) {
         filterDB={filterDB}
         setWithdrawnOrders={setWithdrawnOrders}
         setShow={setShow}
-        arrCurrentQuantity={arrCurrentQuantity}
+        //arrCurrentQuantity={arrCurrentQuantity}
       />
 
       <EntnahmeModal

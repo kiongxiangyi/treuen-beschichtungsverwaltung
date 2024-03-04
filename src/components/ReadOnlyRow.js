@@ -8,7 +8,7 @@ const ReadOnlyRow = ({ item, handleEditQuantityClick }) => {
       <td>{item.BeschichtungsArt}</td>
       <td>{item.BeschichtungsDicke}</td>
       <td>{item.Lagerplatz}</td>
-      <td>{item.Menge}</td>
+      <td>{item.BestandNeu}</td>
       <td>
         <Button
           className="actionBtn"

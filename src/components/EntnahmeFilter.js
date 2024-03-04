@@ -30,7 +30,7 @@ export default function EntnahmeFilter({
     if (beschichtungsart === "") {
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
-          element.Menge > 0 &&
+          element.BestandNeu > 0 &&
           element.Lagerplatz !== "0" &&
           element.BeschichtungsArt !== "" &&
           element.BeschichtungsDicke !== ""
@@ -38,7 +38,7 @@ export default function EntnahmeFilter({
     } else if (beschichtungsdicke === "") {
       filteredValue = fertigungsauftragDB.filter(
         (element) =>
-          element.Menge > 0 &&
+          element.BestandNeu > 0 &&
           element.Lagerplatz !== "0" &&
           element.BeschichtungsArt !== "" &&
           element.BeschichtungsDicke !== ""
@@ -48,7 +48,7 @@ export default function EntnahmeFilter({
         (element) =>
           element.BeschichtungsArt === beschichtungsart &&
           element.BeschichtungsDicke === beschichtungsdicke &&
-          element.Menge > 0 &&
+          element.BestandNeu > 0 &&
           element.Lagerplatz !== "0"
       );
     }

@@ -46,25 +46,21 @@ export default function EntnahmeButton({
             Lagerplatz === submittedOrders[i].Lagerplatz
         );
 
-        currentQuantityOfSelectedOrder = arrCurrentQuantity.find(
+        /* currentQuantityOfSelectedOrder = arrCurrentQuantity.find(
           ({ Auftragsnummer, Lagerplatz }) =>
             Auftragsnummer === submittedOrders[i].Auftragsnummer &&
             Lagerplatz === submittedOrders[i].Lagerplatz
-        );
+        ); */
         console.log("selectedOrders", selectedOrders);
         console.log(
           "withdrawnQuantityOfSelectedOrder",
           withdrawnQuantityOfSelectedOrder
         );
-        console.log(
-          "currentQuantityOfSelectedOrder",
-          currentQuantityOfSelectedOrder
-        );
 
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
         selectedOrders[0].Menge = withdrawnQuantityOfSelectedOrder.Menge; //update the withdrawal quantity on the booking summary page, selectedOrders is in array, so need to set the first array and change the Menge
-        selectedOrders[0].CurrentQty = currentQuantityOfSelectedOrder.Menge;
+        //selectedOrders[0].CurrentQty = currentQuantityOfSelectedOrder.Menge;
 
         arrWithdrawnOrders.push(...selectedOrders);
 

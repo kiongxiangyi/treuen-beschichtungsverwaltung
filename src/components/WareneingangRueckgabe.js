@@ -36,8 +36,6 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
   // let quittiertWareneingangOrders = [];
   const [showNoStorageBins, setShowNoStorageBins] = useState(false);
 
-  let bReturn = false;
-
   //get storage bins data
   const fetchFreeStorageBins = () => {
     fetch(`${process.env.REACT_APP_API}/LagerPlatz/freeStorageBins`)
@@ -271,7 +269,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
             body: JSON.stringify({
               fertigungsauftrag,
               storageBin,
-              bReturn,
+              rueckgabe,
             }),
           }
         )
@@ -522,7 +520,6 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
           .then((res) => res.json())
           .catch((err) => console.log(err));
 
-        let bReturn = false; //false for Wareneingang, true for Rückgabe
         //Add more data in tblEShelfBeschichtung and write in DB Bemerkung: "E-Label leuchtet"
         fetch(
           `${process.env.REACT_APP_API}/Auftragsnummer/AddMoreStorageBins`,
@@ -541,7 +538,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
               //quantity,
               anzahlSteckbretter,
               mengeSteckbretter,
-              bReturn,
+              rueckgabe,
             }),
           }
         )
@@ -609,7 +606,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
                       body: JSON.stringify({
                         fertigungsauftrag,
                         storageBin,
-                        bReturn,
+                        rueckgabe,
                       }),
                     }
                   )

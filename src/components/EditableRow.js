@@ -16,7 +16,7 @@ const EditableRow = ({
       currentValue.Auftragsnummer === item.Auftragsnummer
   );
   //set the maxQuantity from the array
-  const maxQuantity = maxQuantityFromDisplayedOrders[0].Menge;
+  const maxQuantity = maxQuantityFromDisplayedOrders[0].BestandNeu;
   const minQuantity = 1;
   // Handle input change, limiting to maximum value
   const handleInputChange = (event) => {
@@ -50,8 +50,8 @@ const EditableRow = ({
           pattern="[0-9]+"
           min={minQuantity}
           max={maxQuantity}
-          placeholder={item.Menge}
-          value={editQuantity.Menge}
+          placeholder={item.BestandNeu}
+          //value={editQuantity.Menge}
           onChange={handleInputChange}
           onClick={(event) => event.stopPropagation()} //prevent error because of the activation of rowclick when clicking in the box to change quantity
         ></input>

@@ -85,51 +85,95 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
   }, []);
 
   const [anzahlSteckbretter, setAnzahlSteckbretter] = useState(1);
-
   const [mengeSteckbretter, setMengeSteckbretter] = useState(() => {
-    return Array.from({ length: anzahlSteckbretter }, () => 0);
+    if (anzahlSteckbretter === 1) {
+      return [quantity];
+    } else {
+      const defaultValues = new Array(anzahlSteckbretter).fill(0);
+      defaultValues[0] = quantity;
+      return defaultValues;
+    }
   });
 
   useEffect(() => {
-    //if anzahlSteckbretter change back to 1, need to setMengeSteckbretter again
     if (anzahlSteckbretter === 1) {
       setMengeSteckbretter([quantity]);
     } else {
-      // Update `mengeSteckbretter` whenever `anzahlSteckbretter` changes
-      setMengeSteckbretter(Array.from({ length: anzahlSteckbretter }, () => 0));
+      const defaultValues = new Array(anzahlSteckbretter).fill(0);
+      defaultValues[0] = quantity;
+      setMengeSteckbretter(defaultValues);
     }
-  }, [anzahlSteckbretter]);
+  }, [anzahlSteckbretter, quantity]);
 
-  // Function to handle change in quantity of a specific Steckbretter
   const handleChangeMenge = (value, index) => {
-    const newMengeSteckbretter = [...mengeSteckbretter];
-    newMengeSteckbretter[index] = parseInt(value) || 0;
-    setMengeSteckbretter(newMengeSteckbretter);
-  };
+    const newValue = parseInt(value) || 0;
+    const remainingQuantity = quantity - newValue + mengeSteckbretter[index];
 
-  // Function to decrease the quantity of a specific Steckbretter
+    if (remainingQuantity >= 0) {
+      const newMengeSteckbretter = [...mengeSteckbretter];
+      newMengeSteckbretter[index] = newValue;
+      setMengeSteckbretter(newMengeSteckbretter);
+      // Automatically adjust the first mengeSteckbretter
+      if (index !== 0) {
+        const diff = newValue - mengeSteckbretter[0];
+        newMengeSteckbretter[0] -= diff;
+        setMengeSteckbretter(newMengeSteckbretter);
+      }
+    }
+  };
   const decMengeSteckbretter = (index) => {
     const newMengeSteckbretter = [...mengeSteckbretter];
     if (newMengeSteckbretter[index] > 0) {
       newMengeSteckbretter[index]--;
       setMengeSteckbretter(newMengeSteckbretter);
+      // Automatically adjust the first mengeSteckbretter
+      if (index !== 0) {
+        newMengeSteckbretter[0]++;
+        setMengeSteckbretter(newMengeSteckbretter);
+      }
     }
   };
 
-  // Function to increase the quantity of a specific Steckbretter
   const incMengeSteckbretter = (index) => {
     const newMengeSteckbretter = [...mengeSteckbretter];
-    newMengeSteckbretter[index]++;
-    setMengeSteckbretter(newMengeSteckbretter);
+    const currentQuantity = mengeSteckbretter.reduce(
+      (acc, curr) => acc + curr,
+      0
+    );
+    const remainingQuantity = quantity - currentQuantity;
+
+    // Check if there is enough remaining quantity to increase the current mengeSteckbretter
+    if (remainingQuantity > 0 || newMengeSteckbretter[index] < quantity) {
+      newMengeSteckbretter[index]++;
+      setMengeSteckbretter(newMengeSteckbretter);
+
+      if (index !== 0) {
+        if (currentQuantity === quantity) {
+          newMengeSteckbretter[0]--;
+          setMengeSteckbretter(newMengeSteckbretter);
+        }
+      }
+      // Automatically adjust the next mengeSteckbretter if the current one reaches its maximum
+      for (let i = index + 1; i < newMengeSteckbretter.length; i++) {
+        if (newMengeSteckbretter[i] > 0) {
+          newMengeSteckbretter[i]--;
+          setMengeSteckbretter(newMengeSteckbretter);
+          break;
+        }
+      }
+    }
   };
 
-  // JSX to render the input fields for Menge Steckbretter
   const renderMengeSteckbretterInputs = () => {
+    const newMengeSteckbretter = [...mengeSteckbretter];
+    const remainingQuantity =
+      quantity - mengeSteckbretter.reduce((acc, curr) => acc + curr, 0);
+
     const inputs = [];
     for (let i = 0; i < anzahlSteckbretter; i++) {
       inputs.push(
         <tr key={`steckbretter-${i}`}>
-          <td className="tabledata">{`Menge Steckbretter ${i + 1}`}</td>
+          <td className="tabledata">{`Menge Steckbrett ${i + 1}`}</td>
           <th className="tabledata">
             <button
               className="button-anzahl-steckbretter"
@@ -140,9 +184,11 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
             </button>
             <input
               className="text-anzahl-steckbretter"
-              type="text"
+              type="number"
               value={mengeSteckbretter[i]}
+              max={quantity}
               onChange={(e) => handleChangeMenge(e.target.value, i)}
+              onBlur={(e) => handleBlur(e, i)}
             />
             <button
               className="button-anzahl-steckbretter"
@@ -156,6 +202,21 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
       );
     }
     return inputs;
+  };
+
+  const handleBlur = (e, index) => {
+    const newValue = parseInt(e.target.value) || 0;
+    const maxAllowedValue =
+      quantity -
+      mengeSteckbretter
+        .filter((_, idx) => idx !== index)
+        .reduce((acc, curr) => acc + curr, 0);
+
+    if (newValue > maxAllowedValue) {
+      const newMengeSteckbretter = [...mengeSteckbretter];
+      newMengeSteckbretter[index] = maxAllowedValue;
+      setMengeSteckbretter(newMengeSteckbretter);
+    }
   };
 
   //get beschichtungsdicke option from backend when beschichtungsart in frontend being selected
@@ -825,7 +886,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
                       </th>
                     </tr>
                     <tr>
-                      <td className="tabledata">Menge</td>
+                      <td className="tabledata">Gesamtmenge</td>
                       <th className="tabledata">{quantity}</th>
                     </tr>
                     <tr>
@@ -861,8 +922,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
                         </button>
                       </th>
                     </tr>
-                    {anzahlSteckbretter > 1 &&
-                      renderMengeSteckbretterInputs(anzahlSteckbretter)}
+                    {anzahlSteckbretter > 0 && renderMengeSteckbretterInputs()}
                   </tbody>
                 </table>
               </Modal.Body>

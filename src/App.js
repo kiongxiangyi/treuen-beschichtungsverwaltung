@@ -6,11 +6,12 @@ import Homepage from "./components/Homepage";
 import { Route, Routes } from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import Defaultpage from "./components/DefaultPage";
 
 function App() {
   const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
   const [articleDB, setArticleDB] = useState([]);
- //const [arrCurrentQuantity, setArrCurrentQuantity] = useState([]);
+  //const [arrCurrentQuantity, setArrCurrentQuantity] = useState([]);
 
   //get tblEShelfBeschichtung
   useEffect(() => {
@@ -159,6 +160,7 @@ function App() {
   return (
     <div>
       <Routes>
+        <Route path="/" element={<Defaultpage />} />
         <Route
           path="/Wareneingangsseite"
           element={<Homepage rueckgabe={false} />}

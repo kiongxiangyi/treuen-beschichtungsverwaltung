@@ -214,7 +214,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
               className="text-anzahl-steckbretter"
               type="tel" //number for IOS
               //pattern="[0-9]*"
-              inputmode="numeric" //hidden calculation symbol
+              inputMode="numeric" //hidden calculation symbol
               value={mengeSteckbretter[i]} // Display current quantity
               min={0}
               max={totalQuantity} // Maximum allowed quantity
@@ -569,73 +569,91 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
     };
   }, []);
 
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  const handleYes = () => {
+    handleBestätigenWareneingangOrders();
+    setShowConfirmation(false);
+  };
+
+  const handleNo = () => {
+    setShowConfirmation(false);
+  };
+
+  const checkTotalQuantityOfOrder = () => {
+    const wareneingangQty = mengeSteckbretter.reduce(
+      (acc, curr) => acc + curr,
+      0
+    );
+
+    //if no more storage bins available
+    if (freeStorageBins < anzahlSteckbretter) {
+      setShowNoStorageBins(true); //show message no more storage bins
+      setShowSAPchecked(false); //close current message box
+    } else if (
+      //check if all field are selected
+      wareneingangBeschichtungsart === "" ||
+      wareneingangBeschichtungsdicke === "" ||
+      anzahlSteckbretter === ""
+    ) {
+      console.log("Bitte alle Felder ausfüllen!");
+      toast.error("Bitte alle Felder ausfüllen!");
+    } else if (wareneingangQty !== totalQuantity) {
+      //check if total qty
+      setShowConfirmation(true);
+    } else {
+      handleBestätigenWareneingangOrders();
+    }
+  };
+
   //Step 3: After select the number of Steckbretter, show order
   const handleBestätigenWareneingangOrders = async () => {
     try {
-      //if no more storage bins available
-      if (freeStorageBins < anzahlSteckbretter) {
-        setShowNoStorageBins(true); //show message no more storage bins
-        setShowSAPchecked(false); //close current message box
-      } else if (
-        //make sure all the 3 infos are selected
-        wareneingangBeschichtungsart &&
-        wareneingangBeschichtungsdicke &&
-        anzahlSteckbretter !== ""
-      ) {
-        //assign storage bins
-        await fetch(
-          `${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`,
-          {
-            method: "PUT",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
+      //assign storage bins
+      await fetch(`${process.env.REACT_APP_API}/LagerPlatz/assignStorageBin`, {
+        method: "PUT",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
 
-            body: JSON.stringify({
-              fertigungsauftrag,
-              //quantity,
-              anzahlSteckbretter,
-              mengeSteckbretter,
-            }),
-          }
-        )
-          .then((res) => res.json())
-          .catch((err) => console.log(err));
+        body: JSON.stringify({
+          fertigungsauftrag,
+          //quantity,
+          anzahlSteckbretter,
+          mengeSteckbretter,
+        }),
+      })
+        .then((res) => res.json())
+        .catch((err) => console.log(err));
 
-        //Add more data in tblEShelfBeschichtung and write in DB Bemerkung: "E-Label leuchtet"
-        fetch(
-          `${process.env.REACT_APP_API}/Auftragsnummer/AddMoreStorageBins`,
-          {
-            method: "POST",
-            headers: {
-              Accept: "application/json",
-              "Content-Type": "application/json",
-            },
+      //Add more data in tblEShelfBeschichtung and write in DB Bemerkung: "E-Label leuchtet"
+      fetch(`${process.env.REACT_APP_API}/Auftragsnummer/AddMoreStorageBins`, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
 
-            body: JSON.stringify({
-              fertigungsauftrag,
-              wareneingangBeschichtungsart,
-              wareneingangBeschichtungsdicke,
-              beschichtungsText,
-              //quantity,
-              anzahlSteckbretter,
-              mengeSteckbretter,
-              rueckgabe,
-            }),
-          }
-        )
-          .then((res) => res.json())
-          .then((data) => {
-            setWareneingangOrders(data); //get the results from backend of all the data of the order
-          })
-          .catch((err) => console.log(err));
+        body: JSON.stringify({
+          fertigungsauftrag,
+          wareneingangBeschichtungsart,
+          wareneingangBeschichtungsdicke,
+          beschichtungsText,
+          //quantity,
+          anzahlSteckbretter,
+          mengeSteckbretter,
+          rueckgabe,
+        }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          setWareneingangOrders(data); //get the results from backend of all the data of the order
+        })
+        .catch((err) => console.log(err));
 
-        setShowSAPchecked(false); //close current message box
-        setShowWareneingangOrders(true); //show next message box
-      } else {
-        toast.error("Bitte alle Felder ausfüllen!");
-      }
+      setShowSAPchecked(false); //close current message box
+      setShowWareneingangOrders(true); //show next message box
 
       setAnzahlSteckbretter(1); //reset
       setWareneingangBeschichtungsart(""); //reset
@@ -908,7 +926,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
                       </th>
                     </tr>
                     <tr>
-                      <td className="tabledata">Gesamtmenge</td>
+                      <td className="tabledata">Gesamtmenge FA</td>
                       <th className="tabledata">{totalQuantity}</th>
                     </tr>
                     <tr>
@@ -951,9 +969,36 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
               <Modal.Footer>
                 <Button
                   className="modalButton"
-                  onClick={handleBestätigenWareneingangOrders}
+                  onClick={checkTotalQuantityOfOrder}
                 >
                   Bestätigen
+                </Button>
+              </Modal.Footer>
+            </Modal>
+
+            <Modal
+              show={showConfirmation}
+              backdrop="static"
+              keyboard={false}
+              onHide={handleNo}
+              size="lg"
+            >
+              <Modal.Header className="modalHeader" closeButton>
+                <Modal.Title className="modalHeader">
+                  Aktuelle Buchung:{" "}
+                  {rueckgabe ? "2001 - Rückgabe" : "3001 - Wareneingang"}
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                Die eingegebene Menge entspricht nicht der Gesamtmenge. Möchten
+                Sie dennoch fortfahren?
+              </Modal.Body>
+              <Modal.Footer>
+                <Button className="modalButton" onClick={handleNo}>
+                  Nein
+                </Button>
+                <Button className="modalButton" onClick={handleYes}>
+                  Ja
                 </Button>
               </Modal.Footer>
             </Modal>

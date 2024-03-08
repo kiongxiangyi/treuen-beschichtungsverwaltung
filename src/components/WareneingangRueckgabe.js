@@ -77,11 +77,19 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
       });
   };
 
-  //run one time in page to get actual status in tblLagerplatz and tblBeschichtungKriterien
+  //keep running to get actual status in tblLagerplatz and tblBeschichtungKriterien
   useEffect(() => {
     fetchFreeStorageBins();
     fetchOccupiedStorageBins();
     fetchBeschichtungKriterien();
+
+    const intervalId = setInterval(() => {
+      fetchFreeStorageBins();
+      fetchOccupiedStorageBins();
+      fetchBeschichtungKriterien();
+    }, 1000); // Poll every sec
+
+    return () => clearInterval(intervalId);
   }, []);
 
   // State variables to manage the number of items and their quantities
@@ -117,6 +125,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
       (acc, curr) => acc + curr,
       0
     ); // Calculate current total quantity
+
     const remainingQuantity =
       totalQuantity -
       currentTotalQuantity +
@@ -290,6 +299,9 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
         setShowCheckingSAP(false);
         setShowSAPchecked(false);
         setFertigungsauftrag("");
+        setAnzahlSteckbretter(1);
+        setWareneingangBeschichtungsart("");
+        setWareneingangBeschichtungsdicke("");
       })
       .catch((err) => console.log(err));
   };
@@ -586,6 +598,13 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
       0
     );
 
+    // Check if all elements in mengeSteckbretter are non-zero
+    if (!mengeSteckbretter.every((quantity) => quantity !== 0)) {
+      console.log("Menge 0 ist nicht erlaubt!");
+      toast.error("Menge 0 ist nicht erlaubt!");
+      return; // Stop further execution
+    }
+
     //if no more storage bins available
     if (freeStorageBins < anzahlSteckbretter) {
       setShowNoStorageBins(true); //show message no more storage bins
@@ -648,6 +667,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
       })
         .then((res) => res.json())
         .then((data) => {
+          console.log(data);
           setWareneingangOrders(data); //get the results from backend of all the data of the order
         })
         .catch((err) => console.log(err));
@@ -945,18 +965,32 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
                         </button>
                         <input
                           className="text-anzahl-steckbretter"
-                          type="text"
+                          type="tel"
+                          max={freeStorageBins}
                           value={anzahlSteckbretter}
-                          onChange={(e) =>
-                            setAnzahlSteckbretter(e.target.value)
-                          }
-                        ></input>
+                          onChange={(e) => {
+                            // Convert the new input value to an integer
+                            const newValue = parseInt(e.target.value);
+
+                            // Check if the parsed value is a valid number and it does not exceed the maximum limit
+                            if (
+                              !isNaN(newValue) &&
+                              newValue <= freeStorageBins //anzahl Steckbretter not more than free storage bins
+                            ) {
+                              // Update the state with the new value
+                              setAnzahlSteckbretter(newValue);
+                            }
+                          }}
+                        />
                         <button
                           className="button-anzahl-steckbretter"
                           type="button"
-                          onClick={() =>
-                            setAnzahlSteckbretter(anzahlSteckbretter + 1)
-                          }
+                          onClick={() => {
+                            const newValue = anzahlSteckbretter + 1;
+                            if (newValue <= freeStorageBins) {
+                              setAnzahlSteckbretter(newValue);
+                            }
+                          }}
                         >
                           +
                         </button>

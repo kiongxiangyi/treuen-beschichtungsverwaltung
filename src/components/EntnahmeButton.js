@@ -59,7 +59,7 @@ export default function EntnahmeButton({
 
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
-        selectedOrders[0].Menge = withdrawnQuantityOfSelectedOrder.Menge; //update the withdrawal quantity on the booking summary page, selectedOrders is in array, so need to set the first array and change the Menge
+        selectedOrders[0].Menge = withdrawnQuantityOfSelectedOrder.BestandNeu; //update the withdrawal quantity on the booking summary page, selectedOrders is in array, so need to set the first array and change the Menge
         //selectedOrders[0].CurrentQty = currentQuantityOfSelectedOrder.Menge;
 
         arrWithdrawnOrders.push(...selectedOrders);
@@ -96,8 +96,8 @@ export default function EntnahmeButton({
   };
 
   //jump to Wareneingang
-  const handleWareneingang = (event) => {
-    navigate("/Wareneingang");
+  const handleReturn = (event) => {
+    navigate("/Rueckgabe");
   };
 
   //reset form tutorial https://react-hook-form.com/api/useform/reset/
@@ -121,7 +121,7 @@ export default function EntnahmeButton({
       <Button
         variant="outline-secondary"
         className="modalButton"
-        onClick={handleWareneingang}
+        onClick={handleReturn}
       >
         Rückgabe
       </Button>

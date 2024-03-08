@@ -20,6 +20,8 @@ export default function EntnahmeModal({
   let quittiertWithdrawnOrders = [];
 
   const handleQuittieren = async () => {
+    selectAllCheckbox[0].checked = false; //uncheck AllSelect
+    setShow(false); //close message box
     let orders;
     if (withdrawnOrders.length === 0) {
       orders = quittiertWithdrawnOrders;
@@ -97,10 +99,7 @@ export default function EntnahmeModal({
     }
 
     setButtonDisabled(true); //reset button to disabled
-    setShow(false); //close message box
     setWithdrawnOrders([]); //reset previous withdrawals record
-
-    selectAllCheckbox[0].checked = false; //uncheck AllSelect
   };
 
   //if close button, nothing happen, reset everything, close message box

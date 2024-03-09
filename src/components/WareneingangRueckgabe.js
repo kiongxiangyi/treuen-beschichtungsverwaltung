@@ -92,162 +92,114 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
     return () => clearInterval(intervalId);
   }, []);
 
-  // State variables to manage the number of items and their quantities
-  const [anzahlSteckbretter, setAnzahlSteckbretter] = useState(1); // Number of items
+  const [anzahlSteckbretter, setAnzahlSteckbretter] = useState(1);
   const [mengeSteckbretter, setMengeSteckbretter] = useState(() => {
-    // Quantities of items
-    // Initialize quantities based on the number of items
     if (anzahlSteckbretter === 1) {
-      return [totalQuantity]; // Single item, set its quantity
+      return [totalQuantity];
     } else {
-      const defaultValues = new Array(anzahlSteckbretter).fill(0); // Multiple items, initialize quantities with 0
-      defaultValues[0] = totalQuantity; // Set the quantity for the first item
+      const defaultValues = new Array(anzahlSteckbretter).fill(0);
+      defaultValues[0] = totalQuantity;
       return defaultValues;
     }
   });
-
-  // Effect to handle changes in the number of items or their quantity
   useEffect(() => {
-    // Update quantities based on the number of items and their quantity
-    if (anzahlSteckbretter === 1) {
-      setMengeSteckbretter([totalQuantity]); // Update quantity for a single item
-    } else {
-      const defaultValues = new Array(anzahlSteckbretter).fill(0); // Initialize quantities for multiple items
-      defaultValues[0] = totalQuantity; // Set the quantity for the first item
-      setMengeSteckbretter(defaultValues); // Update quantities for all items
-    }
-  }, [anzahlSteckbretter, totalQuantity]); // Dependencies for the effect
+    const defaultValues = new Array(anzahlSteckbretter).fill(0);
+    defaultValues[0] = totalQuantity;
+    setMengeSteckbretter(defaultValues);
+  }, [anzahlSteckbretter, totalQuantity]);
 
-  // Function to handle change in quantity of an item
   const handleChangeMenge = (value, index) => {
-    let newValue = parseInt(value) || 0; // Convert input value to integer or set it to 0 if not a valid number
-    const currentTotalQuantity = mengeSteckbretter.reduce(
-      (acc, curr) => acc + curr,
-      0
-    ); // Calculate current total quantity
-
-    const remainingQuantity =
-      totalQuantity -
-      currentTotalQuantity +
-      mengeSteckbretter[index] -
-      newValue; // Calculate remaining quantity after change
-
-    if (remainingQuantity >= 0) {
-      // Check if remaining quantity is non-negative
-      const newMengeSteckbretter = [...mengeSteckbretter]; // Copy current quantities
-      newMengeSteckbretter[index] = newValue; // Update quantity for the specified item
-
-      // Adjust the quantity of the first item if not the first item being modified
-      if (index !== 0) {
-        const diff = mengeSteckbretter[index] - newValue; // Calculate the difference in quantity
-        newMengeSteckbretter[0] += diff; // Adjust the quantity of the first item
-      }
-
-      setMengeSteckbretter(newMengeSteckbretter); // Update quantities
-    }
+    let newValue = parseInt(value, 10) || 0;
+    if (newValue < 0 || newValue > totalQuantity) return; // Prevent invalid quantity
+    const newMengeSteckbretter = [...mengeSteckbretter];
+    newMengeSteckbretter[index] = newValue;
+    adjustQuantitiesAfterChange(newMengeSteckbretter, index);
+    setMengeSteckbretter(newMengeSteckbretter);
   };
-
-  // Function to decrease the quantity of an item
   const decMengeSteckbretter = (index) => {
-    const newMengeSteckbretter = [...mengeSteckbretter]; // Copy current quantities
-
+    const newMengeSteckbretter = [...mengeSteckbretter];
     if (newMengeSteckbretter[index] > 0) {
-      // Check if quantity is positive
-      newMengeSteckbretter[index]--; // Decrease quantity of the specified item
-      setMengeSteckbretter(newMengeSteckbretter); // Update quantities
-
-      // Automatically adjust the quantity of the first item if not the first item being modified
-      /* if (index !== 0) {
-        newMengeSteckbretter[0]++; // Increase the quantity of the first item
-        setMengeSteckbretter(newMengeSteckbretter); // Update quantities
-      } */
+      newMengeSteckbretter[index]--;
+      adjustQuantitiesAfterChange(newMengeSteckbretter, index);
+      setMengeSteckbretter(newMengeSteckbretter);
     }
   };
-
-  // Function to increase the quantity of an item
   const incMengeSteckbretter = (index) => {
-    const newMengeSteckbretter = [...mengeSteckbretter]; // Copy current quantities
-    const currentQuantity = mengeSteckbretter.reduce(
-      (acc, curr) => acc + curr,
-      0
-    ); // Calculate total current quantity
-    const remainingQuantity = totalQuantity - currentQuantity; // Calculate remaining quantity available for increase
-
-    // Check if there is enough remaining quantity to increase the current item's quantity
-    if (remainingQuantity > 0 || newMengeSteckbretter[index] < totalQuantity) {
-      newMengeSteckbretter[index]++; // Increase quantity of the specified item
-      setMengeSteckbretter(newMengeSteckbretter); // Update quantities
-
-      // Automatically adjust the quantity of the first item if not the first item being modified
-      if (index !== 0) {
-        if (currentQuantity === totalQuantity) {
-          //make sure the total quantity always be considered
-          newMengeSteckbretter[0]--; // Decrease the quantity of the first item if total quantity is already at maximum
-          setMengeSteckbretter(newMengeSteckbretter); // Update quantities
+    const newMengeSteckbretter = [...mengeSteckbretter];
+    newMengeSteckbretter[index]++;
+    adjustQuantitiesAfterChange(newMengeSteckbretter, index);
+    setMengeSteckbretter(newMengeSteckbretter);
+  };
+  // Utility function placeholder to adjust quantities after any change
+  const adjustQuantitiesAfterChange = (newMengeSteckbretter, changedIndex) => {
+    const total = newMengeSteckbretter.reduce((acc, val) => acc + val, 0);
+    let difference = totalQuantity - total;
+    // If total exceeds totalQuantity, reduce quantities starting from the first item
+    if (difference < 0) {
+      for (
+        let i = 0;
+        i < newMengeSteckbretter.length && difference !== 0;
+        i++
+      ) {
+        if (i !== changedIndex) {
+          // Avoid adjusting the item that was directly modified
+          const adjustAmount = Math.min(-difference, newMengeSteckbretter[i]);
+          newMengeSteckbretter[i] -= adjustAmount;
+          difference += adjustAmount;
         }
       }
-
-      // Automatically adjust the next item's quantity if the current item reaches its maximum
-      for (let i = newMengeSteckbretter.length - 1; i > index; i--) {
-        if (newMengeSteckbretter[i] > 0 && currentQuantity === totalQuantity) {
-          //make sure the total quantity always be considered
-          newMengeSteckbretter[i]--; // Decrease quantity of the previous item
-          setMengeSteckbretter(newMengeSteckbretter); // Update quantities
-          break;
-        }
+    }
+    // If there's leftover quantity (i.e., the total is less than totalQuantity), optionally distribute it
+    // This part depends on your desired behavior. You might want to distribute the remaining
+    // quantity to other items or leave it as is. Here's a simple way to add remaining quantity to the first item:
+    // Note: Be careful with automatic distribution as it might not always be the desired behavior.
+    if (difference > 0 && newMengeSteckbretter.length > 1) {
+      // Add leftover quantity to the first item or any other item as per your logic
+      // Avoiding the changedIndex ensures we don't undo the user's input
+      const indexToAdd =
+        changedIndex === 0 && newMengeSteckbretter.length > 1 ? 1 : 0;
+      newMengeSteckbretter[indexToAdd] += difference;
+    }
+    // Ensure no item quantity is negative after adjustments
+    for (let i = 0; i < newMengeSteckbretter.length; i++) {
+      if (newMengeSteckbretter[i] < 0) {
+        newMengeSteckbretter[i] = 0;
       }
     }
   };
 
-  // Function to render inputs for managing item quantities
   const renderMengeSteckbretterInputs = () => {
-    const newMengeSteckbretter = [...mengeSteckbretter]; // Copy current quantities
-    const remainingQuantity =
-      totalQuantity - mengeSteckbretter.reduce((acc, curr) => acc + curr, 0); // Calculate remaining quantity
-
-    const inputs = [];
-    for (let i = 0; i < anzahlSteckbretter; i++) {
-      // Loop through each item
-      inputs.push(
-        <tr key={`steckbretter-${i}`}>
-          <td className="tabledata">{`Menge Steckbrett ${i + 1}`}</td>
-          <th className="tabledata">
-            <button
-              className="button-anzahl-steckbretter"
-              type="button"
-              onClick={() => decMengeSteckbretter(i)} // Decrease quantity button
-            >
-              -
-            </button>
-            <input
-              className="text-anzahl-steckbretter"
-              type="tel" //number for IOS
-              //pattern="[0-9]*"
-              inputMode="numeric" //hidden calculation symbol
-              value={mengeSteckbretter[i]} // Display current quantity
-              min={0}
-              max={totalQuantity} // Maximum allowed quantity
-              onChange={(e) => handleChangeMenge(e.target.value, i)} // Handle quantity change
-              onKeyPress={(e) => {
-                if (e.key === "Enter") {
-                  // Handle Enter key press here
-                  e.preventDefault(); // Prevent form submission
-                  e.target.blur(); // Remove focus from the input field
-                }
-              }}
-            />
-            <button
-              className="button-anzahl-steckbretter"
-              type="button"
-              onClick={() => incMengeSteckbretter(i)} // Increase quantity button
-            >
-              +
-            </button>
-          </th>
-        </tr>
-      );
-    }
-    return inputs; // Return the array of input elements
+    return mengeSteckbretter.map((menge, i) => (
+      <tr key={`steckbretter-${i}`}>
+        <td className="tabledata">{`Menge Steckbrett ${i + 1}`}</td>
+        <th className="tabledata">
+          <button
+            className="button-anzahl-steckbretter"
+            type="button"
+            onClick={() => decMengeSteckbretter(i)}
+          >
+            -
+          </button>
+          <input
+            className="text-anzahl-steckbretter"
+            type="tel"
+            inputMode="numeric"
+            value={menge}
+            min={0}
+            max={totalQuantity}
+            onChange={(e) => handleChangeMenge(e.target.value, i)}
+            onKeyPress={(e) => e.key === "Enter" && e.target.blur()}
+          />
+          <button
+            className="button-anzahl-steckbretter"
+            type="button"
+            onClick={() => incMengeSteckbretter(i)}
+          >
+            +
+          </button>
+        </th>
+      </tr>
+    ));
   };
 
   //get beschichtungsdicke option from backend when beschichtungsart in frontend being selected

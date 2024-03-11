@@ -2,11 +2,12 @@ import "./App.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import WareneingangRueckgabe from "./components/WareneingangRueckgabe";
 import Entnahme from "./components/Entnahme";
-import Homepage from "./components/Homepage";
 import { Route, Routes } from "react-router-dom";
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import Defaultpage from "./components/DefaultPage";
+import WithdrawalHomepage from "./components/WithdrawalHomepage";
+import GoodsReceiptHomepage from "./components/GoodsReceiptHomepage";
 
 function App() {
   const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
@@ -161,11 +162,8 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<Defaultpage />} />
-        <Route
-          path="/Wareneingangsseite"
-          element={<Homepage rueckgabe={false} />}
-        />
-        <Route path="/Entnahmeseite" element={<Homepage rueckgabe={true} />} />
+        <Route path="/Wareneingangsseite" element={<GoodsReceiptHomepage />} />
+        <Route path="/Entnahmeseite" element={<WithdrawalHomepage />} />
         <Route
           path="/Wareneingang"
           element={
@@ -188,6 +186,7 @@ function App() {
           }
         />
       </Routes>
+      <ToastContainer />
     </div>
   );
 }

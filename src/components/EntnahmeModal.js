@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function EntnahmeModal({
   setBeschichtungsart,
@@ -275,6 +276,7 @@ export default function EntnahmeModal({
           </Button>
         </Modal.Footer>
       </Modal>
+      <ToastContainer />
     </div>
   );
 }

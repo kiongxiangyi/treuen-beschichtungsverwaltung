@@ -4,6 +4,7 @@ import EntnahmeTable from "./EntnahmeTable";
 import EntnahmeButton from "./EntnahmeButton";
 import EntnahmeModal from "./EntnahmeModal";
 import Header from "./Header";
+import { useNavigate } from "react-router-dom";
 
 export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsart, setBeschichtungsart] = useState("");
@@ -60,10 +61,10 @@ export default function Entnahme({ fertigungsauftragDB }) {
 
   //state for a copy of filtered orders to save the temporary maximum Quantity
   const [maximumValueDB, setMaximumValueDB] = useState([]);
-
+  const navigate = useNavigate(); //hook for navigation
   return (
     <div className="body">
-      <Header rueckgabe={true} />
+      <Header onHomeClick={() => navigate("/Entnahmeseite")} />
       <EntnahmeFilter
         fertigungsauftragDB={fertigungsauftragDB}
         setFilterDB={setFilterDB}

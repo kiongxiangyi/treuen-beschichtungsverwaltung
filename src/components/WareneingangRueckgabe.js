@@ -160,10 +160,20 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
         i < newMengeSteckbretter.length && difference !== 0;
         i++
       ) {
+        // Calculate the index to adjust, starting from the last index and moving backward
+        const indexToAdjust = newMengeSteckbretter.length - 1 - i;
         if (i !== changedIndex) {
           // Avoid adjusting the item that was directly modified
           const adjustAmount = Math.min(-difference, newMengeSteckbretter[i]); // Calculate adjustment amount
           newMengeSteckbretter[i] -= adjustAmount; // Adjust quantity
+          difference += adjustAmount; // Update difference
+        } else if (i === 0) {
+          // Adjust the quantity at the last index if the changed index is 0
+          const adjustAmount = Math.min(
+            -difference,
+            newMengeSteckbretter[indexToAdjust]
+          ); // Calculate adjustment amount using last index
+          newMengeSteckbretter[indexToAdjust] -= adjustAmount; // Adjust quantity at last index
           difference += adjustAmount; // Update difference
         }
       }

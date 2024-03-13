@@ -10,6 +10,7 @@ export default function Entnahme({ fertigungsauftragDB }) {
   const [beschichtungsart, setBeschichtungsart] = useState("");
   const [beschichtungsdicke, setBeschichtungsdicke] = useState("");
   const [filterDB, setFilterDB] = useState([]);
+  const [withdrawalrowFilterDB, setWithdrawalrowFilterDB] = useState([]);
   const [submittedOrders, setSubmittedOrders] = useState([]);
   const [withdrawnOrders, setWithdrawnOrders] = useState([]);
   const [show, setShow] = useState(false); //bootstrap modal prompt message
@@ -59,8 +60,6 @@ export default function Entnahme({ fertigungsauftragDB }) {
     }
   }, [beschichtungsart]);
 
-  //state for a copy of filtered orders to save the temporary maximum Quantity
-  const [maximumValueDB, setMaximumValueDB] = useState([]);
   const navigate = useNavigate(); //hook for navigation
   return (
     <div className="body">
@@ -68,19 +67,19 @@ export default function Entnahme({ fertigungsauftragDB }) {
       <EntnahmeFilter
         fertigungsauftragDB={fertigungsauftragDB}
         setFilterDB={setFilterDB}
+        setWithdrawalrowFilterDB={setWithdrawalrowFilterDB}
         beschichtungsart={beschichtungsart}
         beschichtungsdicke={beschichtungsdicke}
         setBeschichtungsart={setBeschichtungsart}
         setBeschichtungsdicke={setBeschichtungsdicke}
         beschichtungsartOptions={beschichtungsartOptions}
         beschichtungsdickeOptions={beschichtungsdickeOptions}
-        setMaximumValueDB={setMaximumValueDB}
       />
       <EntnahmeTable
         filterDB={filterDB}
+        withdrawalrowFilterDB={withdrawalrowFilterDB}
         setFilterDB={setFilterDB}
         setSubmittedOrders={setSubmittedOrders}
-        maximumValueDB={maximumValueDB}
       />
 
       <EntnahmeButton

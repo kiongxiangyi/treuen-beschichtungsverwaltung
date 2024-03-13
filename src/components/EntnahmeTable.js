@@ -1,18 +1,18 @@
 import React, { useState, Fragment } from "react";
 import Table from "react-bootstrap/Table";
-import ReadOnlyRow from "./ReadOnlyRow";
-import EditableRow from "./EditableRow";
+import WithdrawalRow from "./WithdrawalRow";
 
 export default function EntnahmeTable({
   setSubmittedOrders,
   filterDB,
   setFilterDB,
-  maximumValueDB,
+  withdrawalrowFilterDB,
 }) {
   //Edit, Save, Cancel quantity buttons function https://youtu.be/dYjdzpZv5yc
   const [editItemId, setEditItemId] = useState(null);
 
   const [editQuantity, setEditQuantity] = useState({
+    ID: "",
     Auftragsnummer: "",
     BeschichtungsArt: "",
     BeschichtungsDicke: "",
@@ -43,11 +43,8 @@ export default function EntnahmeTable({
 
   //when change the quantity
   const handleEditQuantityChange = (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const fieldName = event.target.getAttribute("name"); //get the name attribute of the input tag -> Menge
-    const fieldValue = event.target.value; //get the current value
+    const fieldName = event.target.name; // Get the name attribute of the input tag -> Menge
+    const fieldValue = parseInt(event.target.value); // Get the current value and parse it to an integer
 
     const newQuantity = { ...editQuantity }; //new object of quantity
     newQuantity[fieldName] = fieldValue; //change the quantity to the current value
@@ -217,40 +214,18 @@ export default function EntnahmeTable({
             <th>Beschichtungsdicke</th>
             <th>Lagerplatz</th>
             <th>Menge</th>
-            <th className="aktion">Aktion</th>
+            {/*  <th className="aktion">Aktion</th> */}
           </tr>
         </thead>
         <tbody className="table-body">
-          {filterDB.map((item) => (
-            <tr key={item.ID} onClick={(event) => rowClicked(event)}>
-              <td className="checkbox">
-                <input
-                  type="checkbox"
-                  className="form-check-input checkedID"
-                  name={item.Auftragsnummer}
-                  storagebin={item.Lagerplatz}
-                />
-              </td>
-
-              <Fragment>
-                {editItemId === item.ID ? (
-                  <EditableRow
-                    item={item}
-                    editQuantity={editQuantity}
-                    handleEditQuantityChange={handleEditQuantityChange}
-                    handleCancelClick={handleCancelClick}
-                    handleEditQuantitySubmit={handleEditQuantitySubmit}
-                    maximumValueDB={maximumValueDB}
-                  />
-                ) : (
-                  <ReadOnlyRow
-                    item={item}
-                    handleEditQuantityClick={handleEditQuantityClick}
-                  />
-                )}
-              </Fragment>
-            </tr>
-          ))}
+          <WithdrawalRow
+            rowClicked={rowClicked}
+            withdrawalrowFilterDB={withdrawalrowFilterDB}
+            setEditQuantity={setEditQuantity}
+            editQuantity={editQuantity}
+            filterDB={filterDB}
+            setFilterDB={setFilterDB}
+          />
         </tbody>
       </Table>
     </div>

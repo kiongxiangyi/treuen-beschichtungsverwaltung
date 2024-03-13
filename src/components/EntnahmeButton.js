@@ -60,11 +60,9 @@ export default function EntnahmeButton({
         fertigungsauftrag = submittedOrders[i].Auftragsnummer;
 
         selectedOrders[0].Menge = withdrawnQuantityOfSelectedOrder.BestandNeu; //update the withdrawal quantity on the booking summary page, selectedOrders is in array, so need to set the first array and change the Menge
-        //selectedOrders[0].CurrentQty = currentQuantityOfSelectedOrder.Menge;
-
+      
         arrWithdrawnOrders.push(...selectedOrders);
 
-        //console.log("arrWithdrawnOrders", arrWithdrawnOrders);
         //update Auslagerung True for E-Label interface according to storage bins
         for (let i = 0; i < selectedOrders.length; i++) {
           let storageBin = selectedOrders[i].Lagerplatz;

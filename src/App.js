@@ -8,10 +8,12 @@ import { ToastContainer, toast } from "react-toastify";
 import Defaultpage from "./components/DefaultPage";
 import WithdrawalHomepage from "./components/WithdrawalHomepage";
 import GoodsReceiptHomepage from "./components/GoodsReceiptHomepage";
+import WareneingangRueckgabe2 from "./components/WareneingangRueckgabe2";
 
 function App() {
   const [fertigungsauftragDB, setFertigungsauftragDB] = useState([]);
   const [articleDB, setArticleDB] = useState([]);
+
   //const [arrCurrentQuantity, setArrCurrentQuantity] = useState([]);
 
   //get tblEShelfBeschichtung
@@ -163,13 +165,13 @@ function App() {
       <Routes>
         <Route path="/" element={<Defaultpage />} />
         <Route path="/Wareneingangsseite" element={<GoodsReceiptHomepage />} />
-        <Route path="/Entnahmeseite" element={<WithdrawalHomepage />} />
         <Route
           path="/Wareneingang"
           element={
             <WareneingangRueckgabe articleDB={articleDB} rueckgabe={false} />
           }
         />
+        <Route path="/Entnahmeseite" element={<WithdrawalHomepage />} />
         <Route
           path="/Entnahme"
           element={
@@ -178,11 +180,11 @@ function App() {
               //arrCurrentQuantity={arrCurrentQuantity}
             />
           }
-        />
+        />{" "}
         <Route
           path="/Rueckgabe"
           element={
-            <WareneingangRueckgabe articleDB={articleDB} rueckgabe={true} />
+            <WareneingangRueckgabe2 articleDB={articleDB} rueckgabe={true} />
           }
         />
       </Routes>

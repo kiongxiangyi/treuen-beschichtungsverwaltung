@@ -9,7 +9,7 @@ import ModalComponent from "./Modal/ModalComponent";
 
 import { useNavigate } from "react-router-dom";
 
-export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
+export default function WareneingangRueckgabe2({ articleDB, rueckgabe }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
   const [freeStorageBins, setFreeStorageBins] = useState("");
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
@@ -471,7 +471,8 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
   };
 
   const handleOpenModalWareneingang = () => {
-    setShowSAPchecked(true);
+    //setShowSAPchecked(true);
+    setOpenModal(true);
   };
 
   //Step 2: Every second check tblEShelfBeschichtung if Erledigt is TRUE (feedback from SAP interface)
@@ -844,14 +845,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
             <b>Belegte Lagerplätze: {occupiedStorageBins}</b>
           </p>
         </div>
-        <button
-          onClick={() => {
-            //setOpenModal(!openModal)
-            handleOpenModalWareneingang();
-          }}
-        >
-          show Modal
-        </button>
+        <button onClick={() => setOpenModal(!openModal)}>show Modal</button>
 
         <ModalComponent isOpen={openModal} onClose={() => setOpenModal(false)}>
           <ModalComponent.Header>ModalHeader</ModalComponent.Header>

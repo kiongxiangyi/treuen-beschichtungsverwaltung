@@ -184,7 +184,7 @@ function App() {
         <Route
           path="/Rueckgabe"
           element={
-            <WareneingangRueckgabe2 articleDB={articleDB} rueckgabe={true} />
+            <WareneingangRueckgabe articleDB={articleDB} rueckgabe={true} />
           }
         />
       </Routes>

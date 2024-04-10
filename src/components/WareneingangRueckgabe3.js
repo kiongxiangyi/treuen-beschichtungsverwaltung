@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "../App.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -9,7 +9,7 @@ import ModalComponent from "./Modal/ModalComponent";
 
 import { useNavigate } from "react-router-dom";
 
-export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
+export default function WareneingangRueckgabe2({ articleDB, rueckgabe }) {
   const [fertigungsauftrag, setFertigungsauftrag] = useState("");
   const [freeStorageBins, setFreeStorageBins] = useState("");
   const [occupiedStorageBins, setOccupiedStorageBins] = useState("");
@@ -471,176 +471,11 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
   };
 
   const handleOpenModalWareneingang = () => {
-    setShowSAPchecked(true);
+    //setShowSAPchecked(true);
+    setOpenModal(true);
   };
 
-  const lastReceivedData = useRef(null);
-
-  useEffect(() => {
-    const ws = new WebSocket(`${process.env.REACT_APP_WEBSOCKET_URL}`);
-
-    ws.onmessage = function (event) {
-      let updatedRows;
-
-      try {
-        updatedRows = JSON.parse(event.data);
-      } catch (error) {
-        console.error("Error parsing JSON:", error);
-        return;
-      }
-
-      // Ensure updatedRows is an array and not empty
-      if (!Array.isArray(updatedRows) || updatedRows.length === 0) {
-        console.log("Updated rows is not an array or is empty");
-        return;
-      }
-
-      // Check if the data is different from the last received data
-      if (
-        JSON.stringify(updatedRows) === JSON.stringify(lastReceivedData.current)
-      ) {
-        console.log("No change in data, not fetching updates.");
-        return; // Exit if data hasn't changed
-      }
-
-      // Update the last received data
-      lastReceivedData.current = updatedRows;
-
-      console.log(updatedRows);
-
-      // Ensure the object has the 'Bemerkung' property
-      if (updatedRows[0].hasOwnProperty("Bemerkung")) {
-        if (updatedRows[0].Bemerkung === "kein FA vorhanden") {
-          deleteNotExistingOrder(updatedRows[0].Auftragsnummer);
-          setShowCheckingSAP(false); // Close current message box
-          setShowNotFoundOrderMessage(true); // Open next message box
-        } else {
-          // Ensure the necessary properties exist before accessing them
-          if (
-            updatedRows[0].hasOwnProperty("Auftragsnummer") &&
-            updatedRows[0].hasOwnProperty("BeschichtungsText") &&
-            updatedRows[0].hasOwnProperty("Menge")
-          ) {
-            updateOrder(updatedRows[0].Auftragsnummer);
-            setFertigungsauftrag(updatedRows[0].Auftragsnummer);
-            setBeschichtungsText(updatedRows[0].BeschichtungsText);
-            setTotalQuantity(updatedRows[0].Menge);
-            setShowCheckingSAP(false); // Close current message box
-            setShowSAPchecked(true); // Show the "SAP checked" message box
-          } else {
-            console.error("Necessary properties are missing from the data");
-          }
-        }
-      } else {
-        console.error("Bemerkung property is missing from the data");
-      }
-    };
-
-    ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket disconnected");
-    };
-
-    // Cleanup function to close the WebSocket connection when the component unmounts
-    return () => {
-      ws.close();
-    };
-  }, []);
-
-  const updateOrder = async (orderNumber) => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFalse`,
-        {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ fertigungsauftrag: orderNumber }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      // Handle response data if needed
-    } catch (error) {
-      console.error("Error updating order:", error);
-    }
-  };
-
-  const deleteNotExistingOrder = async (orderNumber) => {
-    try {
-      const response = await fetch(
-        `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangKeinFAVorhanden`,
-        {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ fertigungsauftrag: orderNumber }),
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      // Handle response data if needed
-    } catch (error) {
-      console.error("Error updating order:", error);
-    }
-  };
-
-  const fetchWareneingangOrders = async (updatedRows) => {
-    try {
-      let fertigungsauftrag = updatedRows[0].Auftragsnummer;
-      //update Eingelung false and Bemerkung "SAP checked"
-      fetch(
-        `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFalse`,
-        {
-          method: "PUT",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            fertigungsauftrag,
-          }),
-        }
-      )
-        .then((res) => res.json())
-        .then((res) => {
-          setFertigungsauftrag(updatedRows[0].Auftragsnummer); //get order number from table and show it later in next message box
-          setBeschichtungsText(updatedRows[0].BeschichtungsText); //get Beschichtungstext from table and show it later in next message box
-          setTotalQuantity(updatedRows[0].Menge); //get quantity from table and show it later in next message box
-          setShowCheckingSAP(false); //close current message box
-
-          if (anzahlSteckbretter === 1) {
-            //when initial anzahlSteckbretter not changed -> set the quantity in the DB table
-            setMengeSteckbretter(updatedRows[0].Menge);
-          }
-        })
-        .catch((err) => console.log(err))
-        .finally(
-          () => handleOpenModalWareneingang() // open next message box
-        );
-    } catch (err) {
-      console.log(err);
-      toast.error(
-        "There is no connection to database. Please check the database server."
-      );
-    }
-  };
-
-  /*   //Step 2: Every second check tblEShelfBeschichtung if Erledigt is TRUE (feedback from SAP interface)
+  //Step 2: Every second check tblEShelfBeschichtung if Erledigt is TRUE (feedback from SAP interface)
   useEffect(() => {
     let interval;
 
@@ -734,7 +569,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
     return () => {
       clearInterval(interval);
     };
-  }, [anzahlSteckbretter]); */
+  }, [anzahlSteckbretter]);
 
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -1010,14 +845,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
             <b>Belegte Lagerplätze: {occupiedStorageBins}</b>
           </p>
         </div>
-        <button
-          onClick={() => {
-            //setOpenModal(!openModal)
-            handleOpenModalWareneingang();
-          }}
-        >
-          show Modal
-        </button>
+        <button onClick={() => setOpenModal(!openModal)}>show Modal</button>
 
         <ModalComponent isOpen={openModal} onClose={() => setOpenModal(false)}>
           <ModalComponent.Header>ModalHeader</ModalComponent.Header>
@@ -1076,7 +904,7 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
       </Modal>
 
       <Modal
-        show={showSAPchecked && rueckgabe}
+        show={showSAPchecked}
         onHide={handleCloseWithoutBookingInDB}
         backdrop="static"
         keyboard={false}

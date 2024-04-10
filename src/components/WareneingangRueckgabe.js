@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import "../App.css";
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
@@ -470,105 +470,57 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
     }
   };
 
-  const handleOpenModalWareneingang = () => {
-    setShowSAPchecked(true);
+  const lastReceivedData = useRef(null);
+
+  useEffect(() => {}, []);
+
+  const updateOrder = async (orderNumber) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFalse`,
+        {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fertigungsauftrag: orderNumber }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+
+      // Handle response data if needed
+    } catch (error) {
+      console.error("Error updating order:", error);
+    }
   };
 
-  //Step 2: Every second check tblEShelfBeschichtung if Erledigt is TRUE (feedback from SAP interface)
-  useEffect(() => {
-    let interval;
-
-    const fetchWareneingangOrders = async () => {
-      try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API}/Auftragsnummer/Wareneingang`
-        );
-        const results = await response.json();
-        setFertigungsauftragDB(results);
-
-        for (let i = 0; i < results.length; i++) {
-          let fertigungsauftrag = results[i].Auftragsnummer;
-
-          if (
-            //if in SAP exists (Erledigt TRUE)
-            results[i].Einlagerung === true &&
-            results[i].Erledigt === true &&
-            results[i].Lagerplatz === "0"
-          ) {
-            //update Eingelung false and Bemerkung "SAP checked"
-            fetch(
-              `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangEinlagerungFalse`,
-              {
-                method: "PUT",
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                },
-
-                body: JSON.stringify({
-                  fertigungsauftrag,
-                }),
-              }
-            )
-              .then((res) => res.json())
-              .then((res) => {
-                setFertigungsauftrag(results[i].Auftragsnummer); //get order number from table and show it later in next message box
-                setBeschichtungsText(results[i].BeschichtungsText); //get Beschichtungstext from table and show it later in next message box
-                setTotalQuantity(results[i].Menge); //get quantity from table and show it later in next message box
-                setShowCheckingSAP(false); //close current message box
-
-                if (anzahlSteckbretter === 1) {
-                  //when initial anzahlSteckbretter not changed -> set the quantity in the DB table
-                  setMengeSteckbretter([results[i].Menge]);
-                }
-              })
-              .catch((err) => console.log(err))
-              .finally(
-                () => handleOpenModalWareneingang() // open next message box
-              );
-          }
-          // if in SAP not exists
-          else if (results[i].Bemerkung === "kein FA vorhanden") {
-            //update Bemerkung: "kein FA vorhanden - es wird gelöscht"
-            fetch(
-              `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangKeinFAVorhanden`,
-              {
-                method: "PUT",
-                headers: {
-                  Accept: "application/json",
-                  "Content-Type": "application/json",
-                },
-
-                body: JSON.stringify({
-                  fertigungsauftrag,
-                }),
-              }
-            )
-              .then((res) => res.json())
-              .catch((err) => console.log(err));
-
-            setShowCheckingSAP(false); //close current message box
-            setShowNotFoundOrderMessage(true); // open next message box
-          }
+  const deleteNotExistingOrder = async (orderNumber) => {
+    try {
+      const response = await fetch(
+        `${process.env.REACT_APP_API}/Auftragsnummer/WarenEingangKeinFAVorhanden`,
+        {
+          method: "PUT",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ fertigungsauftrag: orderNumber }),
         }
-      } catch (err) {
-        console.log(err);
-        toast.error(
-          "There is no connection to database. Please check the database server."
-        );
+      );
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
-    };
-    fetchWareneingangOrders();
 
-    //fetch Artikel every one second
-    interval = setInterval(() => {
-      fetchWareneingangOrders();
-    }, 1 * 1000);
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [anzahlSteckbretter]);
+      // Handle response data if needed
+    } catch (error) {
+      console.error("Error updating order:", error);
+    }
+  };
 
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -777,7 +729,6 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
     }
   }, [showWareneingangOrders, time]);
 
-  // useEffect hook to perform side effects
   useEffect(() => {
     // Check if showCheckingSAP is true
     if (showCheckingSAP) {
@@ -801,13 +752,95 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
         .catch((error) => {
           console.error("Error occurred:", error); // Log the error message
         });
+
+      // Initialize a new WebSocket connection using the URL from environment variables
+      const ws = new WebSocket(`${process.env.REACT_APP_WEBSOCKET_URL}`);
+
+      ws.onmessage = function (event) {
+        let updatedRows;
+
+        try {
+          // Attempt to parse the incoming message as JSON
+          updatedRows = JSON.parse(event.data);
+        } catch (error) {
+          // Log an error message if parsing fails
+          console.error("Error parsing JSON:", error);
+          return;
+        }
+
+        // Check if the parsed data is an array and not empty
+        if (!Array.isArray(updatedRows) || updatedRows.length === 0) {
+          console.log("Updated rows is not an array or is empty");
+          return;
+        }
+
+        // Compare the new data with the last received data to check for changes
+        if (
+          JSON.stringify(updatedRows) ===
+          JSON.stringify(lastReceivedData.current)
+        ) {
+          console.log("No change in data, not fetching updates.");
+          return; // Skip the rest of the code if data hasn't changed
+        }
+
+        // Update the reference to the last received data with the new data
+        lastReceivedData.current = updatedRows;
+
+        // Log the updated rows for debugging
+        console.log(updatedRows);
+
+        // Check if the first row has a 'Bemerkung' property
+        if (updatedRows[0].hasOwnProperty("Bemerkung")) {
+          // Special handling for rows where 'Bemerkung' indicates a missing order
+          if (updatedRows[0].Bemerkung === "kein FA vorhanden") {
+            deleteNotExistingOrder(updatedRows[0].Auftragsnummer); // Perform deletion for non-existing orders
+            setShowCheckingSAP(false); // Close the SAP checking message box
+            setShowNotFoundOrderMessage(true); // Display the 'Order Not Found' message box
+          } else {
+            // Ensure all necessary properties ('Auftragsnummer', 'BeschichtungsText', 'Menge') exist
+            if (
+              updatedRows[0].hasOwnProperty("Auftragsnummer") &&
+              updatedRows[0].hasOwnProperty("BeschichtungsText") &&
+              updatedRows[0].hasOwnProperty("Menge")
+            ) {
+              // Process the order update with the necessary details
+              updateOrder(updatedRows[0].Auftragsnummer);
+              setFertigungsauftrag(updatedRows[0].Auftragsnummer); // Update the manufacturing order state
+              setBeschichtungsText(updatedRows[0].BeschichtungsText); // Update the coating text state
+              setTotalQuantity(updatedRows[0].Menge); // Update the total quantity state
+              setShowCheckingSAP(false); // Close the SAP checking message box
+              setShowSAPchecked(true); // Display the 'SAP Checked' message box
+            } else {
+              // Log an error if the expected properties are missing from the data
+              console.error("Necessary properties are missing from the data");
+            }
+          }
+        } else {
+          // Log an error if the 'Bemerkung' property is missing from the first row
+          console.error("Bemerkung property is missing from the data");
+        }
+      };
+
+      ws.onerror = (error) => {
+        // Log any errors that occur with the WebSocket connection
+        console.error("WebSocket error:", error);
+      };
+
+      ws.onclose = () => {
+        // Log a message when the WebSocket connection is closed
+        console.log("WebSocket disconnected");
+      };
+
+      // Return a cleanup function that closes the WebSocket connection when the component unmounts
+      return () => {
+        ws.close();
+      };
     }
   }, [showCheckingSAP]); // Dependency array, useEffect will re-run whenever showCheckingSAP changes
 
   const navigate = useNavigate(); //hook for navigation
 
   const [openModal, setOpenModal] = useState(false);
-
   return (
     <>
       <Header
@@ -844,14 +877,6 @@ export default function WareneingangRueckgabe({ articleDB, rueckgabe }) {
             <b>Belegte Lagerplätze: {occupiedStorageBins}</b>
           </p>
         </div>
-        <button
-          onClick={() => {
-            //setOpenModal(!openModal)
-            handleOpenModalWareneingang();
-          }}
-        >
-          show Modal
-        </button>
 
         <ModalComponent isOpen={openModal} onClose={() => setOpenModal(false)}>
           <ModalComponent.Header>ModalHeader</ModalComponent.Header>
